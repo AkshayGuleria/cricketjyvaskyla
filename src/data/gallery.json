@@ -1,0 +1,23 @@
+{
+  "albums": [
+    {
+      "id": "oulu-jcc-2012",
+      "title": "Oulu vs JCC 2012",
+      "description": "Away game highlights from our match against Oulu Cricket Club",
+      "date": "2012",
+      "location": "Oulu, Finland",
+      "coverImage": "/images/jcc_logo.jpg",
+      "images": []
+    },
+    {
+      "id": "jcc-savonlinna-2012",
+      "title": "JCC vs Savonlinna 2012",
+      "description": "Home game at Kotalampi field",
+      "date": "2012",
+      "location": "Keltinmäki, Jyväskylä",
+      "coverImage": "/images/jcc_logo.jpg",
+      "images": []
+    }
+  ],
+  "note": "To add photos to the gallery, populate the 'images' arrays with objects containing: src (image path), thumbnail (optional), caption, width, and height."
+}

@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout title="Jyväskylä Cricket Club - Home">
+  <Header slot="header" />
+
+  <div class="container">
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Welcome to Jyväskylä Cricket Club</h1>
+        <p class="lead">A Finnish sports association founded in 2009, promoting cricket in Central Finland.</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <article class="post-card">
+        <h2>A Brief History</h2>
+        <div class="post-content">
+          <img src="/images/jcc_logo.jpg" alt="JCC Logo" class="featured-image" />
+          <p>The City of Jyväskylä had never seen cricket before September 2008. That's when an amazing event transpired. That October, Ahmer Iqubal and Venkatesan (with the keen support of Jari Schabel) initiated a weekly indoor cricket session for other cricket enthusiasts.</p>
+          <p>During the winter, the runs kept piling up and by February 2009, the club's first executive committee was formed. The club's eleven founding members made history on 3 June 2009, the day when the Jyväskylä Cricket Club ry (JCC) officially came into existence as a registered Finnish association.</p>
+          <p>The club's first ever outdoor match (25-overs) was played in Tampere against TRE CC on 30 May 2010 at Messukylä. JCC hosted their first home series, two T20 friendly matches, also against TRE CC on 25 July at their home ground in Keltinmäki.</p>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <h2>How to Join Us</h2>
+        <div class="post-content">
+          <p>The Jyväskylä Cricket Club welcomes all those interested in the game of cricket, both experienced players and complete beginners. During summer JCC has outdoor training sessions Sundays at the Kotalampi field in Keltinmäki, Jyväskylä. In September, indoor sessions begin in the University's U1 sports hall.</p>
+          <p>Read more about membership fees and how to <a href="/join_us">join us...</a></p>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  /* Hero Section */
+  .hero {
+    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+    border-bottom: 1px solid var(--color-neutral-200);
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+  }
+
+  .hero-content {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg);
+  }
+
+  .hero h1 {
+    color: var(--color-neutral-900);
+    margin-bottom: 1rem;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .lead {
+    font-size: clamp(1.1rem, 2vw, 1.3rem);
+    line-height: 1.6;
+    color: var(--color-neutral-600);
+    font-weight: 400;
+  }
+
+  /* Content Section */
+  .content-section {
+    margin-bottom: var(--space-4xl);
+  }
+
+  .post-card {
+    background: var(--color-neutral-100);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    border: 1px solid var(--color-neutral-200);
+    margin-bottom: var(--space-xl);
+    transition: box-shadow var(--transition-base);
+  }
+
+  .post-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .post-card h2 {
+    color: var(--color-neutral-900);
+    margin-bottom: 1.5rem;
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .post-content {
+    line-height: 1.75;
+    color: var(--color-neutral-700);
+    font-size: 1.05rem;
+  }
+
+  .post-content p {
+    margin-bottom: 1rem;
+  }
+
+  .featured-image {
+    float: right;
+    max-width: 200px;
+    margin: 0 0 1.5rem 1.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-neutral-200);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .hero {
+      padding: 2.5rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .post-card {
+      padding: 1.5rem;
+    }
+
+    .featured-image {
+      float: none;
+      max-width: 100%;
+      margin: 0 0 1.5rem 0;
+    }
+  }
+</style>

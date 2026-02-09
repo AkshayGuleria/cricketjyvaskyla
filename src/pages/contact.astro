@@ -1,0 +1,282 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Contact - Jyväskylä Cricket Club"
+  description="Get in touch with Jyväskylä Cricket Club. Contact details for the Chairman and Secretary."
+>
+  <Header slot="header" />
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Contact Us</h1>
+      <p class="lead">
+        Get in touch with the Jyväskylä Cricket Club leadership team.
+      </p>
+    </div>
+
+    <div class="contact-grid">
+      <!-- Chairman Card -->
+      <div class="contact-card">
+        <div class="contact-icon">📧</div>
+        <h2>Chairman</h2>
+        <h3>Akshay Guleria</h3>
+        <a href="mailto:chairman@cricketjyvaskyla.com" class="contact-email">
+          chairman@cricketjyvaskyla.com
+        </a>
+        <p class="contact-description">
+          For general inquiries, membership questions, and club matters.
+        </p>
+      </div>
+
+      <!-- Secretary Card -->
+      <div class="contact-card">
+        <div class="contact-icon">✉️</div>
+        <h2>Secretary</h2>
+        <h3>Shehriyar Arif</h3>
+        <a href="mailto:secretary@cricketjyvaskyla.com" class="contact-email">
+          secretary@cricketjyvaskyla.com
+        </a>
+        <p class="contact-description">
+          For official correspondence and administrative matters.
+        </p>
+      </div>
+    </div>
+
+    <!-- Additional Info Section -->
+    <div class="info-section">
+      <div class="info-card">
+        <h3>📍 Location</h3>
+        <p>Jyväskylä, Central Finland</p>
+      </div>
+
+      <div class="info-card">
+        <h3>🏟️ Home Ground</h3>
+        <p>Tikkakosken Liikuntapuisto</p>
+        <a href="https://maps.app.goo.gl/ZNHLoMhYoDEYpmpn8?g_st=iw" target="_blank" rel="noopener" class="link-btn">
+          View Map →
+        </a>
+      </div>
+
+      <div class="info-card">
+        <h3>📅 Founded</h3>
+        <p>June 3, 2009</p>
+      </div>
+    </div>
+
+    <!-- Social & Links -->
+    <div class="social-section">
+      <h3>Connect With Us</h3>
+      <p>Interested in joining or learning more? <a href="/join_us">Check out our membership options</a>.</p>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+  }
+
+  .page-header h1 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    color: var(--color-neutral-900);
+    margin-bottom: 1rem;
+    letter-spacing: -0.03em;
+  }
+
+  .lead {
+    font-size: clamp(1.1rem, 2vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--color-neutral-600);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* Contact Grid */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .contact-card {
+    background: var(--color-neutral-100);
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all var(--transition-base);
+  }
+
+  .contact-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+  }
+
+  .contact-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .contact-card h2 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-neutral-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .contact-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .contact-email {
+    display: inline-block;
+    font-size: 1rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-neutral-50);
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    transition: all var(--transition-base);
+    font-weight: 500;
+  }
+
+  .contact-email:hover {
+    background: var(--color-primary);
+    color: var(--color-neutral-100);
+    text-decoration: none;
+  }
+
+  .contact-description {
+    font-size: 0.95rem;
+    color: var(--color-neutral-600);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Info Section */
+  .info-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .info-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+    border: 1px solid var(--color-primary-light);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .info-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 0.75rem;
+  }
+
+  .info-card p {
+    font-size: 1rem;
+    color: var(--color-neutral-700);
+    margin: 0;
+  }
+
+  .link-btn {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition-base);
+  }
+
+  .link-btn:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+  }
+
+  /* Social Section */
+  .social-section {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: var(--color-neutral-50);
+    border-radius: var(--radius-lg);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .social-section h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 0.75rem;
+  }
+
+  .social-section p {
+    font-size: 1.05rem;
+    color: var(--color-neutral-600);
+    line-height: 1.6;
+  }
+
+  .social-section a {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  .social-section a:hover {
+    color: var(--color-primary-dark);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page-header {
+      margin-bottom: 2rem;
+      padding: 1rem 0;
+    }
+
+    .contact-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .contact-card {
+      padding: 2rem 1.5rem;
+    }
+
+    .info-section {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .social-section {
+      padding: 2rem 1.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,270 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Join Us - Jyväskylä Cricket Club"
+  description="Join Jyväskylä Cricket Club - membership information, practice locations, and fees for both experienced players and beginners."
+>
+  <Header slot="header" />
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Join Us</h1>
+      <p class="lead">
+        The Jyväskylä Cricket Club welcomes all those interested in the game of cricket, both experienced players and complete beginners.
+      </p>
+    </div>
+
+    <div class="content-wrapper">
+      <!-- Home Ground -->
+      <section class="info-card">
+        <div class="icon">🏏</div>
+        <h2>Home Ground</h2>
+        <p>
+          During summer (May to September) JCC outdoor matches take place at the Tikkakosken Liikuntapuisto, Jyväskylä.
+        </p>
+        <a href="https://maps.app.goo.gl/ZNHLoMhYoDEYpmpn8?g_st=iw" target="_blank" rel="noopener" class="btn btn-secondary">
+          View on Map
+        </a>
+      </section>
+
+      <!-- Practice Sessions -->
+      <section class="info-card">
+        <div class="icon">⚡</div>
+        <h2>Summer & Winter Practice Sessions</h2>
+        <p>
+          In September, indoor practice sessions begin in the University's U2 sports hall and last until April. From May onwards, outdoor practice sessions take place at the same location.
+        </p>
+        <a href="http://g.co/maps/w5gh3" target="_blank" rel="noopener" class="btn btn-secondary">
+          View on Map
+        </a>
+      </section>
+
+      <!-- Membership Fees -->
+      <section class="info-card highlight">
+        <div class="icon">💰</div>
+        <h2>Membership Fee</h2>
+        <div class="fee-options">
+          <div class="fee-option">
+            <div class="fee-amount">€100/person</div>
+            <div class="fee-label">Full Membership</div>
+            <p class="fee-description">
+              For those earning more than €1500/month including PhD researchers.
+            </p>
+          </div>
+          <div class="fee-option">
+            <div class="fee-amount">€50/person</div>
+            <div class="fee-label">Half Membership</div>
+            <p class="fee-description">
+              For those earning less than €1500/month (undergraduate/graduate students and those unemployed).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact CTA -->
+      <section class="cta-section">
+        <h3>Have Questions?</h3>
+        <p>If you have more questions or queries, please feel free to contact us.</p>
+        <a href="/contact" class="btn btn-primary">
+          Contact Us
+        </a>
+      </section>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+  }
+
+  .page-header h1 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    color: var(--color-neutral-900);
+    margin-bottom: 1rem;
+    letter-spacing: -0.03em;
+  }
+
+  .lead {
+    font-size: clamp(1.1rem, 2vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--color-neutral-600);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .content-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Info Cards */
+  .info-card {
+    background: var(--color-neutral-100);
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all var(--transition-base);
+  }
+
+  .info-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .info-card.highlight {
+    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+    border-color: var(--color-primary-light);
+  }
+
+  .icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .info-card h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .info-card p {
+    color: var(--color-neutral-700);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  /* Fee Options */
+  .fee-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .fee-option {
+    background: var(--color-neutral-100);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-primary-light);
+    text-align: center;
+  }
+
+  .fee-amount {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .fee-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 0.75rem;
+  }
+
+  .fee-description {
+    font-size: 0.9rem;
+    color: var(--color-neutral-600);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--color-neutral-50);
+    border-radius: var(--radius-lg);
+    margin-top: 3rem;
+  }
+
+  .cta-section h3 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 0.75rem;
+  }
+
+  .cta-section p {
+    font-size: 1.1rem;
+    color: var(--color-neutral-600);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all var(--transition-base);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: var(--color-neutral-100);
+  }
+
+  .btn-primary:hover {
+    background: var(--color-primary-dark);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 53, 128, 0.3);
+  }
+
+  .btn-secondary {
+    background: var(--color-neutral-100);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-primary);
+    color: var(--color-neutral-100);
+    text-decoration: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page-header {
+      margin-bottom: 2rem;
+      padding: 1rem 0;
+    }
+
+    .info-card {
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .icon {
+      font-size: 2rem;
+    }
+
+    .fee-options {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .cta-section {
+      padding: 2rem 1.5rem;
+      margin-top: 2rem;
+    }
+  }
+</style>

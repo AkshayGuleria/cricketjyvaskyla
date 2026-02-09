@@ -1,0 +1,203 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Fixtures - Jyväskylä Cricket Club"
+  description="View upcoming cricket matches and fixtures for Jyväskylä Cricket Club."
+>
+  <Header slot="header" />
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Fixtures</h1>
+      <p class="lead">
+        Check out our upcoming cricket matches and season schedule.
+      </p>
+    </div>
+
+    <div class="fixtures-content">
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <h2>No Upcoming Matches</h2>
+        <p>
+          There are currently no scheduled fixtures. Check back soon for our upcoming season schedule!
+        </p>
+        <p class="note">
+          The season typically runs from May to September with practice sessions continuing year-round.
+        </p>
+      </div>
+
+      <!-- Info Cards -->
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>🏟️ Home Ground</h3>
+          <p>Tikkakosken Liikuntapuisto, Jyväskylä</p>
+          <a href="https://maps.app.goo.gl/ZNHLoMhYoDEYpmpn8?g_st=iw" target="_blank" rel="noopener" class="link-btn">
+            View Location →
+          </a>
+        </div>
+
+        <div class="info-card">
+          <h3>⚡ Practice Sessions</h3>
+          <p>Indoor (Sept-April) & Outdoor (May-Sept)</p>
+          <a href="/join_us" class="link-btn">
+            Learn More →
+          </a>
+        </div>
+
+        <div class="info-card">
+          <h3>📧 Stay Updated</h3>
+          <p>Contact us for the latest match information</p>
+          <a href="/contact" class="link-btn">
+            Contact Us →
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+  }
+
+  .page-header h1 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    color: var(--color-neutral-900);
+    margin-bottom: 1rem;
+    letter-spacing: -0.03em;
+  }
+
+  .lead {
+    font-size: clamp(1.1rem, 2vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--color-neutral-600);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .fixtures-content {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--color-neutral-100);
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-lg);
+    margin-bottom: 3rem;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .empty-state h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .empty-state p {
+    font-size: 1.05rem;
+    color: var(--color-neutral-600);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .empty-state .note {
+    font-size: 0.95rem;
+    color: var(--color-neutral-500);
+    font-style: italic;
+  }
+
+  /* Info Grid */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .info-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+    border: 1px solid var(--color-primary-light);
+    border-radius: var(--radius-lg);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: all var(--transition-base);
+  }
+
+  .info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .info-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 0.75rem;
+  }
+
+  .info-card p {
+    font-size: 0.95rem;
+    color: var(--color-neutral-700);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .link-btn {
+    display: inline-block;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition-base);
+  }
+
+  .link-btn:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page-header {
+      margin-bottom: 2rem;
+      padding: 1rem 0;
+    }
+
+    .empty-state {
+      padding: 3rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .info-card {
+      padding: 1.5rem 1.25rem;
+    }
+  }
+</style>

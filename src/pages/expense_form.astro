@@ -1,0 +1,337 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Expense Form - Jyväskylä Cricket Club"
+  description="Submit your expense reports to Jyväskylä Cricket Club through our online form."
+>
+  <Header slot="header" />
+
+  <div class="container">
+    <div class="page-header">
+      <h1>Expense Form</h1>
+      <p class="lead">
+        Submit your expense reports and reimbursement requests to the club.
+      </p>
+    </div>
+
+    <div class="form-content">
+      <div class="form-card">
+        <div class="form-icon">💳</div>
+        <h2>Online Expense Submission</h2>
+        <p>
+          Please click the button below to access our expense reporting form. You'll be able to submit your expense details and any attachments through the form.
+        </p>
+
+        <a href="https://forms.gle/FqJfscVeVbN4LJRZ6" target="_blank" rel="noopener" class="btn-primary">
+          Open Expense Form
+        </a>
+
+        <div class="form-info">
+          <h3>What You'll Need:</h3>
+          <ul>
+            <li>Receipt or proof of purchase</li>
+            <li>Expense date and amount</li>
+            <li>Brief description of the expense</li>
+            <li>Your contact information</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Guidelines -->
+      <div class="guidelines-section">
+        <h3>Expense Submission Guidelines</h3>
+        <div class="guidelines-grid">
+          <div class="guideline-item">
+            <div class="guideline-number">1</div>
+            <h4>Keep Receipts</h4>
+            <p>Always keep original receipts for all club-related expenses.</p>
+          </div>
+
+          <div class="guideline-item">
+            <div class="guideline-number">2</div>
+            <h4>Submit Promptly</h4>
+            <p>Submit expense reports within 30 days of the purchase.</p>
+          </div>
+
+          <div class="guideline-item">
+            <div class="guideline-number">3</div>
+            <h4>Provide Details</h4>
+            <p>Include clear descriptions and purpose of each expense.</p>
+          </div>
+
+          <div class="guideline-item">
+            <div class="guideline-number">4</div>
+            <h4>Get Approval</h4>
+            <p>Large expenses should be pre-approved by the committee.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Section -->
+      <div class="contact-card">
+        <h3>Questions About Expenses?</h3>
+        <p>
+          If you have questions about expense policies or reimbursement, please contact our Treasurer.
+        </p>
+        <a href="/contact" class="btn-secondary">
+          Contact Us
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+  }
+
+  .page-header h1 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    color: var(--color-neutral-900);
+    margin-bottom: 1rem;
+    letter-spacing: -0.03em;
+  }
+
+  .lead {
+    font-size: clamp(1.1rem, 2vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--color-neutral-600);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .form-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Form Card */
+  .form-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+    border: 1px solid var(--color-primary-light);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2.5rem;
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .form-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-card h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .form-card > p {
+    font-size: 1.05rem;
+    color: var(--color-neutral-700);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  /* Form Info */
+  .form-info {
+    background: var(--color-neutral-100);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin-top: 2rem;
+    text-align: left;
+  }
+
+  .form-info h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 1rem;
+  }
+
+  .form-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .form-info li {
+    padding: 0.5rem 0 0.5rem 1.75rem;
+    position: relative;
+    color: var(--color-neutral-700);
+  }
+
+  .form-info li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--color-secondary);
+    font-weight: bold;
+  }
+
+  /* Guidelines Section */
+  .guidelines-section {
+    margin-bottom: 3rem;
+  }
+
+  .guidelines-section > h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    letter-spacing: -0.02em;
+  }
+
+  .guidelines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .guideline-item {
+    background: var(--color-neutral-100);
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    text-align: center;
+    transition: all var(--transition-base);
+  }
+
+  .guideline-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .guideline-number {
+    width: 40px;
+    height: 40px;
+    background: var(--color-primary);
+    color: var(--color-neutral-100);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin: 0 auto 1rem;
+  }
+
+  .guideline-item h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 0.5rem;
+  }
+
+  .guideline-item p {
+    font-size: 0.95rem;
+    color: var(--color-neutral-600);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* Contact Card */
+  .contact-card {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: var(--color-neutral-50);
+    border-radius: var(--radius-lg);
+  }
+
+  .contact-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+    margin-bottom: 0.75rem;
+  }
+
+  .contact-card p {
+    font-size: 1.05rem;
+    color: var(--color-neutral-600);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  /* Buttons */
+  .btn-primary,
+  .btn-secondary {
+    display: inline-block;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: all var(--transition-base);
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: var(--color-neutral-100);
+  }
+
+  .btn-primary:hover {
+    background: var(--color-primary-dark);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 53, 128, 0.3);
+  }
+
+  .btn-secondary {
+    background: var(--color-neutral-100);
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-primary);
+    color: var(--color-neutral-100);
+    text-decoration: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page-header {
+      margin-bottom: 2rem;
+      padding: 1rem 0;
+    }
+
+    .form-card {
+      padding: 2rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-icon {
+      font-size: 3rem;
+    }
+
+    .guidelines-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .contact-card {
+      padding: 2rem 1.5rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      padding: 0.875rem 1.5rem;
+      font-size: 1rem;
+    }
+  }
+</style>

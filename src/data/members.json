@@ -1,0 +1,142 @@
+{
+  "executive": [
+    {
+      "name": "Akshay Guleria",
+      "role": "Chairman",
+      "email": "chairman@cricketjyvaskyla.com"
+    },
+    {
+      "name": "Kashif Naveed",
+      "role": "Vice Chairman",
+      "email": null
+    },
+    {
+      "name": "Shehriyar Arif",
+      "role": "Secretary",
+      "email": null
+    },
+    {
+      "name": "Nasir Naveed",
+      "role": "Treasurer",
+      "email": null
+    },
+    {
+      "name": "Mohsin Riaz",
+      "role": "Liaison Officer",
+      "email": null
+    },
+    {
+      "name": "Paul Abbey",
+      "role": "Development Director",
+      "email": null
+    },
+    {
+      "name": "Awais Ahmad",
+      "role": "Social Media Coordinator",
+      "email": null
+    },
+    {
+      "name": "Saiyansh Kaushal",
+      "role": "Social Media Coordinator",
+      "email": null
+    }
+  ],
+  "players": [
+    {
+      "name": "Saqib",
+      "role": "Captain"
+    },
+    {
+      "name": "Rajnish Kumar",
+      "role": "Vice Captain"
+    },
+    {
+      "name": "Akshay Guleria",
+      "role": "Player"
+    },
+    {
+      "name": "Shehriyar Arif",
+      "role": "Player"
+    },
+    {
+      "name": "Mohsin Riaz",
+      "role": "Player"
+    },
+    {
+      "name": "Kashif Naveed",
+      "role": "Player"
+    },
+    {
+      "name": "Paul Abbey",
+      "role": "Player"
+    },
+    {
+      "name": "Awais Ahmad",
+      "role": "Player"
+    },
+    {
+      "name": "Nasir Naveed",
+      "role": "Player"
+    },
+    {
+      "name": "Saiyansh Kaushal",
+      "role": "Player"
+    },
+    {
+      "name": "Mangala Rajapaksa",
+      "role": "Player"
+    },
+    {
+      "name": "Vicky",
+      "role": "Player"
+    },
+    {
+      "name": "Wahid Ullah",
+      "role": "Player"
+    },
+    {
+      "name": "Jamshaid Ali",
+      "role": "Player"
+    },
+    {
+      "name": "Bhagirath Kanchava",
+      "role": "Player"
+    },
+    {
+      "name": "Akash Agnihotri",
+      "role": "Player"
+    },
+    {
+      "name": "Akein Fernando",
+      "role": "Player"
+    },
+    {
+      "name": "Prabin Osti",
+      "role": "Player"
+    },
+    {
+      "name": "Said Azizullah",
+      "role": "Player"
+    },
+    {
+      "name": "Deni Khatri",
+      "role": "Player"
+    },
+    {
+      "name": "Zaki Ahmad",
+      "role": "Player"
+    },
+    {
+      "name": "Abdullah Wasim",
+      "role": "Player"
+    },
+    {
+      "name": "Sunil Kumar",
+      "role": "Player"
+    },
+    {
+      "name": "Navneet Singh",
+      "role": "Player"
+    }
+  ]
+}

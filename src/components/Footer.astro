@@ -1,0 +1,278 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="footer-container">
+    <!-- Main Footer Content -->
+    <div class="footer-content">
+      <!-- About Section -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Jyväskylä Cricket Club</h3>
+        <p class="footer-text">
+          A Finnish sports association founded in 2009, promoting cricket in Central Finland.
+        </p>
+        <p class="footer-text">
+          Registered as Jyväskylä Cricket Club ry
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Quick Links</h3>
+        <ul class="footer-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/members">Members</a></li>
+          <li><a href="/join_us">Join Us</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Resources -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Resources</h3>
+        <ul class="footer-links">
+          <li><a href="/fixtures">Fixtures</a></li>
+          <li><a href="/gallery">Gallery</a></li>
+          <li><a href="/expense_form">Expense Form</a></li>
+          <li><a href="/pdfs/by-laws/" target="_blank" rel="noopener">Club Bylaws</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Get in Touch</h3>
+        <p class="footer-text">
+          <a href="mailto:chairman@cricketjyvaskyla.com" class="footer-email">
+            chairman@cricketjyvaskyla.com
+          </a>
+        </p>
+        <p class="footer-text">
+          Jyväskylä, Finland
+        </p>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="footer-bottom">
+      <div class="footer-copyright">
+        <p>&copy; {currentYear} <a href="/">cricketjyvaskyla.com</a>. All rights reserved.</p>
+      </div>
+
+      <!-- Credits -->
+      <div class="footer-credits">
+        <p>
+          Original CSS Template by <a href="http://ramblingsoul.com" target="_blank" rel="noopener" title="download free, high quality css templates">ramblingsoul</a>
+        </p>
+        <p>
+          Customization by <a href="http://akshayguleria.com" target="_blank" rel="noopener">Akshay Guleria</a>
+        </p>
+        <p>
+          Modern redesign powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* ===================================
+     Footer Styles
+     =================================== */
+
+  .site-footer {
+    background: var(--color-neutral-900);
+    color: var(--color-neutral-300);
+    margin-top: var(--space-4xl);
+    border-top: 1px solid var(--color-neutral-800);
+  }
+
+  .footer-container {
+    max-width: var(--container-xl);
+    margin: 0 auto;
+    padding: 3rem var(--space-lg) 2rem;
+  }
+
+  /* ===================================
+     Footer Content Grid
+     =================================== */
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .footer-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .footer-heading {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-neutral-100);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-body);
+    letter-spacing: -0.01em;
+  }
+
+  .footer-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+    color: var(--color-neutral-400);
+  }
+
+  /* ===================================
+     Footer Links
+     =================================== */
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .footer-links li {
+    margin: 0;
+  }
+
+  .footer-links a,
+  .footer-email {
+    color: var(--color-neutral-400);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color var(--transition-base);
+    display: inline-block;
+  }
+
+  .footer-links a:hover,
+  .footer-email:hover {
+    color: var(--color-neutral-200);
+    text-decoration: none;
+  }
+
+  .footer-email {
+    word-break: break-word;
+  }
+
+  /* ===================================
+     Footer Bottom Bar
+     =================================== */
+
+  .footer-bottom {
+    border-top: 1px solid var(--color-neutral-800);
+    padding-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-copyright,
+  .footer-credits {
+    font-size: 0.85rem;
+    color: var(--color-neutral-500);
+  }
+
+  .footer-copyright p,
+  .footer-credits p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .footer-credits {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .footer-bottom a {
+    color: var(--color-neutral-400);
+    text-decoration: none;
+    transition: color var(--transition-base);
+  }
+
+  .footer-bottom a:hover {
+    color: var(--color-neutral-200);
+    text-decoration: none;
+  }
+
+  /* ===================================
+     Responsive Styles
+     =================================== */
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    .footer-container {
+      padding: 2rem 1rem 1.5rem;
+    }
+
+    .footer-content {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-bottom {
+      padding-top: 1.25rem;
+    }
+  }
+
+  /* Tablet */
+  @media (min-width: 641px) and (max-width: 1023px) {
+    .footer-content {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Desktop */
+  @media (min-width: 1024px) {
+    .footer-container {
+      padding: 3.5rem 2rem 2rem;
+    }
+
+    .footer-bottom {
+      flex-direction: row;
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    .footer-credits {
+      text-align: right;
+    }
+  }
+
+  /* ===================================
+     Print Styles
+     =================================== */
+
+  @media print {
+    .site-footer {
+      background: white;
+      color: black;
+      border-top: 2px solid black;
+      margin-top: var(--space-xl);
+    }
+
+    .footer-content {
+      display: none;
+    }
+
+    .footer-bottom {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .footer-credits {
+      display: none;
+    }
+  }
+</style>
