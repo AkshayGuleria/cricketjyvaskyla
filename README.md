@@ -3,49 +3,16 @@
 
   # Jyväskylä Cricket Club
 
-  **Official Website - Modernized with Astro**
-
   [![Built with Astro](https://astro.badg.es/v2/built-with-astro/tiny.svg)](https://astro.build)
-  [![Deployed on Netlify](https://img.shields.io/badge/Deployed%20on-Netlify-00C7B7?style=flat&logo=netlify)](https://www.netlify.com)
-
-  [Visit Website](https://cricketjyvaskyla.com) • [Join Us](https://cricketjyvaskyla.com/join_us) • [Contact](https://cricketjyvaskyla.com/contact)
 </div>
 
 ---
 
-## 📖 About
+## 🚀 Tech Stack
 
-Jyväskylä Cricket Club (JCC) is a Finnish sports association founded on June 3, 2009, promoting cricket in Central Finland. We welcome both experienced players and complete beginners to join our community.
-
-### 🏏 Quick Facts
-- **Founded:** June 3, 2009 (MMVIII)
-- **Location:** Jyväskylä, Central Finland
-- **Home Ground:** Tikkakosken Liikuntapuisto
-- **Members:** 32 active members (2025)
-- **Season:** May - September (outdoor), September - April (indoor)
-
----
-
-## 🚀 This Website
-
-This is a modern, fully responsive website built with [Astro](https://astro.build) - a blazing-fast static site generator.
-
-### ✨ Features
-
-- 🎨 **Modern Design** - Clean, responsive interface with cricket-themed colors
-- 📱 **Mobile-First** - Works perfectly on all devices (320px - 3840px)
-- ⚡ **Lightning Fast** - Static generation for optimal performance
-- ♿ **Accessible** - WCAG AA compliant with keyboard navigation
-- 🔍 **SEO Optimized** - Sitemap, meta tags, and structured data
-- 📸 **Photo Gallery** - Powered by Photoswipe 5
-- 🎯 **Component-Based** - Easy to maintain and update
-
-### 🛠️ Tech Stack
-
-- **Framework:** [Astro 5](https://astro.build)
+- **Framework:** [Astro 5](https://astro.build) - Static site generator
 - **Styling:** Modern CSS with custom properties
-- **Gallery:** [Photoswipe 5](https://photoswipe.com)
-- **Deployment:** [Netlify](https://netlify.com)
+- **Gallery:** [Photoswipe 5](https://photoswipe.com) - Lightbox library
 - **Package Manager:** npm
 
 ---
@@ -62,10 +29,10 @@ cricketjyvaskyla/
 │   │   └── Gallery.astro
 │   ├── layouts/          # Page layouts
 │   │   └── BaseLayout.astro
-│   ├── pages/            # Website pages
-│   │   ├── index.astro   # Home
-│   │   ├── members.astro # Member directory
-│   │   ├── join_us.astro # Membership info
+│   ├── pages/            # File-based routing
+│   │   ├── index.astro
+│   │   ├── members.astro
+│   │   ├── join_us.astro
 │   │   ├── fixtures.astro
 │   │   ├── gallery.astro
 │   │   ├── contact.astro
@@ -75,11 +42,11 @@ cricketjyvaskyla/
 │   └── data/             # Structured data (JSON)
 │       ├── members.json
 │       └── gallery.json
-├── public/               # Static assets
-│   ├── images/
-│   ├── pdfs/
+├── public/               # Static assets (served as-is)
+│   ├── images/          # Image files
+│   ├── pdfs/            # PDF documents
 │   └── robots.txt
-└── dist/                 # Production build (generated)
+└── dist/                 # Production build output (generated)
 ```
 
 ---
@@ -88,7 +55,7 @@ cricketjyvaskyla/
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v20 or higher)
+- [Node.js](https://nodejs.org/) v20 or higher
 - npm (comes with Node.js)
 
 ### Installation
@@ -105,7 +72,7 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:4321` to see the site locally.
+The site will be available at `http://localhost:4321`
 
 ### Build for Production
 
@@ -113,9 +80,11 @@ Visit `http://localhost:4321` to see the site locally.
 # Create production build
 npm run build
 
-# Preview production build
+# Preview production build locally
 npm run preview
 ```
+
+The production build will be in the `dist/` directory.
 
 ---
 
@@ -123,22 +92,11 @@ npm run preview
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Build site for production |
+| `npm run dev` | Start development server with hot reload at `localhost:4321` |
+| `npm run build` | Build site for production to `./dist/` |
 | `npm run preview` | Preview production build locally |
 | `npm run astro` | Run Astro CLI commands |
-
----
-
-## 📄 Pages
-
-- **Home** - Club history and welcome message
-- **Members** - Executive committee and player roster
-- **Join Us** - Membership information and fees
-- **Fixtures** - Match schedule (updated seasonally)
-- **Gallery** - Photo albums from matches and events
-- **Contact** - Get in touch with club leadership
-- **Expense Form** - Submit expense reports
+| `npm run astro -- --help` | Get help with Astro CLI |
 
 ---
 
@@ -157,7 +115,12 @@ Edit `src/data/members.json`:
       "email": "email@example.com"
     }
   ],
-  "players": [...]
+  "players": [
+    {
+      "name": "Player Name",
+      "role": "Captain"
+    }
+  ]
 }
 ```
 
@@ -171,6 +134,7 @@ Edit `src/data/gallery.json`:
     {
       "id": "album-id",
       "title": "Album Title",
+      "description": "Album description",
       "images": [
         {
           "src": "/images/photo.jpg",
@@ -184,62 +148,148 @@ Edit `src/data/gallery.json`:
 }
 ```
 
+Place image files in `public/images/` - they'll be served from `/images/` in production.
+
 ### Modify Styles
 
 Global styles are in `src/styles/global.css` using CSS custom properties:
 
 ```css
 :root {
-  --color-primary: #003580;    /* Finnish blue */
-  --color-secondary: #2D5016;  /* Cricket green */
-  --color-accent: #DC143C;     /* Cricket ball red */
+  --color-primary: #003580;    /* Primary brand color */
+  --color-secondary: #2D5016;  /* Secondary color */
+  --color-accent: #DC143C;     /* Accent color */
+  /* ... more variables */
 }
 ```
+
+Component-specific styles are in the `<style>` section of each `.astro` file.
 
 ---
 
 ## 🚀 Deployment
 
-### Deploy to Netlify (Recommended)
+### Build for Production
 
-1. Push your code to GitHub
-2. Sign in to [Netlify](https://app.netlify.com)
-3. Click "Add new site" → "Import from Git"
-4. Select your repository
-5. Netlify auto-detects Astro configuration
-6. Click "Deploy site"
+```bash
+npm run build
+```
 
-**Custom Domain:**
-- Add your domain in Netlify settings
-- Update DNS records as instructed
-- Free SSL certificate auto-enabled
+This generates a `dist/` directory with static files ready for deployment.
 
-Full deployment instructions: See [`DEPLOYMENT.md`](DEPLOYMENT.md)
+### Deploy to Any Static Host
 
-### Alternative Deployment Options
+The built site in `dist/` can be deployed to any static hosting service:
 
-- **Vercel:** Similar to Netlify
-- **GitHub Pages:** Free static hosting
-- **Traditional Hosting:** Upload `dist/` folder via FTP
+**Requirements:**
+- Serve static files from `dist/` directory
+- Support for static routing (or configure redirects)
+- HTTPS recommended
+
+**Common Options:**
+- Static hosting services (CDN-based)
+- Traditional web servers (Apache, Nginx)
+- Object storage with static hosting (S3, etc.)
+
+**Important Files:**
+- `dist/index.html` - Homepage
+- `dist/sitemap-index.xml` - Sitemap for SEO
+- `dist/robots.txt` - Search engine directives
+
+### Server Configuration
+
+**For clean URLs** (optional):
+Configure your server to handle routes without `.html` extensions:
+
+**Nginx example:**
+```nginx
+location / {
+    try_files $uri $uri.html $uri/ =404;
+}
+```
+
+**Apache example (.htaccess):**
+```apache
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^\.]+)$ $1.html [NC,L]
+```
 
 ---
 
-## 📚 Documentation
+## 🛠️ Development
 
-- [**DEPLOYMENT.md**](DEPLOYMENT.md) - Complete deployment guide
-- [**TESTING.md**](TESTING.md) - Testing checklist and guidelines
-- [**CLAUDE.md**](CLAUDE.md) - Project instructions for AI assistance
+### File-Based Routing
+
+Astro uses file-based routing. Files in `src/pages/` become routes:
+
+- `src/pages/index.astro` → `/`
+- `src/pages/about.astro` → `/about`
+- `src/pages/blog/post.astro` → `/blog/post`
+
+### Components
+
+Create reusable components in `src/components/`:
+
+```astro
+---
+// Component script (runs at build time)
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<div class="component">
+  <h2>{title}</h2>
+</div>
+
+<style>
+  .component {
+    /* Component styles */
+  }
+</style>
+```
+
+### Layouts
+
+Layouts wrap page content. Example from `src/layouts/BaseLayout.astro`:
+
+```astro
+---
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{title}</title>
+    <!-- meta tags, styles, etc. -->
+  </head>
+  <body>
+    <slot /> <!-- Page content goes here -->
+  </body>
+</html>
+```
+
+### Assets
+
+- **Static files:** Place in `public/` - served as-is
+- **Images:** Can use `public/images/` or `src/assets/`
+- **Optimized images:** Import from `src/assets/` for optimization
+
+---
+
+## 📚 Documentation Files
+
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Detailed deployment guide
+- **[TESTING.md](TESTING.md)** - Testing checklist and procedures
+- **[CLAUDE.md](CLAUDE.md)** - Project instructions for AI assistance
 
 ---
 
 ## 🤝 Contributing
-
-We welcome contributions! Here's how you can help:
-
-1. **Report Issues** - Found a bug? [Open an issue](https://github.com/AkshayGuleria/cricketjyvaskyla/issues)
-2. **Suggest Features** - Have an idea? We'd love to hear it
-3. **Submit Pull Requests** - Contributions are welcome
-4. **Update Content** - Help keep member info and fixtures current
 
 ### Development Workflow
 
@@ -248,10 +298,14 @@ We welcome contributions! Here's how you can help:
 git checkout -b feature/your-feature-name
 
 # Make your changes
-# ...
+# Test locally with npm run dev
 
-# Commit with descriptive message
-git commit -m "Add: your feature description"
+# Build to verify no errors
+npm run build
+
+# Commit changes
+git add .
+git commit -m "Description of changes"
 
 # Push to GitHub
 git push origin feature/your-feature-name
@@ -259,13 +313,26 @@ git push origin feature/your-feature-name
 # Create Pull Request on GitHub
 ```
 
+### Code Style
+
+- Use TypeScript for type safety (`.astro` files support TypeScript)
+- Follow existing component structure
+- Use CSS custom properties for colors and spacing
+- Ensure responsive design (mobile-first)
+- Test on multiple screen sizes
+
 ---
 
-## 📞 Contact
+## 📖 Learn More
 
-- **Chairman:** [chairman@cricketjyvaskyla.com](mailto:chairman@cricketjyvaskyla.com)
-- **Secretary:** [secretary@cricketjyvaskyla.com](mailto:secretary@cricketjyvaskyla.com)
-- **Website:** [cricketjyvaskyla.com](https://cricketjyvaskyla.com)
+### Astro Resources
+- [Astro Documentation](https://docs.astro.build)
+- [Astro Discord](https://astro.build/chat)
+- [Astro GitHub](https://github.com/withastro/astro)
+
+### CSS & Design
+- [Modern CSS](https://moderncss.dev/)
+- [CSS Custom Properties](https://developer.mozilla.org/en-US/docs/Web/CSS/--*)
 
 ---
 
@@ -273,30 +340,4 @@ git push origin feature/your-feature-name
 
 This project is maintained by Jyväskylä Cricket Club.
 
-### Credits
-
-- **Original Design:** [ramblingsoul](http://ramblingsoul.com)
-- **Modernization:** Akshay Guleria
-- **Built with:** [Astro](https://astro.build)
-- **Powered by:** [Netlify](https://netlify.com)
-
----
-
-## 🏏 Join Us!
-
-Interested in playing cricket in Central Finland?
-
-- **Full Membership:** €100/year (earning >€1500/month)
-- **Half Membership:** €50/year (students, earning <€1500/month)
-
-👉 [Learn more about joining](https://cricketjyvaskyla.com/join_us)
-
----
-
-<div align="center">
-
-  **Jyväskylä Cricket Club** • *Founded 2009 (MMVIII)*
-
-  Made with ❤️ in Finland 🇫🇮
-
-</div>
+Built with [Astro](https://astro.build) 🚀
