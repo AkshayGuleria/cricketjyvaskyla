@@ -1,0 +1,11 @@
+# robots.txt for Jyväskylä Cricket Club
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://cricketjyvaskyla.com/sitemap.xml
+
+# Disallow admin/internal paths (if any in future)
+# Disallow: /admin/
+# Disallow: /api/

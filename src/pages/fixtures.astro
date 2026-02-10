@@ -1,0 +1,217 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Fixtures - Jyväskylä Cricket Club"
+  description="View upcoming cricket matches and fixtures for Jyväskylä Cricket Club."
+>
+  <Header slot="header" />
+
+  <div class="container">
+    <header class="page-hero reveal">
+      <div class="page-hero-label">Season Schedule</div>
+      <h1>Fixtures</h1>
+      <p class="page-hero-lead">Check out our upcoming cricket matches and season schedule.</p>
+    </header>
+
+    <div class="fixtures-content">
+      <!-- Empty State -->
+      <div class="empty-state reveal reveal-delay-1">
+        <div class="empty-marker"></div>
+        <h2>No Upcoming Matches</h2>
+        <p>There are currently no scheduled fixtures. Check back soon for our upcoming season schedule.</p>
+        <p class="empty-note">The season typically runs from May to September with practice sessions continuing year-round.</p>
+      </div>
+
+      <!-- Info Grid -->
+      <div class="info-row reveal reveal-delay-2">
+        <a href="https://maps.app.goo.gl/ZNHLoMhYoDEYpmpn8?g_st=iw" target="_blank" rel="noopener" class="info-tile">
+          <span class="tile-label">Home Ground</span>
+          <span class="tile-value">Tikkakosken Liikuntapuisto</span>
+          <span class="tile-action">View Location <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a href="/join_us" class="info-tile">
+          <span class="tile-label">Practice Sessions</span>
+          <span class="tile-value">Indoor (Sept&ndash;April) &amp; Outdoor (May&ndash;Sept)</span>
+          <span class="tile-action">Learn More <span aria-hidden="true">&rarr;</span></span>
+        </a>
+
+        <a href="/contact" class="info-tile">
+          <span class="tile-label">Stay Updated</span>
+          <span class="tile-value">Contact us for the latest match information</span>
+          <span class="tile-action">Contact Us <span aria-hidden="true">&rarr;</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .page-hero {
+    padding: var(--space-3xl) 0 var(--space-2xl);
+    max-width: 680px;
+  }
+
+  .page-hero-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .page-hero-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .page-hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+    line-height: 1.1;
+  }
+
+  .page-hero-lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    color: var(--color-neutral-500);
+  }
+
+  .fixtures-content {
+    max-width: 900px;
+  }
+
+  /* Empty State */
+  .empty-state {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    padding: var(--space-3xl) var(--space-2xl);
+    margin-bottom: var(--space-2xl);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .empty-marker {
+    width: 48px;
+    height: 3px;
+    background: var(--color-accent);
+    border-radius: 2px;
+    margin-bottom: var(--space-xl);
+  }
+
+  .empty-state h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+  }
+
+  .empty-state p {
+    font-size: 1rem;
+    color: var(--color-neutral-600);
+    line-height: 1.7;
+    margin-bottom: var(--space-sm);
+    max-width: 520px;
+  }
+
+  .empty-note {
+    font-size: 0.9rem;
+    color: var(--color-neutral-400);
+    font-style: italic;
+  }
+
+  /* Info Row */
+  .info-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-md);
+    margin-bottom: var(--space-3xl);
+  }
+
+  .info-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: var(--space-xl);
+    background: var(--color-primary);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--transition-base);
+    min-height: auto;
+    min-width: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .info-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    text-decoration: none;
+  }
+
+  .info-tile:visited {
+    color: inherit;
+  }
+
+  .tile-label {
+    font-family: var(--font-accent);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-gold-light);
+    font-weight: 500;
+  }
+
+  .tile-value {
+    font-size: 0.95rem;
+    color: var(--color-cream);
+    line-height: 1.5;
+  }
+
+  .tile-action {
+    font-family: var(--font-accent);
+    font-size: 0.8rem;
+    color: rgba(245, 240, 232, 0.4);
+    margin-top: auto;
+    padding-top: var(--space-sm);
+    font-weight: 500;
+    transition: color var(--transition-base);
+  }
+
+  .info-tile:hover .tile-action {
+    color: var(--color-cream);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page-hero {
+      padding: var(--space-2xl) 0 var(--space-xl);
+    }
+
+    .empty-state {
+      padding: var(--space-2xl) var(--space-lg);
+    }
+
+    .info-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

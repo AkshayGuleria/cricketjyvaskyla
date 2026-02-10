@@ -1,0 +1,391 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Expense Form - Jyväskylä Cricket Club"
+  description="Submit your expense reports to Jyväskylä Cricket Club through our online form."
+>
+  <Header slot="header" />
+
+  <div class="container">
+    <header class="page-hero reveal">
+      <div class="page-hero-label">Finance</div>
+      <h1>Expense Form</h1>
+      <p class="page-hero-lead">Submit your expense reports and reimbursement requests to the club.</p>
+    </header>
+
+    <div class="expense-content">
+      <!-- Main CTA Card -->
+      <section class="form-card reveal reveal-delay-1">
+        <div class="form-card-inner">
+          <h2>Online Expense Submission</h2>
+          <p>Click below to access our expense reporting form. You'll be able to submit your expense details and any attachments.</p>
+          <a href="https://forms.gle/FqJfscVeVbN4LJRZ6" target="_blank" rel="noopener" class="btn-accent">
+            Open Expense Form
+          </a>
+        </div>
+
+        <div class="form-checklist">
+          <h3>What You'll Need</h3>
+          <ul>
+            <li>Receipt or proof of purchase</li>
+            <li>Expense date and amount</li>
+            <li>Brief description of the expense</li>
+            <li>Your contact information</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Guidelines -->
+      <section class="guidelines reveal reveal-delay-2">
+        <div class="section-label">Process</div>
+        <h2>Submission Guidelines</h2>
+        <div class="steps-grid">
+          <div class="step">
+            <span class="step-num">01</span>
+            <h4>Keep Receipts</h4>
+            <p>Always keep original receipts for all club-related expenses.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">02</span>
+            <h4>Submit Promptly</h4>
+            <p>Submit expense reports within 30 days of the purchase.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">03</span>
+            <h4>Provide Details</h4>
+            <p>Include clear descriptions and purpose of each expense.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">04</span>
+            <h4>Get Approval</h4>
+            <p>Large expenses should be pre-approved by the committee.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section class="contact-cta reveal reveal-delay-3">
+        <h3>Questions About Expenses?</h3>
+        <p>If you have questions about expense policies or reimbursement, contact our Treasurer.</p>
+        <a href="/contact" class="btn-outline">Contact Us</a>
+      </section>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .page-hero {
+    padding: var(--space-3xl) 0 var(--space-2xl);
+    max-width: 680px;
+  }
+
+  .page-hero-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .page-hero-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .page-hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+    line-height: 1.1;
+  }
+
+  .page-hero-lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    color: var(--color-neutral-500);
+  }
+
+  .expense-content {
+    max-width: 800px;
+  }
+
+  /* Form Card */
+  .form-card {
+    background: var(--color-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    margin-bottom: var(--space-3xl);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(196, 74, 47, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .form-card-inner {
+    position: relative;
+    z-index: 1;
+    margin-bottom: var(--space-xl);
+  }
+
+  .form-card-inner h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-cream);
+    margin-bottom: var(--space-md);
+  }
+
+  .form-card-inner p {
+    color: rgba(245, 240, 232, 0.6);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: var(--space-xl);
+    max-width: 480px;
+  }
+
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.875rem 2rem;
+    background: var(--color-accent);
+    color: var(--color-cream-light);
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+  }
+
+  .btn-accent:hover {
+    background: var(--color-accent-dark);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(196, 74, 47, 0.3);
+  }
+
+  .btn-accent:visited {
+    color: var(--color-cream-light);
+  }
+
+  /* Checklist */
+  .form-checklist {
+    position: relative;
+    z-index: 1;
+    background: rgba(245, 240, 232, 0.06);
+    border: 1px solid rgba(245, 240, 232, 0.08);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+  }
+
+  .form-checklist h3 {
+    font-family: var(--font-accent);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-gold-light);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+  }
+
+  .form-checklist ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .form-checklist li {
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    position: relative;
+    color: rgba(245, 240, 232, 0.6);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .form-checklist li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.85rem;
+    width: 6px;
+    height: 6px;
+    background: var(--color-accent);
+    border-radius: 50%;
+  }
+
+  /* Guidelines */
+  .guidelines {
+    margin-bottom: var(--space-3xl);
+  }
+
+  .section-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .section-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .guidelines > h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-xl);
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .step {
+    padding: var(--space-lg);
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    transition: box-shadow var(--transition-base);
+  }
+
+  .step:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .step-num {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    color: var(--color-accent);
+    line-height: 1;
+    display: block;
+    margin-bottom: var(--space-md);
+    opacity: 0.6;
+  }
+
+  .step h4 {
+    font-family: var(--font-accent);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .step p {
+    font-size: 0.9rem;
+    color: var(--color-neutral-500);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Contact CTA */
+  .contact-cta {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    padding: var(--space-2xl);
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+  }
+
+  .contact-cta h3 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .contact-cta p {
+    color: var(--color-neutral-500);
+    margin-bottom: var(--space-lg);
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.875rem 2rem;
+    background: transparent;
+    color: var(--color-accent);
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1.5px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+  }
+
+  .btn-outline:hover {
+    background: var(--color-accent);
+    color: var(--color-cream-light);
+    text-decoration: none;
+  }
+
+  .btn-outline:visited {
+    color: var(--color-accent);
+  }
+
+  .btn-outline:visited:hover {
+    color: var(--color-cream-light);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page-hero {
+      padding: var(--space-2xl) 0 var(--space-xl);
+    }
+
+    .form-card {
+      padding: var(--space-xl);
+    }
+
+    .steps-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+
+    .contact-cta {
+      padding: var(--space-xl);
+    }
+  }
+</style>

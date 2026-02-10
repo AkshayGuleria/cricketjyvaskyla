@@ -1,0 +1,116 @@
+---
+interface Props {
+  name: string;
+  role: string;
+  email?: string | null;
+}
+
+const { name, role, email } = Astro.props;
+const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2);
+---
+
+<article class="member-card" role="article" aria-label={`${name}, ${role}`}>
+  <div class="member-avatar" aria-hidden="true">
+    <span class="member-initials">{initials}</span>
+  </div>
+  <div class="member-info">
+    <h3 class="member-name">{name}</h3>
+    <p class="member-role">{role}</p>
+    {email && (
+      <a href={`mailto:${email}`} class="member-email" aria-label={`Email ${name} at ${email}`}>
+        {email}
+      </a>
+    )}
+  </div>
+</article>
+
+<style>
+  .member-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+  }
+
+  .member-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .member-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .member-initials {
+    color: var(--color-gold-light);
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    text-transform: uppercase;
+  }
+
+  .member-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .member-name {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.2rem 0;
+    color: var(--color-primary);
+    letter-spacing: -0.01em;
+  }
+
+  .member-role {
+    font-size: 0.85rem;
+    color: var(--color-neutral-500);
+    margin: 0;
+  }
+
+  .member-email {
+    display: inline-block;
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color var(--transition-base);
+    min-height: auto;
+    min-width: auto;
+  }
+
+  .member-email:hover {
+    color: var(--color-accent-dark);
+    text-decoration: underline;
+  }
+
+  .member-email:visited {
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 640px) {
+    .member-card {
+      padding: 1rem;
+    }
+
+    .member-avatar {
+      width: 44px;
+      height: 44px;
+    }
+
+    .member-initials {
+      font-size: 0.95rem;
+    }
+  }
+</style>
