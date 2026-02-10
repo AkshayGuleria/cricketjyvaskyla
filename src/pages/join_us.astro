@@ -11,260 +11,362 @@ import Footer from '../components/Footer.astro';
   <Header slot="header" />
 
   <div class="container">
-    <div class="page-header">
-      <h1>Join Us</h1>
-      <p class="lead">
-        The Jyväskylä Cricket Club welcomes all those interested in the game of cricket, both experienced players and complete beginners.
-      </p>
+    <!-- Page Header -->
+    <header class="page-hero reveal">
+      <div class="page-hero-label">Membership</div>
+      <h1>Join the Club</h1>
+      <p class="page-hero-lead">We welcome all those interested in cricket &mdash; experienced players and complete beginners alike.</p>
+    </header>
+
+    <!-- Cards -->
+    <div class="info-row reveal reveal-delay-1">
+      <article class="info-card">
+        <div class="card-accent"></div>
+        <h2>Home Ground</h2>
+        <p>During summer (May to September) JCC outdoor matches take place at the Tikkakosken Liikuntapuisto, Jyväskylä.</p>
+        <a href="https://maps.app.goo.gl/ZNHLoMhYoDEYpmpn8?g_st=iw" target="_blank" rel="noopener" class="card-link">
+          View on Map <span aria-hidden="true">&rarr;</span>
+        </a>
+      </article>
+
+      <article class="info-card">
+        <div class="card-accent"></div>
+        <h2>Practice Sessions</h2>
+        <p>In September, indoor practice sessions begin in the University's U2 sports hall and last until April. From May onwards, outdoor sessions resume.</p>
+        <a href="http://g.co/maps/w5gh3" target="_blank" rel="noopener" class="card-link">
+          View on Map <span aria-hidden="true">&rarr;</span>
+        </a>
+      </article>
     </div>
 
-    <div class="content-wrapper">
-      <!-- Home Ground -->
-      <section class="info-card">
-        <div class="icon">🏏</div>
-        <h2>Home Ground</h2>
-        <p>
-          During summer (May to September) JCC outdoor matches take place at the Tikkakosken Liikuntapuisto, Jyväskylä.
-        </p>
-        <a href="https://maps.app.goo.gl/ZNHLoMhYoDEYpmpn8?g_st=iw" target="_blank" rel="noopener" class="btn btn-secondary">
-          View on Map
-        </a>
-      </section>
-
-      <!-- Practice Sessions -->
-      <section class="info-card">
-        <div class="icon">⚡</div>
-        <h2>Summer & Winter Practice Sessions</h2>
-        <p>
-          In September, indoor practice sessions begin in the University's U2 sports hall and last until April. From May onwards, outdoor practice sessions take place at the same location.
-        </p>
-        <a href="http://g.co/maps/w5gh3" target="_blank" rel="noopener" class="btn btn-secondary">
-          View on Map
-        </a>
-      </section>
-
-      <!-- Membership Fees -->
-      <section class="info-card highlight">
-        <div class="icon">💰</div>
-        <h2>Membership Fee</h2>
-        <div class="fee-options">
-          <div class="fee-option">
-            <div class="fee-amount">€100/person</div>
-            <div class="fee-label">Full Membership</div>
-            <p class="fee-description">
-              For those earning more than €1500/month including PhD researchers.
-            </p>
-          </div>
-          <div class="fee-option">
-            <div class="fee-amount">€50/person</div>
-            <div class="fee-label">Half Membership</div>
-            <p class="fee-description">
-              For those earning less than €1500/month (undergraduate/graduate students and those unemployed).
-            </p>
-          </div>
+    <!-- Fees -->
+    <section class="fees-section reveal reveal-delay-2">
+      <div class="section-label">Pricing</div>
+      <h2>Membership Fee</h2>
+      <div class="fees-grid">
+        <div class="fee-card">
+          <div class="fee-amount">&euro;100</div>
+          <div class="fee-period">per person / year</div>
+          <div class="fee-name">Full Membership</div>
+          <p class="fee-desc">For those earning more than &euro;1500/month including PhD researchers.</p>
         </div>
-      </section>
+        <div class="fee-card featured">
+          <div class="fee-badge">Student Rate</div>
+          <div class="fee-amount">&euro;50</div>
+          <div class="fee-period">per person / year</div>
+          <div class="fee-name">Half Membership</div>
+          <p class="fee-desc">For those earning less than &euro;1500/month (undergraduate/graduate students and those unemployed).</p>
+        </div>
+      </div>
+    </section>
 
-      <!-- Contact CTA -->
-      <section class="cta-section">
+    <!-- CTA -->
+    <section class="cta-band reveal reveal-delay-3">
+      <div class="cta-content">
         <h3>Have Questions?</h3>
         <p>If you have more questions or queries, please feel free to contact us.</p>
-        <a href="/contact" class="btn btn-primary">
-          Contact Us
-        </a>
-      </section>
-    </div>
+        <a href="/contact" class="btn-accent">Contact Us</a>
+      </div>
+    </section>
   </div>
 
   <Footer slot="footer" />
 </BaseLayout>
 
 <style>
-  .page-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding: 2rem 0;
+  /* Page Hero */
+  .page-hero {
+    padding: var(--space-3xl) 0 var(--space-2xl);
+    max-width: 680px;
   }
 
-  .page-header h1 {
-    font-size: clamp(2rem, 4vw, 2.75rem);
-    font-weight: 700;
-    color: var(--color-neutral-900);
-    margin-bottom: 1rem;
-    letter-spacing: -0.03em;
+  .page-hero-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
   }
 
-  .lead {
-    font-size: clamp(1.1rem, 2vw, 1.25rem);
-    line-height: 1.6;
-    color: var(--color-neutral-600);
-    max-width: 700px;
-    margin: 0 auto;
+  .page-hero-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
   }
 
-  .content-wrapper {
-    max-width: 900px;
-    margin: 0 auto;
+  .page-hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+    line-height: 1.1;
   }
 
-  /* Info Cards */
+  .page-hero-lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    color: var(--color-neutral-500);
+  }
+
+  /* Info Row */
+  .info-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-4xl);
+  }
+
   .info-card {
-    background: var(--color-neutral-100);
-    border: 1px solid var(--color-neutral-200);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    transition: all var(--transition-base);
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow var(--transition-base);
   }
 
   .info-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-md);
   }
 
-  .info-card.highlight {
-    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
-    border-color: var(--color-primary-light);
-  }
-
-  .icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+  .card-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--color-accent);
   }
 
   .info-card h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--color-neutral-900);
-    margin-bottom: 1rem;
-    letter-spacing: -0.02em;
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
   }
 
   .info-card p {
-    color: var(--color-neutral-700);
+    color: var(--color-neutral-600);
     line-height: 1.7;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-md);
   }
 
-  /* Fee Options */
-  .fee-options {
+  .card-link {
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: color var(--transition-base);
+    display: inline;
+    min-height: auto;
+    min-width: auto;
+  }
+
+  .card-link:hover {
+    color: var(--color-accent-dark);
+    text-decoration: none;
+  }
+
+  .card-link:visited {
+    color: var(--color-accent);
+  }
+
+  /* Fees Section */
+  .fees-section {
+    margin-bottom: var(--space-4xl);
+  }
+
+  .section-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .section-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .fees-section > h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-xl);
+  }
+
+  .fees-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
   }
 
-  .fee-option {
-    background: var(--color-neutral-100);
-    padding: 1.5rem;
+  .fee-card {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
     border-radius: var(--radius-md);
-    border: 2px solid var(--color-primary-light);
+    padding: var(--space-2xl) var(--space-xl);
     text-align: center;
+    position: relative;
+    transition: all var(--transition-base);
+  }
+
+  .fee-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .fee-card.featured {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .fee-badge {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    font-family: var(--font-accent);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    color: var(--color-gold-light);
+    background: rgba(212, 168, 71, 0.12);
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius-full);
   }
 
   .fee-amount {
-    font-size: 2rem;
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-size: 3rem;
     color: var(--color-primary);
-    margin-bottom: 0.5rem;
+    line-height: 1;
+    margin-bottom: 0.25rem;
   }
 
-  .fee-label {
-    font-size: 1.1rem;
+  .featured .fee-amount {
+    color: var(--color-cream);
+  }
+
+  .fee-period {
+    font-size: 0.82rem;
+    color: var(--color-neutral-500);
+    margin-bottom: var(--space-md);
+  }
+
+  .featured .fee-period {
+    color: rgba(245, 240, 232, 0.4);
+  }
+
+  .fee-name {
+    font-family: var(--font-accent);
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--color-neutral-900);
-    margin-bottom: 0.75rem;
+    color: var(--color-primary);
+    margin-bottom: var(--space-sm);
   }
 
-  .fee-description {
+  .featured .fee-name {
+    color: var(--color-gold-light);
+  }
+
+  .fee-desc {
     font-size: 0.9rem;
-    color: var(--color-neutral-600);
-    line-height: 1.5;
+    color: var(--color-neutral-500);
+    line-height: 1.6;
     margin: 0;
   }
 
-  /* CTA Section */
-  .cta-section {
-    text-align: center;
-    padding: 3rem 2rem;
-    background: var(--color-neutral-50);
+  .featured .fee-desc {
+    color: rgba(245, 240, 232, 0.5);
+  }
+
+  /* CTA Band */
+  .cta-band {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
     border-radius: var(--radius-lg);
-    margin-top: 3rem;
+    padding: var(--space-2xl);
+    margin-bottom: var(--space-3xl);
+    text-align: center;
   }
 
-  .cta-section h3 {
-    font-size: 1.75rem;
+  .cta-content h3 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .cta-content p {
+    color: var(--color-neutral-500);
+    margin-bottom: var(--space-lg);
+  }
+
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.875rem 2rem;
+    background: var(--color-accent);
+    color: var(--color-cream-light);
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
     font-weight: 600;
-    color: var(--color-neutral-900);
-    margin-bottom: 0.75rem;
-  }
-
-  .cta-section p {
-    font-size: 1.1rem;
-    color: var(--color-neutral-600);
-    margin-bottom: 1.5rem;
-  }
-
-  /* Buttons */
-  .btn {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-md);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     text-decoration: none;
-    font-weight: 500;
+    border-radius: var(--radius-sm);
     transition: all var(--transition-base);
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
   }
 
-  .btn-primary {
-    background: var(--color-primary);
-    color: var(--color-neutral-100);
-  }
-
-  .btn-primary:hover {
-    background: var(--color-primary-dark);
+  .btn-accent:hover {
+    background: var(--color-accent-dark);
     text-decoration: none;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 53, 128, 0.3);
+    box-shadow: 0 8px 24px rgba(196, 74, 47, 0.3);
   }
 
-  .btn-secondary {
-    background: var(--color-neutral-100);
-    color: var(--color-primary);
-    border: 1px solid var(--color-primary);
-  }
-
-  .btn-secondary:hover {
-    background: var(--color-primary);
-    color: var(--color-neutral-100);
-    text-decoration: none;
+  .btn-accent:visited {
+    color: var(--color-cream-light);
   }
 
   /* Responsive */
   @media (max-width: 640px) {
-    .page-header {
-      margin-bottom: 2rem;
-      padding: 1rem 0;
+    .page-hero {
+      padding: var(--space-2xl) 0 var(--space-xl);
     }
 
-    .info-card {
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .icon {
-      font-size: 2rem;
-    }
-
-    .fee-options {
+    .info-row {
       grid-template-columns: 1fr;
-      gap: 1rem;
     }
 
-    .cta-section {
-      padding: 2rem 1.5rem;
-      margin-top: 2rem;
+    .fees-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-band {
+      padding: var(--space-xl);
     }
   }
 </style>

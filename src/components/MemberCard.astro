@@ -6,11 +6,12 @@ interface Props {
 }
 
 const { name, role, email } = Astro.props;
+const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2);
 ---
 
 <article class="member-card" role="article" aria-label={`${name}, ${role}`}>
   <div class="member-avatar" aria-hidden="true">
-    <span class="member-initials">{name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
+    <span class="member-initials">{initials}</span>
   </div>
   <div class="member-info">
     <h3 class="member-name">{name}</h3>
@@ -29,22 +30,22 @@ const { name, role, email } = Astro.props;
     align-items: center;
     gap: 1rem;
     padding: 1.25rem;
-    background: var(--color-neutral-100);
-    border: 1px solid var(--color-neutral-200);
-    border-radius: var(--radius-lg);
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
     transition: all var(--transition-base);
   }
 
   .member-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
   }
 
   .member-avatar {
-    width: 60px;
-    height: 60px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    background: var(--color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -52,9 +53,9 @@ const { name, role, email } = Astro.props;
   }
 
   .member-initials {
-    color: var(--color-neutral-100);
-    font-weight: 600;
-    font-size: 1.25rem;
+    color: var(--color-gold-light);
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
     text-transform: uppercase;
   }
 
@@ -64,32 +65,38 @@ const { name, role, email } = Astro.props;
   }
 
   .member-name {
-    font-size: 1.05rem;
-    font-weight: 600;
-    margin: 0 0 0.25rem 0;
-    color: var(--color-neutral-900);
     font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.2rem 0;
+    color: var(--color-primary);
     letter-spacing: -0.01em;
   }
 
   .member-role {
-    font-size: 0.9rem;
-    color: var(--color-neutral-600);
+    font-size: 0.85rem;
+    color: var(--color-neutral-500);
     margin: 0;
   }
 
   .member-email {
     display: inline-block;
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--color-primary);
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+    color: var(--color-accent);
     text-decoration: none;
     transition: color var(--transition-base);
+    min-height: auto;
+    min-width: auto;
   }
 
   .member-email:hover {
-    color: var(--color-primary-dark);
+    color: var(--color-accent-dark);
     text-decoration: underline;
+  }
+
+  .member-email:visited {
+    color: var(--color-accent);
   }
 
   @media (max-width: 640px) {
@@ -98,16 +105,12 @@ const { name, role, email } = Astro.props;
     }
 
     .member-avatar {
-      width: 50px;
-      height: 50px;
+      width: 44px;
+      height: 44px;
     }
 
     .member-initials {
-      font-size: 1.1rem;
-    }
-
-    .member-name {
-      font-size: 1rem;
+      font-size: 0.95rem;
     }
   }
 </style>

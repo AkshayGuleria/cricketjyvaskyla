@@ -11,50 +11,40 @@ import Footer from '../components/Footer.astro';
   <Header slot="header" />
 
   <div class="container">
-    <div class="page-header">
+    <header class="page-hero reveal">
+      <div class="page-hero-label">Season Schedule</div>
       <h1>Fixtures</h1>
-      <p class="lead">
-        Check out our upcoming cricket matches and season schedule.
-      </p>
-    </div>
+      <p class="page-hero-lead">Check out our upcoming cricket matches and season schedule.</p>
+    </header>
 
     <div class="fixtures-content">
-      <div class="empty-state">
-        <div class="empty-icon">📅</div>
+      <!-- Empty State -->
+      <div class="empty-state reveal reveal-delay-1">
+        <div class="empty-marker"></div>
         <h2>No Upcoming Matches</h2>
-        <p>
-          There are currently no scheduled fixtures. Check back soon for our upcoming season schedule!
-        </p>
-        <p class="note">
-          The season typically runs from May to September with practice sessions continuing year-round.
-        </p>
+        <p>There are currently no scheduled fixtures. Check back soon for our upcoming season schedule.</p>
+        <p class="empty-note">The season typically runs from May to September with practice sessions continuing year-round.</p>
       </div>
 
-      <!-- Info Cards -->
-      <div class="info-grid">
-        <div class="info-card">
-          <h3>🏟️ Home Ground</h3>
-          <p>Tikkakosken Liikuntapuisto, Jyväskylä</p>
-          <a href="https://maps.app.goo.gl/ZNHLoMhYoDEYpmpn8?g_st=iw" target="_blank" rel="noopener" class="link-btn">
-            View Location →
-          </a>
-        </div>
+      <!-- Info Grid -->
+      <div class="info-row reveal reveal-delay-2">
+        <a href="https://maps.app.goo.gl/ZNHLoMhYoDEYpmpn8?g_st=iw" target="_blank" rel="noopener" class="info-tile">
+          <span class="tile-label">Home Ground</span>
+          <span class="tile-value">Tikkakosken Liikuntapuisto</span>
+          <span class="tile-action">View Location <span aria-hidden="true">&rarr;</span></span>
+        </a>
 
-        <div class="info-card">
-          <h3>⚡ Practice Sessions</h3>
-          <p>Indoor (Sept-April) & Outdoor (May-Sept)</p>
-          <a href="/join_us" class="link-btn">
-            Learn More →
-          </a>
-        </div>
+        <a href="/join_us" class="info-tile">
+          <span class="tile-label">Practice Sessions</span>
+          <span class="tile-value">Indoor (Sept&ndash;April) &amp; Outdoor (May&ndash;Sept)</span>
+          <span class="tile-action">Learn More <span aria-hidden="true">&rarr;</span></span>
+        </a>
 
-        <div class="info-card">
-          <h3>📧 Stay Updated</h3>
-          <p>Contact us for the latest match information</p>
-          <a href="/contact" class="link-btn">
-            Contact Us →
-          </a>
-        </div>
+        <a href="/contact" class="info-tile">
+          <span class="tile-label">Stay Updated</span>
+          <span class="tile-value">Contact us for the latest match information</span>
+          <span class="tile-action">Contact Us <span aria-hidden="true">&rarr;</span></span>
+        </a>
       </div>
     </div>
   </div>
@@ -63,141 +53,165 @@ import Footer from '../components/Footer.astro';
 </BaseLayout>
 
 <style>
-  .page-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding: 2rem 0;
+  .page-hero {
+    padding: var(--space-3xl) 0 var(--space-2xl);
+    max-width: 680px;
   }
 
-  .page-header h1 {
-    font-size: clamp(2rem, 4vw, 2.75rem);
-    font-weight: 700;
-    color: var(--color-neutral-900);
-    margin-bottom: 1rem;
-    letter-spacing: -0.03em;
+  .page-hero-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
   }
 
-  .lead {
-    font-size: clamp(1.1rem, 2vw, 1.25rem);
-    line-height: 1.6;
-    color: var(--color-neutral-600);
-    max-width: 700px;
-    margin: 0 auto;
+  .page-hero-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .page-hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+    line-height: 1.1;
+  }
+
+  .page-hero-lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    color: var(--color-neutral-500);
   }
 
   .fixtures-content {
     max-width: 900px;
-    margin: 0 auto;
   }
 
   /* Empty State */
   .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    background: var(--color-neutral-100);
-    border: 1px solid var(--color-neutral-200);
-    border-radius: var(--radius-lg);
-    margin-bottom: 3rem;
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    padding: var(--space-3xl) var(--space-2xl);
+    margin-bottom: var(--space-2xl);
+    position: relative;
+    overflow: hidden;
   }
 
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1.5rem;
+  .empty-marker {
+    width: 48px;
+    height: 3px;
+    background: var(--color-accent);
+    border-radius: 2px;
+    margin-bottom: var(--space-xl);
   }
 
   .empty-state h2 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: var(--color-neutral-900);
-    margin-bottom: 1rem;
-    letter-spacing: -0.02em;
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
   }
 
   .empty-state p {
-    font-size: 1.05rem;
+    font-size: 1rem;
     color: var(--color-neutral-600);
-    line-height: 1.6;
-    margin-bottom: 0.75rem;
+    line-height: 1.7;
+    margin-bottom: var(--space-sm);
+    max-width: 520px;
   }
 
-  .empty-state .note {
-    font-size: 0.95rem;
-    color: var(--color-neutral-500);
+  .empty-note {
+    font-size: 0.9rem;
+    color: var(--color-neutral-400);
     font-style: italic;
   }
 
-  /* Info Grid */
-  .info-grid {
+  /* Info Row */
+  .info-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
+    gap: var(--space-md);
+    margin-bottom: var(--space-3xl);
   }
 
-  .info-card {
-    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
-    border: 1px solid var(--color-primary-light);
-    border-radius: var(--radius-lg);
-    padding: 2rem 1.5rem;
-    text-align: center;
+  .info-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: var(--space-xl);
+    background: var(--color-primary);
+    border-radius: var(--radius-md);
+    text-decoration: none;
     transition: all var(--transition-base);
+    min-height: auto;
+    min-width: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
   }
 
-  .info-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  .info-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    text-decoration: none;
   }
 
-  .info-card h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--color-neutral-900);
-    margin-bottom: 0.75rem;
+  .info-tile:visited {
+    color: inherit;
   }
 
-  .info-card p {
+  .tile-label {
+    font-family: var(--font-accent);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-gold-light);
+    font-weight: 500;
+  }
+
+  .tile-value {
     font-size: 0.95rem;
-    color: var(--color-neutral-700);
-    margin-bottom: 1rem;
+    color: var(--color-cream);
     line-height: 1.5;
   }
 
-  .link-btn {
-    display: inline-block;
-    font-size: 0.9rem;
-    color: var(--color-primary);
-    text-decoration: none;
+  .tile-action {
+    font-family: var(--font-accent);
+    font-size: 0.8rem;
+    color: rgba(245, 240, 232, 0.4);
+    margin-top: auto;
+    padding-top: var(--space-sm);
     font-weight: 500;
     transition: color var(--transition-base);
   }
 
-  .link-btn:hover {
-    color: var(--color-primary-dark);
-    text-decoration: underline;
+  .info-tile:hover .tile-action {
+    color: var(--color-cream);
   }
 
   /* Responsive */
   @media (max-width: 640px) {
-    .page-header {
-      margin-bottom: 2rem;
-      padding: 1rem 0;
+    .page-hero {
+      padding: var(--space-2xl) 0 var(--space-xl);
     }
 
     .empty-state {
-      padding: 3rem 1.5rem;
-      margin-bottom: 2rem;
+      padding: var(--space-2xl) var(--space-lg);
     }
 
-    .empty-icon {
-      font-size: 3rem;
-    }
-
-    .info-grid {
+    .info-row {
       grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    .info-card {
-      padding: 1.5rem 1.25rem;
     }
   }
 </style>

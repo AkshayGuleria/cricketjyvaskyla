@@ -51,8 +51,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
-    <!-- Fonts - System fonts for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <!-- Fonts - DM Serif Display + Source Sans 3 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
 
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -69,9 +71,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         "addressLocality": "Jyväskylä",
         "addressCountry": "FI"
       },
-      "sameAs": [
-        // Add social media links when available
-      ]
+      "sameAs": []
     })} />
 
     <!-- Global Styles -->
@@ -98,14 +98,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <slot name="footer" />
 
     <style>
-      /* Skip link styles */
       .skip-link {
         position: fixed;
         top: -100px;
         left: 50%;
         transform: translateX(-50%);
-        background: var(--color-primary);
-        color: white;
+        background: var(--color-accent);
+        color: var(--color-cream-light);
         padding: 1rem 2rem;
         text-decoration: none;
         z-index: var(--z-tooltip);
@@ -113,18 +112,17 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         font-weight: 600;
         box-shadow: var(--shadow-lg);
         transition: top var(--transition-base);
+        font-family: var(--font-body);
       }
 
       .skip-link:focus {
         top: 0;
       }
 
-      /* Ensure main has proper spacing */
       main {
         min-height: 60vh;
       }
 
-      /* Focus within improvements */
       main:focus-within {
         scroll-margin-top: 2rem;
       }

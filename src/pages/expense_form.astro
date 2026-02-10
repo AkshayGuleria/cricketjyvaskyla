@@ -11,27 +11,25 @@ import Footer from '../components/Footer.astro';
   <Header slot="header" />
 
   <div class="container">
-    <div class="page-header">
+    <header class="page-hero reveal">
+      <div class="page-hero-label">Finance</div>
       <h1>Expense Form</h1>
-      <p class="lead">
-        Submit your expense reports and reimbursement requests to the club.
-      </p>
-    </div>
+      <p class="page-hero-lead">Submit your expense reports and reimbursement requests to the club.</p>
+    </header>
 
-    <div class="form-content">
-      <div class="form-card">
-        <div class="form-icon">💳</div>
-        <h2>Online Expense Submission</h2>
-        <p>
-          Please click the button below to access our expense reporting form. You'll be able to submit your expense details and any attachments through the form.
-        </p>
+    <div class="expense-content">
+      <!-- Main CTA Card -->
+      <section class="form-card reveal reveal-delay-1">
+        <div class="form-card-inner">
+          <h2>Online Expense Submission</h2>
+          <p>Click below to access our expense reporting form. You'll be able to submit your expense details and any attachments.</p>
+          <a href="https://forms.gle/FqJfscVeVbN4LJRZ6" target="_blank" rel="noopener" class="btn-accent">
+            Open Expense Form
+          </a>
+        </div>
 
-        <a href="https://forms.gle/FqJfscVeVbN4LJRZ6" target="_blank" rel="noopener" class="btn-primary">
-          Open Expense Form
-        </a>
-
-        <div class="form-info">
-          <h3>What You'll Need:</h3>
+        <div class="form-checklist">
+          <h3>What You'll Need</h3>
           <ul>
             <li>Receipt or proof of purchase</li>
             <li>Expense date and amount</li>
@@ -39,48 +37,42 @@ import Footer from '../components/Footer.astro';
             <li>Your contact information</li>
           </ul>
         </div>
-      </div>
+      </section>
 
       <!-- Guidelines -->
-      <div class="guidelines-section">
-        <h3>Expense Submission Guidelines</h3>
-        <div class="guidelines-grid">
-          <div class="guideline-item">
-            <div class="guideline-number">1</div>
+      <section class="guidelines reveal reveal-delay-2">
+        <div class="section-label">Process</div>
+        <h2>Submission Guidelines</h2>
+        <div class="steps-grid">
+          <div class="step">
+            <span class="step-num">01</span>
             <h4>Keep Receipts</h4>
             <p>Always keep original receipts for all club-related expenses.</p>
           </div>
-
-          <div class="guideline-item">
-            <div class="guideline-number">2</div>
+          <div class="step">
+            <span class="step-num">02</span>
             <h4>Submit Promptly</h4>
             <p>Submit expense reports within 30 days of the purchase.</p>
           </div>
-
-          <div class="guideline-item">
-            <div class="guideline-number">3</div>
+          <div class="step">
+            <span class="step-num">03</span>
             <h4>Provide Details</h4>
             <p>Include clear descriptions and purpose of each expense.</p>
           </div>
-
-          <div class="guideline-item">
-            <div class="guideline-number">4</div>
+          <div class="step">
+            <span class="step-num">04</span>
             <h4>Get Approval</h4>
             <p>Large expenses should be pre-approved by the committee.</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Contact Section -->
-      <div class="contact-card">
+      <!-- Contact -->
+      <section class="contact-cta reveal reveal-delay-3">
         <h3>Questions About Expenses?</h3>
-        <p>
-          If you have questions about expense policies or reimbursement, please contact our Treasurer.
-        </p>
-        <a href="/contact" class="btn-secondary">
-          Contact Us
-        </a>
-      </div>
+        <p>If you have questions about expense policies or reimbursement, contact our Treasurer.</p>
+        <a href="/contact" class="btn-outline">Contact Us</a>
+      </section>
     </div>
   </div>
 
@@ -88,250 +80,312 @@ import Footer from '../components/Footer.astro';
 </BaseLayout>
 
 <style>
-  .page-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding: 2rem 0;
+  .page-hero {
+    padding: var(--space-3xl) 0 var(--space-2xl);
+    max-width: 680px;
   }
 
-  .page-header h1 {
-    font-size: clamp(2rem, 4vw, 2.75rem);
-    font-weight: 700;
-    color: var(--color-neutral-900);
-    margin-bottom: 1rem;
-    letter-spacing: -0.03em;
+  .page-hero-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
   }
 
-  .lead {
-    font-size: clamp(1.1rem, 2vw, 1.25rem);
-    line-height: 1.6;
-    color: var(--color-neutral-600);
-    max-width: 700px;
-    margin: 0 auto;
+  .page-hero-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
   }
 
-  .form-content {
+  .page-hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+    line-height: 1.1;
+  }
+
+  .page-hero-lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    color: var(--color-neutral-500);
+  }
+
+  .expense-content {
     max-width: 800px;
-    margin: 0 auto;
   }
 
   /* Form Card */
   .form-card {
-    background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
-    border: 1px solid var(--color-primary-light);
+    background: var(--color-primary);
     border-radius: var(--radius-lg);
-    padding: 3rem 2.5rem;
-    text-align: center;
-    margin-bottom: 3rem;
+    padding: var(--space-2xl);
+    margin-bottom: var(--space-3xl);
+    position: relative;
+    overflow: hidden;
   }
 
-  .form-icon {
-    font-size: 4rem;
-    margin-bottom: 1.5rem;
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(196, 74, 47, 0.12) 0%, transparent 70%);
+    pointer-events: none;
   }
 
-  .form-card h2 {
-    font-size: 1.75rem;
+  .form-card-inner {
+    position: relative;
+    z-index: 1;
+    margin-bottom: var(--space-xl);
+  }
+
+  .form-card-inner h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-cream);
+    margin-bottom: var(--space-md);
+  }
+
+  .form-card-inner p {
+    color: rgba(245, 240, 232, 0.6);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: var(--space-xl);
+    max-width: 480px;
+  }
+
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.875rem 2rem;
+    background: var(--color-accent);
+    color: var(--color-cream-light);
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
     font-weight: 600;
-    color: var(--color-neutral-900);
-    margin-bottom: 1rem;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
   }
 
-  .form-card > p {
-    font-size: 1.05rem;
-    color: var(--color-neutral-700);
-    line-height: 1.6;
-    margin-bottom: 2rem;
+  .btn-accent:hover {
+    background: var(--color-accent-dark);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(196, 74, 47, 0.3);
   }
 
-  /* Form Info */
-  .form-info {
-    background: var(--color-neutral-100);
+  .btn-accent:visited {
+    color: var(--color-cream-light);
+  }
+
+  /* Checklist */
+  .form-checklist {
+    position: relative;
+    z-index: 1;
+    background: rgba(245, 240, 232, 0.06);
+    border: 1px solid rgba(245, 240, 232, 0.08);
     border-radius: var(--radius-md);
-    padding: 1.5rem;
-    margin-top: 2rem;
-    text-align: left;
+    padding: var(--space-lg);
   }
 
-  .form-info h3 {
-    font-size: 1.1rem;
+  .form-checklist h3 {
+    font-family: var(--font-accent);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-gold-light);
+    margin-bottom: var(--space-md);
     font-weight: 600;
-    color: var(--color-neutral-900);
-    margin-bottom: 1rem;
   }
 
-  .form-info ul {
+  .form-checklist ul {
     list-style: none;
     padding: 0;
     margin: 0;
   }
 
-  .form-info li {
-    padding: 0.5rem 0 0.5rem 1.75rem;
+  .form-checklist li {
+    padding: 0.5rem 0 0.5rem 1.5rem;
     position: relative;
-    color: var(--color-neutral-700);
+    color: rgba(245, 240, 232, 0.6);
+    font-size: 0.92rem;
+    line-height: 1.5;
   }
 
-  .form-info li::before {
-    content: "✓";
+  .form-checklist li::before {
+    content: '';
     position: absolute;
     left: 0;
-    color: var(--color-secondary);
-    font-weight: bold;
+    top: 0.85rem;
+    width: 6px;
+    height: 6px;
+    background: var(--color-accent);
+    border-radius: 50%;
   }
 
-  /* Guidelines Section */
-  .guidelines-section {
-    margin-bottom: 3rem;
+  /* Guidelines */
+  .guidelines {
+    margin-bottom: var(--space-3xl);
   }
 
-  .guidelines-section > h3 {
-    font-size: 1.5rem;
+  .section-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
     font-weight: 600;
-    color: var(--color-neutral-900);
-    margin-bottom: 1.5rem;
-    text-align: center;
-    letter-spacing: -0.02em;
+    position: relative;
+    padding-left: 2rem;
   }
 
-  .guidelines-grid {
+  .section-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .guidelines > h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-xl);
+  }
+
+  .steps-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
+    gap: var(--space-lg);
   }
 
-  .guideline-item {
-    background: var(--color-neutral-100);
-    border: 1px solid var(--color-neutral-200);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    text-align: center;
-    transition: all var(--transition-base);
+  .step {
+    padding: var(--space-lg);
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    transition: box-shadow var(--transition-base);
   }
 
-  .guideline-item:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
+  .step:hover {
+    box-shadow: var(--shadow-md);
   }
 
-  .guideline-number {
-    width: 40px;
-    height: 40px;
-    background: var(--color-primary);
-    color: var(--color-neutral-100);
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.25rem;
-    margin: 0 auto 1rem;
+  .step-num {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    color: var(--color-accent);
+    line-height: 1;
+    display: block;
+    margin-bottom: var(--space-md);
+    opacity: 0.6;
   }
 
-  .guideline-item h4 {
-    font-size: 1.1rem;
+  .step h4 {
+    font-family: var(--font-accent);
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--color-neutral-900);
-    margin-bottom: 0.5rem;
+    color: var(--color-primary);
+    margin-bottom: var(--space-sm);
   }
 
-  .guideline-item p {
-    font-size: 0.95rem;
-    color: var(--color-neutral-600);
-    line-height: 1.5;
+  .step p {
+    font-size: 0.9rem;
+    color: var(--color-neutral-500);
+    line-height: 1.6;
     margin: 0;
   }
 
-  /* Contact Card */
-  .contact-card {
-    text-align: center;
-    padding: 2.5rem 2rem;
-    background: var(--color-neutral-50);
-    border-radius: var(--radius-lg);
-  }
-
-  .contact-card h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--color-neutral-900);
-    margin-bottom: 0.75rem;
-  }
-
-  .contact-card p {
-    font-size: 1.05rem;
-    color: var(--color-neutral-600);
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-  }
-
-  /* Buttons */
-  .btn-primary,
-  .btn-secondary {
-    display: inline-block;
-    padding: 1rem 2rem;
+  /* Contact CTA */
+  .contact-cta {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
     border-radius: var(--radius-md);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1.05rem;
-    transition: all var(--transition-base);
-    border: none;
-    cursor: pointer;
+    padding: var(--space-2xl);
+    text-align: center;
+    margin-bottom: var(--space-3xl);
   }
 
-  .btn-primary {
-    background: var(--color-primary);
-    color: var(--color-neutral-100);
-  }
-
-  .btn-primary:hover {
-    background: var(--color-primary-dark);
-    text-decoration: none;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 53, 128, 0.3);
-  }
-
-  .btn-secondary {
-    background: var(--color-neutral-100);
+  .contact-cta h3 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
     color: var(--color-primary);
-    border: 2px solid var(--color-primary);
+    margin-bottom: var(--space-sm);
   }
 
-  .btn-secondary:hover {
-    background: var(--color-primary);
-    color: var(--color-neutral-100);
+  .contact-cta p {
+    color: var(--color-neutral-500);
+    margin-bottom: var(--space-lg);
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.875rem 2rem;
+    background: transparent;
+    color: var(--color-accent);
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     text-decoration: none;
+    border: 1.5px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+  }
+
+  .btn-outline:hover {
+    background: var(--color-accent);
+    color: var(--color-cream-light);
+    text-decoration: none;
+  }
+
+  .btn-outline:visited {
+    color: var(--color-accent);
+  }
+
+  .btn-outline:visited:hover {
+    color: var(--color-cream-light);
   }
 
   /* Responsive */
   @media (max-width: 640px) {
-    .page-header {
-      margin-bottom: 2rem;
-      padding: 1rem 0;
+    .page-hero {
+      padding: var(--space-2xl) 0 var(--space-xl);
     }
 
     .form-card {
-      padding: 2rem 1.5rem;
-      margin-bottom: 2rem;
+      padding: var(--space-xl);
     }
 
-    .form-icon {
-      font-size: 3rem;
-    }
-
-    .guidelines-grid {
+    .steps-grid {
       grid-template-columns: 1fr;
-      gap: 1rem;
+      gap: var(--space-md);
     }
 
-    .contact-card {
-      padding: 2rem 1.5rem;
-    }
-
-    .btn-primary,
-    .btn-secondary {
-      padding: 0.875rem 1.5rem;
-      font-size: 1rem;
+    .contact-cta {
+      padding: var(--space-xl);
     }
   }
 </style>

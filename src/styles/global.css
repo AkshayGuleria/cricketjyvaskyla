@@ -1,5 +1,6 @@
 /* ===================================
    CSS Reset & Base Styles
+   Nordic Cricket Editorial Theme
    =================================== */
 
 *,
@@ -15,11 +16,9 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
-  /* Prevent horizontal scroll */
   overflow-x: hidden;
 }
 
-/* Smooth scroll only if user doesn't prefer reduced motion */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
@@ -31,95 +30,99 @@ html {
    =================================== */
 
 :root {
-  /* Colors - Cricket-inspired palette extracted from legacy design */
-  --color-primary: #003580;         /* Finnish blue (from bg #036) */
-  --color-primary-light: #A4BBDD;   /* Light blue (from sidebar borders) */
-  --color-primary-dark: #002855;    /* Darker blue for hover states */
+  /* Colors - Nordic Cricket Editorial palette */
+  --color-primary: #0a1628;           /* Deep navy */
+  --color-primary-light: #1a2d4d;     /* Lighter navy */
+  --color-primary-dark: #060e1a;      /* Darkest navy */
 
-  --color-secondary: #2D5016;       /* Cricket green */
-  --color-accent: #DC143C;          /* Cricket ball red */
+  --color-accent: #c44a2f;            /* Terracotta red */
+  --color-accent-light: #d4694f;      /* Light terracotta */
+  --color-accent-dark: #a33d26;       /* Dark terracotta */
 
-  --color-neutral-50: #fafafa;
+  --color-cream: #f5f0e8;             /* Warm cream */
+  --color-cream-dark: #e8e0d4;        /* Darker cream */
+  --color-cream-light: #faf8f4;       /* Lightest cream */
+
+  --color-secondary: #2d6a4f;         /* Forest green */
+  --color-secondary-light: #40916c;   /* Light green */
+
+  --color-gold: #b8860b;              /* Antique gold */
+  --color-gold-light: #d4a847;        /* Light gold */
+
+  --color-neutral-50: #faf8f4;
   --color-neutral-100: #ffffff;
-  --color-neutral-200: #eeeeee;
-  --color-neutral-300: #dddddd;
-  --color-neutral-400: #cccccc;
-  --color-neutral-500: #999999;
-  --color-neutral-600: #666666;
-  --color-neutral-700: #333333;
-  --color-neutral-800: #1a1a1a;
-  --color-neutral-900: #000000;
+  --color-neutral-200: #e8e0d4;
+  --color-neutral-300: #d4cdc2;
+  --color-neutral-400: #a09788;
+  --color-neutral-500: #7a7168;
+  --color-neutral-600: #5a5248;
+  --color-neutral-700: #3a3430;
+  --color-neutral-800: #1a1614;
+  --color-neutral-900: #0a0806;
 
-  --color-link: #0000CC;
-  --color-link-hover: #003580;
-  --color-link-visited: #333333;
-
-  /* Background colors from legacy design */
-  --color-bg-highlight: #ffffc0;    /* Light yellow highlight */
-  --color-bg-highlight-hover: #ffffdd;
-  --color-bg-alt: #D3DEED;          /* Alternate row color */
+  --color-link: var(--color-accent);
+  --color-link-hover: var(--color-accent-dark);
+  --color-link-visited: var(--color-neutral-600);
 
   /* Typography */
-  --font-heading: Georgia, "Times New Roman", Times, serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-accent: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  --font-heading: "DM Serif Display", Georgia, "Times New Roman", serif;
+  --font-body: "Source Sans 3", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-accent: "Source Sans 3", "Source Sans Pro", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
   /* Font Sizes - Fluid Typography */
   --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
   --font-size-sm: clamp(0.875rem, 0.8rem + 0.25vw, 1rem);
-  --font-size-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --font-size-base: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
   --font-size-md: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
   --font-size-lg: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
   --font-size-xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);
-  --font-size-2xl: clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem);
-  --font-size-3xl: clamp(2.25rem, 1.8rem + 2vw, 3rem);
+  --font-size-2xl: clamp(1.875rem, 1.5rem + 1.5vw, 2.75rem);
+  --font-size-3xl: clamp(2.5rem, 2rem + 2.5vw, 4rem);
+  --font-size-4xl: clamp(3rem, 2.5rem + 3vw, 5rem);
 
   /* Line Heights */
-  --line-height-tight: 1.25;
+  --line-height-tight: 1.15;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
 
   /* Spacing (8px grid system) */
-  --space-xs: 0.25rem;   /* 4px */
-  --space-sm: 0.5rem;    /* 8px */
-  --space-md: 1rem;      /* 16px */
-  --space-lg: 1.5rem;    /* 24px */
-  --space-xl: 2rem;      /* 32px */
-  --space-2xl: 3rem;     /* 48px */
-  --space-3xl: 4rem;     /* 64px */
-  --space-4xl: 6rem;     /* 96px */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 6rem;
+  --space-5xl: 8rem;
 
   /* Container Widths */
   --container-sm: 640px;
   --container-md: 768px;
   --container-lg: 1024px;
-  --container-xl: 1280px;
-  --container-2xl: 1536px;
-
-  /* Breakpoints - Mobile First */
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1536px;
+  --container-xl: 1200px;
+  --container-2xl: 1400px;
 
   /* Border Radius */
-  --radius-sm: 0.25rem;   /* 4px */
-  --radius-md: 0.5rem;    /* 8px */
-  --radius-lg: 0.75rem;   /* 12px */
-  --radius-xl: 1rem;      /* 16px */
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px rgba(10, 22, 40, 0.06);
+  --shadow-md: 0 4px 12px rgba(10, 22, 40, 0.08);
+  --shadow-lg: 0 12px 32px rgba(10, 22, 40, 0.1);
+  --shadow-xl: 0 24px 48px rgba(10, 22, 40, 0.14);
+  --shadow-dramatic: 0 32px 64px rgba(10, 22, 40, 0.18);
 
   /* Transitions */
-  --transition-fast: 150ms ease-in-out;
-  --transition-base: 250ms ease-in-out;
-  --transition-slow: 350ms ease-in-out;
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Z-index layers */
   --z-dropdown: 1000;
@@ -140,41 +143,25 @@ body {
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
   color: var(--color-neutral-700);
-  background-color: var(--color-neutral-50);
+  background-color: var(--color-cream-light);
   overflow-x: hidden;
+  font-weight: 400;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 400;
   line-height: var(--line-height-tight);
-  color: var(--color-neutral-900);
+  color: var(--color-primary);
   margin-bottom: var(--space-md);
 }
 
-h1 {
-  font-size: var(--font-size-3xl);
-}
-
-h2 {
-  font-size: var(--font-size-2xl);
-}
-
-h3 {
-  font-size: var(--font-size-xl);
-}
-
-h4 {
-  font-size: var(--font-size-lg);
-}
-
-h5 {
-  font-size: var(--font-size-md);
-}
-
-h6 {
-  font-size: var(--font-size-base);
-}
+h1 { font-size: var(--font-size-3xl); }
+h2 { font-size: var(--font-size-2xl); }
+h3 { font-size: var(--font-size-xl); }
+h4 { font-size: var(--font-size-lg); }
+h5 { font-size: var(--font-size-md); }
+h6 { font-size: var(--font-size-base); }
 
 p {
   margin-bottom: var(--space-md);
@@ -189,6 +176,7 @@ a {
   color: var(--color-link);
   text-decoration: none;
   transition: color var(--transition-base);
+  text-underline-offset: 3px;
 }
 
 a:visited {
@@ -198,11 +186,12 @@ a:visited {
 a:hover {
   color: var(--color-link-hover);
   text-decoration: underline;
+  text-decoration-thickness: 1.5px;
 }
 
 a:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
   border-radius: var(--radius-sm);
 }
 
@@ -215,13 +204,8 @@ ul, ol {
   padding-left: var(--space-xl);
 }
 
-ul {
-  list-style-type: disc;
-}
-
-ol {
-  list-style-type: decimal;
-}
+ul { list-style-type: disc; }
+ol { list-style-type: decimal; }
 
 li {
   margin-bottom: var(--space-sm);
@@ -238,11 +222,6 @@ img {
   display: block;
 }
 
-img.responsive {
-  width: 100%;
-  height: auto;
-}
-
 /* ===================================
    Utilities
    =================================== */
@@ -256,19 +235,12 @@ img.responsive {
   padding-right: var(--space-lg);
 }
 
-.container-sm {
-  max-width: var(--container-sm);
-}
+.container-sm { max-width: var(--container-sm); }
+.container-md { max-width: var(--container-md); }
+.container-lg { max-width: var(--container-lg); }
 
-.container-md {
-  max-width: var(--container-md);
-}
-
-.container-lg {
-  max-width: var(--container-lg);
-}
-
-.visually-hidden {
+.visually-hidden,
+.sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -280,19 +252,6 @@ img.responsive {
   border: 0;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-/* Screen reader only - but focusable */
 .sr-only-focusable:focus,
 .sr-only-focusable:active {
   position: static;
@@ -303,25 +262,71 @@ img.responsive {
   white-space: normal;
 }
 
-.text-center {
-  text-align: center;
-}
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
 
-.text-left {
-  text-align: left;
-}
+/* ===================================
+   Grain Texture Overlay
+   =================================== */
 
-.text-right {
-  text-align: right;
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
 /* ===================================
-   Responsive Utilities
+   Staggered Reveal Animations
    =================================== */
 
-/* Mobile First Approach - Base styles are for mobile */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-/* Touch target minimum size (44x44px) */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.reveal {
+  animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.reveal-delay-1 { animation-delay: 0.1s; }
+.reveal-delay-2 { animation-delay: 0.2s; }
+.reveal-delay-3 { animation-delay: 0.3s; }
+.reveal-delay-4 { animation-delay: 0.4s; }
+
+/* ===================================
+   Responsive & Touch
+   =================================== */
+
 button,
 a,
 input[type="button"],
@@ -334,75 +339,42 @@ input[type="reset"] {
   justify-content: center;
 }
 
-/* Prevent text from overflowing */
 p, li, td, th {
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
 }
 
-/* Tablet and up (768px+) */
 @media (min-width: 768px) {
   .container {
     padding-left: var(--space-xl);
     padding-right: var(--space-xl);
   }
 
-  /* Increase line height for better readability on larger screens */
   body {
     line-height: 1.6;
   }
 }
 
-/* Desktop and up (1024px+) */
 @media (min-width: 1024px) {
   .container {
     padding-left: var(--space-2xl);
     padding-right: var(--space-2xl);
   }
-
-  /* Hover effects only on devices that support hover */
-  @media (hover: hover) {
-    a:hover,
-    button:hover {
-      transition: all var(--transition-base);
-    }
-  }
 }
 
-/* Large desktop (1440px+) */
 @media (min-width: 1440px) {
   .container {
     max-width: var(--container-2xl);
   }
 }
 
-/* Responsive visibility utilities */
-.mobile-only {
-  display: block;
-}
-
-.tablet-up {
-  display: none;
-}
+.mobile-only { display: block; }
+.tablet-up { display: none; }
 
 @media (min-width: 768px) {
-  .mobile-only {
-    display: none;
-  }
-
-  .tablet-up {
-    display: block;
-  }
-}
-
-/* Landscape orientation adjustments */
-@media (orientation: landscape) and (max-height: 600px) {
-  /* Reduce vertical padding on short landscape screens */
-  .page-header {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
+  .mobile-only { display: none; }
+  .tablet-up { display: block; }
 }
 
 /* ===================================
@@ -415,25 +387,25 @@ p, li, td, th {
     color: black;
   }
 
-  a {
-    text-decoration: underline;
+  body::after {
+    display: none;
   }
+
+  a { text-decoration: underline; }
 
   a[href]:after {
     content: " (" attr(href) ")";
   }
 
-  img {
-    max-width: 100% !important;
-  }
+  img { max-width: 100% !important; }
 }
 
 /* ===================================
-   Focus Visible (Accessibility)
+   Accessibility
    =================================== */
 
 :focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 2px solid var(--color-accent);
   outline-offset: 3px;
   border-radius: var(--radius-sm);
 }
@@ -443,16 +415,10 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 2px solid var(--color-accent);
   outline-offset: 3px;
 }
 
-/* High contrast focus for buttons */
-button:focus-visible {
-  outline-color: var(--color-accent);
-}
-
-/* Skip navigation focus */
 .skip-link:focus {
   position: static;
   width: auto;
@@ -472,4 +438,13 @@ button:focus-visible {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ===================================
+   Selection
+   =================================== */
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-cream-light);
 }

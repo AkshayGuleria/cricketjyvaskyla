@@ -13,12 +13,12 @@
     {
       "name": "Shehriyar Arif",
       "role": "Secretary",
-      "email": null
+      "email": "secretary@cricketjyvaskyla.com"
     },
     {
       "name": "Nasir Naveed",
       "role": "Treasurer",
-      "email": null
+      "email": "treasurer@cricketjyvaskyla.com"
     },
     {
       "name": "Mohsin Riaz",
@@ -43,7 +43,7 @@
   ],
   "players": [
     {
-      "name": "Saqib",
+      "name": "Saqib Arshad",
       "role": "Captain"
     },
     {
