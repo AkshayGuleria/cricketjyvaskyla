@@ -1,7 +1,7 @@
 <div align="center">
   <img src="public/images/jcc_logo.jpg" alt="Jyväskylä Cricket Club Logo" width="200" />
 
-  # Jyväskylä Cricket Club
+  # [Jyväskylä Cricket Club Ry](https://cricketjyvaskyla.com)
 
   [![Built with Astro](https://astro.badg.es/v2/built-with-astro/tiny.svg)](https://astro.build)
 </div>
