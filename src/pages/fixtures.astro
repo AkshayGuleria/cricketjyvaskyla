@@ -1,7 +1,107 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+function getPartOf(note: string | null): string[] {
+  if (!note) return [];
+  const tags: string[] = [];
+  if (note.includes('NFCT')) tags.push('NFCT');
+  if (note.toLowerCase().includes('vaskikello')) tags.push('Vaskikello');
+  if (note.toLowerCase().includes('friendly')) tags.push('Friendly');
+  return tags;
+}
+
+const fixtures = [
+  {
+    date: "02 May 2026",
+    day: "Saturday",
+    matches: [
+      { home: "JCC", away: "VKCC", type: "Home", note: "Friendly match" },
+      { home: "JCC", away: "VKCC", type: "Home", note: "Friendly match" },
+    ],
+  },
+  {
+    date: "16 May 2026",
+    day: "Saturday",
+    matches: [
+      { home: "JCC", away: "VCC", type: "Home", note: "NFCT Group match" },
+      { home: "JCC", away: "VCC", type: "Home", note: "Friendly match" },
+    ],
+  },
+  {
+    date: "24 May 2026",
+    day: "Sunday",
+    matches: [
+      { home: "JCC", away: "VKCC", type: "Home", note: "NFCT Group match" },
+    ],
+  },
+  {
+    date: "13 Jun 2026",
+    day: "Saturday",
+    matches: [
+      { home: "VCC", away: "JCC", type: "Away", note: "NFCT Group match" },
+      { home: "VKCC", away: "JCC", type: "Away", note: "NFCT Group match" },
+    ],
+  },
+  {
+    date: "27 Jun 2026",
+    day: "Saturday",
+    matches: [
+      {
+        home: "JCC",
+        away: "KCC",
+        type: "Home",
+        note: "NFCT Cross Group match",
+      },
+      { home: "JCC", away: "KCC", type: "Home", note: "NFCT Cross Group match" },
+    ],
+  },
+  {
+    date: "11 Jul 2026",
+    day: "Saturday",
+    matches: [
+      {
+        home: "JCC",
+        away: "OCC",
+        type: "Home",
+        note: "Vaskikello series ONLY",
+      },
+      { home: "JCC", away: "OCC", type: "Home", note: "Vaskikello series ONLY" },
+    ],
+  },
+  {
+    date: "01 Aug 2026",
+    day: "Saturday",
+    matches: [
+      {
+        home: "OCC",
+        away: "JCC",
+        type: "Away",
+        note: "Both matches counted in NFCT (Cross Group) and Vaskikello",
+      },
+      { home: "OCC", away: "JCC", type: "Away", note: "Both matches counted in NFCT (Cross Group) and Vaskikello" },
+    ],
+  },
+  {
+    date: "15 Aug 2026",
+    day: "Saturday",
+    event: "NFCT Semi Final",
+    note: "Host = team with higher group table position",
+  },
+  {
+    date: "22 Aug 2026",
+    day: "Saturday",
+    event: "NFCT Final",
+    note: "Host = team with higher group table position in respective groups",
+  },
+  {
+    date: "29 Aug 2026",
+    day: "Saturday",
+    event: "NFCT Final — Reserve Day",
+    note: "Reserve day for NFCT Final in case of unwanted disrutpions on the original date",
+  },
+];
 ---
 
 <BaseLayout
@@ -13,37 +113,150 @@ import Footer from '../components/Footer.astro';
   <div class="container">
     <header class="page-hero reveal">
       <div class="page-hero-label">Season Schedule</div>
-      <h1>Fixtures</h1>
-      <p class="page-hero-lead">Check out our upcoming cricket matches and season schedule.</p>
+      <h1>Fixtures 2026</h1>
+      <p class="page-hero-lead">Outdoor home matches are
+        played at <a
+          href="https://maps.app.goo.gl/AY2yD7KoCzrhkQTt5"
+          target="_blank"
+          rel="noopener noreferrer">Tikkakosken Liikuntapuisto</a
+        >.
+        Full group details and fixtures for <a
+          href="https://sites.google.com/view/cricket-northern-finland/matches"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Northern Finland Cricket Tournament (NFCT)</a
+        >
+      </p>
     </header>
 
     <div class="fixtures-content">
-      <!-- Empty State -->
-      <div class="empty-state reveal reveal-delay-1">
-        <div class="empty-marker"></div>
-        <h2>No Upcoming Matches</h2>
-        <p>There are currently no scheduled fixtures. Check back soon for our upcoming season schedule.</p>
-        <p class="empty-note">The season typically runs from May to September with practice sessions continuing year-round.</p>
+      <!-- Table -->
+      <div class="table-shell reveal reveal-delay-1">
+        <div class="table-scroll">
+          <table class="fixtures-table" role="table">
+            <thead>
+              <tr>
+                <th scope="col" class="th-date">Date</th>
+                <th scope="col" class="th-match" colspan="3">Match</th>
+                <th scope="col" class="th-type">Type</th>
+                <th scope="col" class="th-partof">Part of</th>
+                <th scope="col" class="th-note">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                fixtures.map((row, gi) => {
+                  const parity = gi % 2 === 0 ? "even" : "odd";
+                  const isFirstEvent =
+                    row.event && (gi === 0 || !fixtures[gi - 1].event);
+
+                  if (row.event) {
+                    return (
+                      <>
+                        {isFirstEvent && (
+                          <tr class="phase-divider-row">
+                            <td colspan="7" class="phase-divider-cell">
+                              <span class="phase-label">Knockout Phase</span>
+                            </td>
+                          </tr>
+                        )}
+                        <tr class="event-row">
+                          <td class="date-cell event-date">
+                            <span class="date-main">{row.date}</span>
+                            <span class="date-day">{row.day}</span>
+                          </td>
+                          <td colspan="3" class="event-name-cell">
+                            {row.event}
+                          </td>
+                          <td class="event-type-cell" />
+                          <td class="event-type-cell" />
+                          <td class="event-note-cell">{row.note ?? ""}</td>
+                        </tr>
+                      </>
+                    );
+                  }
+
+                  return row.matches.map((match, i) => (
+                    <tr
+                      class={`match-row parity-${parity} type-${match.type.toLowerCase()}${i > 0 ? " continuation" : ""}`}
+                    >
+                      {i === 0 && (
+                        <td class="date-cell" rowspan={row.matches.length}>
+                          <span class="date-main">{row.date}</span>
+                          <span class="date-day">{row.day}</span>
+                          {row.matches.length > 1 && (
+                            <span class="match-count">
+                              {row.matches.length} matches
+                            </span>
+                          )}
+                        </td>
+                      )}
+                      <td
+                        class={`team-cell team-home${match.home === "JCC" ? " is-jcc" : ""}`}
+                      >
+                        {match.home}
+                      </td>
+                      <td class="vs-cell" aria-label="versus">
+                        <span class="vs-pip">vs</span>
+                      </td>
+                      <td
+                        class={`team-cell team-away${match.away === "JCC" ? " is-jcc" : ""}`}
+                      >
+                        {match.away}
+                      </td>
+                      <td class="type-cell">
+                        <span class={`badge badge-${match.type.toLowerCase()}`}>
+                          {match.type}
+                        </span>
+                      </td>
+                      <td class="partof-cell">
+                        {getPartOf(match.note).map(tag => (
+                          <span class={`badge badge-partof badge-partof-${tag.toLowerCase()}`}>{tag}</span>
+                        ))}
+                      </td>
+                      <td class="note-cell">
+                        {match.note ?? <span class="note-empty">&mdash;</span>}
+                      </td>
+                    </tr>
+                  ));
+                })
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- Info Grid -->
+      <!-- Info tiles -->
       <div class="info-row reveal reveal-delay-2">
-        <a href="https://maps.app.goo.gl/ZNHLoMhYoDEYpmpn8?g_st=iw" target="_blank" rel="noopener" class="info-tile">
+        <a
+          href="https://maps.app.goo.gl/ZNHLoMhYoDEYpmpn8?g_st=iw"
+          target="_blank"
+          rel="noopener"
+          class="info-tile"
+        >
           <span class="tile-label">Home Ground</span>
           <span class="tile-value">Tikkakosken Liikuntapuisto</span>
-          <span class="tile-action">View Location <span aria-hidden="true">&rarr;</span></span>
+          <span class="tile-action"
+            >View Location <span aria-hidden="true">&rarr;</span></span
+          >
         </a>
-
         <a href="/join_us/" class="info-tile">
           <span class="tile-label">Practice Sessions</span>
-          <span class="tile-value">Indoor (Sept&ndash;April) &amp; Outdoor (May&ndash;Sept)</span>
-          <span class="tile-action">Learn More <span aria-hidden="true">&rarr;</span></span>
+          <span class="tile-value"
+            >Indoor (Sept&ndash;April) &amp; Outdoor (May&ndash;Sept)</span
+          >
+          <span class="tile-action"
+            >Learn More <span aria-hidden="true">&rarr;</span></span
+          >
         </a>
-
         <a href="/contact/" class="info-tile">
           <span class="tile-label">Stay Updated</span>
-          <span class="tile-value">Contact us for the latest match information</span>
-          <span class="tile-action">Contact Us <span aria-hidden="true">&rarr;</span></span>
+          <span class="tile-value"
+            >Contact us for the latest match information</span
+          >
+          <span class="tile-action"
+            >Contact Us <span aria-hidden="true">&rarr;</span></span
+          >
         </a>
       </div>
     </div>
@@ -53,9 +266,10 @@ import Footer from '../components/Footer.astro';
 </BaseLayout>
 
 <style>
+  /* ── Page hero ───────────────────────────────── */
   .page-hero {
-    padding: var(--space-3xl) 0 var(--space-2xl);
-    max-width: 680px;
+    padding: var(--space-3xl) 0 var(--space-lg);
+    max-width: none;
   }
 
   .page-hero-label {
@@ -71,7 +285,7 @@ import Footer from '../components/Footer.astro';
   }
 
   .page-hero-label::before {
-    content: '';
+    content: "";
     position: absolute;
     left: 0;
     top: 50%;
@@ -92,58 +306,349 @@ import Footer from '../components/Footer.astro';
     font-size: clamp(1.05rem, 1.5vw, 1.15rem);
     line-height: 1.7;
     color: var(--color-neutral-500);
+    white-space: nowrap;
   }
 
   .fixtures-content {
-    max-width: 900px;
+    max-width: 980px;
+    padding-bottom: var(--space-3xl);
   }
 
-  /* Empty State */
-  .empty-state {
-    background: var(--color-cream);
-    border: 1px solid var(--color-cream-dark);
-    border-radius: var(--radius-md);
-    padding: var(--space-3xl) var(--space-2xl);
-    margin-bottom: var(--space-2xl);
-    position: relative;
+  /* ── Phase divider row ───────────────────────── */
+  .phase-divider-row {
+    background: rgba(184, 134, 11, 0.08) !important;
+    border-top: 2px solid var(--color-gold-light);
+    border-bottom: 1px solid rgba(184, 134, 11, 0.2);
+  }
+
+  .phase-divider-cell {
+    padding: 0.55rem 0.9rem !important;
+    text-align: center;
+  }
+
+  .phase-label {
+    font-family: var(--font-accent);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-gold);
+  }
+
+  /* ── Table shell ─────────────────────────────── */
+  .table-shell {
+    border-radius: var(--radius-lg);
     overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(10, 22, 40, 0.1),
+      0 2px 8px rgba(10, 22, 40, 0.06),
+      0 12px 40px rgba(10, 22, 40, 0.08);
+    margin-bottom: var(--space-4xl);
   }
 
-  .empty-marker {
-    width: 48px;
-    height: 3px;
-    background: var(--color-accent);
-    border-radius: 2px;
-    margin-bottom: var(--space-xl);
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .empty-state h2 {
-    font-family: var(--font-heading);
-    font-size: var(--font-size-xl);
-    color: var(--color-primary);
-    margin-bottom: var(--space-md);
-  }
-
-  .empty-state p {
-    font-size: 1rem;
-    color: var(--color-neutral-600);
-    line-height: 1.7;
-    margin-bottom: var(--space-sm);
-    max-width: 520px;
-  }
-
-  .empty-note {
+  /* ── Table base ──────────────────────────────── */
+  .fixtures-table {
+    width: 100%;
+    border-collapse: collapse;
     font-size: 0.9rem;
+    background: var(--color-cream-light);
+    table-layout: auto;
+  }
+
+  /* ── Header ──────────────────────────────────── */
+  .fixtures-table thead tr {
+    background: var(--color-primary);
+    border-bottom: 2px solid var(--color-accent);
+  }
+
+  .fixtures-table thead th {
+    padding: 0.9rem 1.1rem;
+    font-family: var(--font-accent);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(245, 240, 232, 0.75);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .th-date {
+    color: var(--color-gold-light);
+    min-width: 130px;
+  }
+  .th-match {
+    color: rgba(245, 240, 232, 0.75);
+  }
+  .th-type {
+    color: rgba(245, 240, 232, 0.75);
+    min-width: 80px;
+  }
+  .th-partof {
+    color: rgba(245, 240, 232, 0.75);
+    min-width: 120px;
+  }
+  .th-note {
+    color: rgba(245, 240, 232, 0.75);
+    min-width: 200px;
+  }
+
+  /* ── Body rows ───────────────────────────────── */
+  .fixtures-table tbody tr {
+    transition: background 0.15s ease;
+  }
+
+  /* Alternating date-group shading */
+  .match-row.parity-even {
+    background: #ffffff;
+  }
+
+  .match-row.parity-odd {
+    background: var(--color-cream-light);
+  }
+
+  /* Row separator — only between date groups, not within a group */
+  .match-row:not(.continuation) td {
+    border-top: 1px solid var(--color-cream-dark);
+  }
+
+  /* Continuation rows (same date group) get a fainter inner rule */
+  .match-row.continuation td {
+    border-top: 1px dashed var(--color-cream-dark);
+  }
+
+  .match-row.parity-even:hover,
+  .match-row.parity-odd:hover {
+    background: #e8f0eb;
+  }
+
+  .match-row.type-away.parity-even:hover,
+  .match-row.type-away.parity-odd:hover {
+    background: #f7ece9;
+  }
+
+  /* ── Date cell ───────────────────────────────── */
+  .date-cell {
+    padding: 1rem 1.1rem;
+    vertical-align: top;
+    border-right: 1px solid var(--color-cream-dark);
+    background: var(--color-cream) !important;
+    width: 130px;
+  }
+
+  .date-main {
+    display: block;
+    font-family: var(--font-accent);
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+
+  .date-day {
+    display: block;
+    font-family: var(--font-accent);
+    font-size: 0.68rem;
+    font-weight: 400;
     color: var(--color-neutral-400);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.2rem;
+  }
+
+  .match-count {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-family: var(--font-accent);
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-neutral-100);
+    background: var(--color-primary);
+    padding: 0.18rem 0.55rem;
+    border-radius: var(--radius-full);
+  }
+
+  /* ── Team cells ──────────────────────────────── */
+  .fixtures-table tbody td {
+    padding: 0.9rem 1.1rem;
+    vertical-align: middle;
+    color: var(--color-neutral-700);
+  }
+
+  .team-cell {
+    font-family: var(--font-accent);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-neutral-700);
+    white-space: nowrap;
+    min-width: 52px;
+  }
+
+  .team-cell.is-jcc {
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 0.97rem;
+  }
+
+  /* ── "vs" separator ──────────────────────────── */
+  .vs-cell {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+    text-align: center;
+    width: 36px;
+  }
+
+  .vs-pip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-cream-dark);
+    font-family: var(--font-accent);
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-neutral-500);
+  }
+
+  /* ── Type badges ─────────────────────────────── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.28rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-family: var(--font-accent);
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .badge-home {
+    background: var(--color-secondary);
+    color: #fff;
+  }
+
+  .badge-away {
+    background: var(--color-accent);
+    color: #fff;
+  }
+
+  /* ── Part of badges ──────────────────────────── */
+  .partof-cell {
+    white-space: nowrap;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+    padding-left: 0.9rem;
+  }
+
+  .badge-partof-nfct {
+    background: #2563eb;
+    color: #fff;
+  }
+
+  .badge-partof-vaskikello {
+    background: #ea580c;
+    color: #fff;
+  }
+
+  .badge-partof-friendly {
+    background: #7c3aed;
+    color: #fff;
+  }
+
+  /* ── Note cell ───────────────────────────────── */
+  .note-cell {
+    font-size: 0.88rem;
+    color: var(--color-neutral-500);
+    line-height: 1.5;
+  }
+
+  .note-empty {
+    color: var(--color-neutral-300);
+  }
+
+  /* ── Event rows (Semi Final / Final) ─────────── */
+  .event-row {
+    background: var(--color-primary) !important;
+    border-top: 2px solid rgba(212, 168, 71, 0.3);
+  }
+
+  .event-row td {
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
+  }
+
+  .event-row:hover {
+    background: var(--color-primary-light) !important;
+  }
+
+  .event-date {
+    border-right-color: rgba(255, 255, 255, 0.08) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  .event-date .date-main {
+    color: var(--color-gold-light) !important;
+  }
+
+  .event-date .date-day {
+    color: rgba(250, 249, 249, 0.762) !important;
+  }
+
+  .event-name-cell {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    color: var(--color-cream) !important;
+    letter-spacing: 0.01em;
+    border-left: none;
+  }
+
+  .event-icon {
+    color: var(--color-gold-light);
+    font-size: 0.55rem;
+    margin-right: 0.6rem;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+  }
+
+  .event-type-cell {
+    /* empty placeholder for Type column */
+  }
+
+  .event-note-cell {
+    font-size: 0.98rem;
+    color: rgba(246, 245, 243, 0.95) !important;
     font-style: italic;
   }
 
-  /* Info Row */
+  /* ── Left type accent strip ──────────────────── */
+  .type-cell {
+    padding-left: 0.9rem;
+    white-space: nowrap;
+  }
+
+  /* ── Info tiles ──────────────────────────────── */
   .info-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: var(--space-md);
-    margin-bottom: var(--space-3xl);
   }
 
   .info-tile {
@@ -155,10 +660,10 @@ import Footer from '../components/Footer.astro';
     border-radius: var(--radius-md);
     text-decoration: none;
     transition: all var(--transition-base);
-    min-height: auto;
-    min-width: auto;
     align-items: flex-start;
     justify-content: flex-start;
+    min-height: auto;
+    min-width: auto;
   }
 
   .info-tile:hover {
@@ -200,18 +705,23 @@ import Footer from '../components/Footer.astro';
     color: var(--color-cream);
   }
 
-  /* Responsive */
-  @media (max-width: 640px) {
+  /* ── Responsive ──────────────────────────────── */
+  @media (max-width: 700px) {
     .page-hero {
       padding: var(--space-2xl) 0 var(--space-xl);
     }
 
-    .empty-state {
-      padding: var(--space-2xl) var(--space-lg);
-    }
-
     .info-row {
       grid-template-columns: 1fr;
+    }
+
+    /* Hide note and part-of columns on small screens */
+    .th-note,
+    .note-cell,
+    .event-note-cell,
+    .th-partof,
+    .partof-cell {
+      display: none;
     }
   }
 </style>
