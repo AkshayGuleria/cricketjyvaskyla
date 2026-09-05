@@ -136,6 +136,9 @@ Edit `src/data/gallery.json`:
       "id": "album-id",
       "title": "Album Title",
       "description": "Album description",
+      "date": "2026-06-01",
+      "location": "Tikkakoski",
+      "coverImage": "/images/photo.jpg",
       "images": [
         {
           "src": "/images/photo.jpg",
@@ -157,10 +160,12 @@ Global styles are in `src/styles/global.css` using CSS custom properties:
 
 ```css
 :root {
-  --color-primary: #003580;    /* Primary brand color */
-  --color-secondary: #2D5016;  /* Secondary color */
-  --color-accent: #DC143C;     /* Accent color */
-  /* ... more variables */
+  --color-primary: #0a1628;    /* Deep navy */
+  --color-accent: #c44a2f;     /* Terracotta red */
+  --color-cream: #f5f0e8;      /* Warm cream surface */
+  --color-secondary: #2d6a4f;  /* Forest green */
+  --color-gold: #b8860b;       /* Antique gold */
+  /* ... plus spacing, typography, radius and shadow tokens */
 }
 ```
 

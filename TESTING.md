@@ -5,7 +5,7 @@
 ### ✅ Functional Testing
 
 #### Navigation
-- [ ] All 7 navigation links work
+- [ ] All 8 navigation links work
 - [ ] Logo links to homepage
 - [ ] Mobile hamburger menu opens/closes
 - [ ] Active page highlighted in navigation
@@ -16,9 +16,10 @@
 - [ ] **Members** - All 32 member cards display (8 exec + 24 players)
 - [ ] **Join Us** - Membership info, fees, map links work
 - [ ] **Contact** - Email links work (mailto:)
-- [ ] **Fixtures** - Empty state displays properly
+- [ ] **Fixtures** - 2026 season table renders, knockout phase divider shown
 - [ ] **Expense Form** - Google Form link works
 - [ ] **Gallery** - Albums display, empty state shown
+- [ ] **Juniors** - Both club cards render, logos load, Lyyti registration links open
 
 #### Forms & Links
 - [ ] Email links open default mail client

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Official website for Jyväskylä Cricket Club (JCC), a Finnish sports association founded in 2009. Astro 5 static site, deployed to Netlify at https://cricketjyvaskyla.com.
+Official website for Jyväskylä Cricket Club (JCC), a Finnish sports association founded in 2009. Astro 7 static site, deployed to Netlify at https://cricketjyvaskyla.com.
 
 (An older jQuery/XHTML version of this site existed before the rewrite in `776b41c`. Any instruction elsewhere about `js/header.js`, LavaLamp, `document.write()`, or ISO-8859-1 refers to that dead site.)
 
@@ -12,7 +12,7 @@ Official website for Jyväskylä Cricket Club (JCC), a Finnish sports associatio
 
 ### Stack
 
-- Astro 5, `output: 'static'`, no server runtime
+- Astro 7, `output: 'static'`, no server runtime (requires Node >=22.12)
 - Plain CSS with custom properties — no Tailwind, no CSS framework
 - PhotoSwipe 5 for the gallery lightbox
 - TypeScript in `.astro` frontmatter (`@astrojs/check`)
@@ -74,6 +74,10 @@ Most `.astro` files, `CLAUDE.md`, and `TESTING.md` use **CRLF**. There is no `.g
 ### Always write root-relative links in source
 
 Write `/juniors/`, not `../juniors/`. The post-build script `scripts/make-relative-paths.mjs` rewrites every root-relative `href`/`src`/`content` in `dist/**/*.html` into a path relative to that file's depth, so the built site also works over `file://`. Hand-written relative paths defeat it.
+
+### Do not drop the CSS target pin
+
+`astro.config.mjs` pins `vite.build.cssTarget` to `['safari15', 'chrome100', 'firefox100']`. Without it, the default target emits media range syntax (`@media (width <= 640px)`), which Safari only supports from 16.4 - every responsive rule would be ignored on iOS 15 and early iOS 16.
 
 ### Trailing slashes
 

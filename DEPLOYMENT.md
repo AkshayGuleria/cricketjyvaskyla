@@ -78,7 +78,7 @@ No environment variables needed for basic deployment. All configuration is in `a
 ## Post-Deployment Checklist
 
 - [ ] Site loads at custom domain
-- [ ] All 7 pages are accessible
+- [ ] All 8 pages are accessible
 - [ ] Images load correctly
 - [ ] PDFs download properly
 - [ ] Navigation works on mobile
