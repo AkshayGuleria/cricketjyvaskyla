@@ -98,4 +98,4 @@ Files are UTF-8, so literal `ä`/`ö` are fine and are what `title`/`description
 
 ## Deployment
 
-Netlify builds `npm run build` and publishes `dist/` on push to `master` (Node 20). `netlify.toml` also sets security headers and long cache lifetimes for `/assets/*`, `/images/*`, and `/pdfs/*`. See `DEPLOYMENT.md`.
+Netlify builds `npm run build` and publishes `dist/` on push to `master` (Node 22 — Astro 7 requires >=22.12). `netlify.toml` also sets security headers and long cache lifetimes for `/assets/*`, `/images/*`, and `/pdfs/*`. See `DEPLOYMENT.md`.

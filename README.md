@@ -10,7 +10,7 @@
 
 ## 🚀 Tech Stack
 
-- **Framework:** [Astro 5](https://astro.build) - Static site generator
+- **Framework:** [Astro 7](https://astro.build) - Static site generator
 - **Styling:** Modern CSS with custom properties
 - **Gallery:** [Photoswipe 5](https://photoswipe.com) - Lightbox library
 - **Package Manager:** npm
@@ -35,6 +35,7 @@ cricketjyvaskyla/
 │   │   ├── join_us.astro
 │   │   ├── fixtures.astro
 │   │   ├── gallery.astro
+│   │   ├── juniors.astro
 │   │   ├── contact.astro
 │   │   └── expense_form.astro
 │   ├── styles/           # Global styles
@@ -55,7 +56,7 @@ cricketjyvaskyla/
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) v20 or higher
+- [Node.js](https://nodejs.org/) v22.12 or higher (required by Astro 7)
 - npm (comes with Node.js)
 
 ### Installation

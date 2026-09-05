@@ -26,7 +26,7 @@ This guide explains how to deploy the Jyväskylä Cricket Club website.
 3. **Configure Build Settings** (should be auto-detected)
    - Build command: `npm run build`
    - Publish directory: `dist`
-   - Node version: 20
+   - Node version: 22
 
 4. **Deploy!**
    - Click "Deploy site"
