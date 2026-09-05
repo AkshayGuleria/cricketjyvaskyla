@@ -13,8 +13,8 @@ const clubs = [
     school: 'Kuokkala school',
     starts: 'Monday 7 September 2026',
     logo: '/images/juniors/sisuleijonat.webp',
-    logoWidth: 600,
-    logoHeight: 505,
+    logoWidth: 360,
+    logoHeight: 267,
     description: 'For older school children ready for a faster game — batting, bowling and match play with the club’s senior coaches.',
     registerUrl: 'https://www.lyyti.fi/reg/Krikettikerho_SisuLeijonat_3593'
   },
@@ -24,8 +24,8 @@ const clubs = [
     school: 'Kortepohja school',
     starts: 'Tuesday 22 September 2026',
     logo: '/images/juniors/sisukarhut.webp',
-    logoWidth: 600,
-    logoHeight: 514,
+    logoWidth: 360,
+    logoHeight: 257,
     description: 'An introduction to cricket for younger children, built around games, catching and simple bat-and-ball skills.',
     registerUrl: 'https://www.lyyti.fi/reg/Krikettikerho_Sisukarhut_7092'
   }
@@ -51,7 +51,19 @@ const clubs = [
       {clubs.map((club) => (
         <article class="info-card">
           <div class="card-accent"></div>
-          <div class="club-logo-wrap">
+          <div class="club-body">
+            <div class="club-text">
+              <h2>{club.name}</h2>
+              <p class="club-meta">
+                <span>{club.grades} &middot; {club.school}</span>
+                <span class="free-badge">Free</span>
+              </p>
+              <p class="club-starts">Starts {club.starts}</p>
+              <p>{club.description}</p>
+              <a href={club.registerUrl} target="_blank" rel="noopener" class="btn-accent">
+                Register
+              </a>
+            </div>
             <img
               src={club.logo}
               alt={`${club.name} kids cricket club logo`}
@@ -62,16 +74,6 @@ const clubs = [
               decoding="async"
             />
           </div>
-          <h2>{club.name}</h2>
-          <p class="club-meta">
-            <span>{club.grades} &middot; {club.school}</span>
-            <span class="free-badge">Free</span>
-          </p>
-          <p class="club-starts">Starts {club.starts}</p>
-          <p>{club.description}</p>
-          <a href={club.registerUrl} target="_blank" rel="noopener" class="btn-accent">
-            Register
-          </a>
         </article>
       ))}
     </div>
@@ -160,9 +162,6 @@ const clubs = [
     position: relative;
     overflow: hidden;
     transition: box-shadow var(--transition-base);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .info-card:hover {
@@ -178,17 +177,25 @@ const clubs = [
     background: var(--color-accent);
   }
 
-  .club-logo-wrap {
-    align-self: stretch;
+  .club-body {
     display: flex;
-    justify-content: center;
-    margin-bottom: var(--space-lg);
+    align-items: flex-start;
+    gap: var(--space-lg);
+  }
+
+  .club-text {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
   }
 
   .club-logo {
-    width: 100%;
-    max-width: 280px;
+    flex: 0 0 auto;
+    width: 130px;
     height: auto;
+    margin-top: 0.15rem;
   }
 
   .free-badge {
@@ -242,7 +249,7 @@ const clubs = [
     margin-bottom: var(--space-xs);
   }
 
-  .info-card .btn-accent {
+  .club-text .btn-accent {
     margin-top: auto;
   }
 
@@ -367,6 +374,22 @@ const clubs = [
 
     .info-row {
       grid-template-columns: 1fr;
+    }
+
+    .club-body {
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .club-text {
+      align-self: stretch;
+    }
+
+    .club-logo {
+      width: 100%;
+      max-width: 200px;
+      margin-top: 0;
     }
 
     .cta-band {
