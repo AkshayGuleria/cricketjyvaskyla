@@ -12,6 +12,9 @@ const clubs = [
     grades: 'Grades 5–9',
     school: 'Kuokkala school',
     starts: 'Monday 7 September 2026',
+    logo: '/images/juniors/sisuleijonat.webp',
+    logoWidth: 600,
+    logoHeight: 505,
     description: 'For older school children ready for a faster game — batting, bowling and match play with the club’s senior coaches.',
     registerUrl: 'https://www.lyyti.fi/reg/Krikettikerho_SisuLeijonat_3593'
   },
@@ -20,6 +23,9 @@ const clubs = [
     grades: 'Grades 1–6',
     school: 'Kortepohja school',
     starts: 'Tuesday 22 September 2026',
+    logo: '/images/juniors/sisukarhut.webp',
+    logoWidth: 600,
+    logoHeight: 514,
     description: 'An introduction to cricket for younger children, built around games, catching and simple bat-and-ball skills.',
     registerUrl: 'https://www.lyyti.fi/reg/Krikettikerho_Sisukarhut_7092'
   }
@@ -45,9 +51,22 @@ const clubs = [
       {clubs.map((club) => (
         <article class="info-card">
           <div class="card-accent"></div>
-          <div class="free-badge">Free</div>
+          <div class="club-logo-wrap">
+            <img
+              src={club.logo}
+              alt={`${club.name} kids cricket club logo`}
+              width={club.logoWidth}
+              height={club.logoHeight}
+              class="club-logo"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
           <h2>{club.name}</h2>
-          <p class="club-meta">{club.grades} &middot; {club.school}</p>
+          <p class="club-meta">
+            <span>{club.grades} &middot; {club.school}</span>
+            <span class="free-badge">Free</span>
+          </p>
           <p class="club-starts">Starts {club.starts}</p>
           <p>{club.description}</p>
           <a href={club.registerUrl} target="_blank" rel="noopener" class="btn-accent">
@@ -159,10 +178,20 @@ const clubs = [
     background: var(--color-accent);
   }
 
+  .club-logo-wrap {
+    align-self: stretch;
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-lg);
+  }
+
+  .club-logo {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+  }
+
   .free-badge {
-    position: absolute;
-    top: var(--space-md);
-    right: var(--space-md);
     font-family: var(--font-accent);
     font-size: 0.65rem;
     text-transform: uppercase;
@@ -170,8 +199,9 @@ const clubs = [
     font-weight: 600;
     color: var(--color-gold);
     background: rgba(212, 168, 71, 0.16);
-    padding: 0.3rem 0.75rem;
+    padding: 0.25rem 0.7rem;
     border-radius: var(--radius-full);
+    white-space: nowrap;
   }
 
   .info-card h2 {
@@ -179,10 +209,13 @@ const clubs = [
     font-size: 1.4rem;
     color: var(--color-primary);
     margin-bottom: var(--space-xs);
-    padding-right: 4rem;
   }
 
   .club-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
     font-family: var(--font-accent);
     font-size: 0.85rem;
     font-weight: 600;
