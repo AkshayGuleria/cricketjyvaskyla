@@ -149,16 +149,22 @@ const clubs = [
   /* Club Cards */
   .info-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: 1fr;
     gap: var(--space-lg);
     margin-bottom: var(--space-4xl);
+  }
+
+  @media (min-width: 880px) {
+    .info-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   .info-card {
     background: var(--color-cream);
     border: 1px solid var(--color-cream-dark);
     border-radius: var(--radius-md);
-    padding: var(--space-xl);
+    padding: var(--space-lg);
     position: relative;
     overflow: hidden;
     transition: box-shadow var(--transition-base);
@@ -179,8 +185,10 @@ const clubs = [
 
   .club-body {
     display: flex;
-    align-items: flex-start;
-    gap: var(--space-lg);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
   }
 
   .club-text {
@@ -193,9 +201,8 @@ const clubs = [
 
   .club-logo {
     flex: 0 0 auto;
-    width: 130px;
+    width: clamp(104px, 11vw, 150px);
     height: auto;
-    margin-top: 0.15rem;
   }
 
   .free-badge {
@@ -213,7 +220,7 @@ const clubs = [
 
   .info-card h2 {
     font-family: var(--font-heading);
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     color: var(--color-primary);
     margin-bottom: var(--space-xs);
   }
@@ -227,13 +234,14 @@ const clubs = [
     font-size: 0.85rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     color: var(--color-accent);
     margin-bottom: var(--space-xs);
+    font-size: 0.78rem;
   }
 
   .club-starts {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--color-primary);
     font-weight: 600;
     margin-bottom: var(--space-md);
@@ -241,7 +249,8 @@ const clubs = [
 
   .info-card p {
     color: var(--color-neutral-600);
-    line-height: 1.7;
+    font-size: 0.92rem;
+    line-height: 1.65;
     margin-bottom: var(--space-md);
   }
 
@@ -367,6 +376,19 @@ const clubs = [
   }
 
   /* Responsive */
+  @media (max-width: 520px) {
+    .club-body {
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .club-logo {
+      width: 100%;
+      max-width: 200px;
+    }
+  }
+
   @media (max-width: 640px) {
     .page-hero {
       padding: var(--space-2xl) 0 var(--space-xl);
@@ -376,20 +398,8 @@ const clubs = [
       grid-template-columns: 1fr;
     }
 
-    .club-body {
-      flex-direction: column-reverse;
-      align-items: center;
-      gap: var(--space-md);
-    }
-
     .club-text {
       align-self: stretch;
-    }
-
-    .club-logo {
-      width: 100%;
-      max-width: 200px;
-      margin-top: 0;
     }
 
     .cta-band {
