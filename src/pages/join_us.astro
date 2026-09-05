@@ -33,7 +33,7 @@ import Footer from '../components/Footer.astro';
         <div class="card-accent"></div>
         <h2>Practice Sessions</h2>
         <p>In September, indoor practice sessions begin in the University's U2 sports hall and last until April. From May onwards, outdoor sessions resume.</p>
-        <a href="http://g.co/maps/w5gh3" target="_blank" rel="noopener" class="card-link">
+        <a href="https://maps.app.goo.gl/QMkVKn2Smhpbx6sSA" target="_blank" rel="noopener" class="card-link">
           View on Map <span aria-hidden="true">&rarr;</span>
         </a>
       </article>
@@ -65,6 +65,7 @@ import Footer from '../components/Footer.astro';
       <div class="cta-content">
         <h3>Have Questions?</h3>
         <p>If you have more questions or queries, please feel free to contact us.</p>
+        <p class="cta-note">Looking for cricket for your child? See our free <a href="/juniors/">junior clubs</a>.</p>
         <a href="/contact/" class="btn-accent">Contact Us</a>
       </div>
     </section>
@@ -322,6 +323,10 @@ import Footer from '../components/Footer.astro';
   .cta-content p {
     color: var(--color-neutral-500);
     margin-bottom: var(--space-lg);
+  }
+
+  .cta-note {
+    font-size: 0.95rem;
   }
 
   .btn-accent {
