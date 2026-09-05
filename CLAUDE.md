@@ -4,104 +4,98 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the official website for Jyväskylä Cricket Club (JCC), a Finnish sports association founded in 2009. The website is a static HTML/CSS/JavaScript site with no build process or package management.
+Official website for Jyväskylä Cricket Club (JCC), a Finnish sports association founded in 2009. Astro 5 static site, deployed to Netlify at https://cricketjyvaskyla.com.
+
+(An older jQuery/XHTML version of this site existed before the rewrite in `776b41c`. Any instruction elsewhere about `js/header.js`, LavaLamp, `document.write()`, or ISO-8859-1 refers to that dead site.)
 
 ## Architecture
 
-### Site Structure
+### Stack
 
-The website uses a **component-based JavaScript injection pattern** for shared elements:
-- `js/header.js` - Dynamically generates the header and navigation menu using `document.write()`
-- `js/footer.js` - Dynamically generates the footer
-- Each HTML page includes these scripts to maintain consistent navigation and branding
+- Astro 5, `output: 'static'`, no server runtime
+- Plain CSS with custom properties — no Tailwind, no CSS framework
+- PhotoSwipe 5 for the gallery lightbox
+- TypeScript in `.astro` frontmatter (`@astrojs/check`)
+- `@astrojs/sitemap` — new pages are picked up automatically, no manual sitemap edits
 
-### Navigation System
+### Layout composition
 
-The site uses the **LavaLamp jQuery plugin** for animated navigation:
-- Animation effect configured in each HTML page's `<script>` block
-- Current page detection via URL parsing in `header.js` (lines 3-6)
-- Active menu item marked with `class="current"`
+Every page follows the same shape:
 
-### Page Layout Pattern
-
-All pages follow this structure:
-```html
-#wrap
-  #topbg (decorative)
-  #wrap2 (main container with background image)
-    [header.js injection point]
-    #content
-      #left (main content area, 650px)
-        .post (repeatable content blocks)
-      #sidebar (right sidebar, positioned at 658px)
-    [footer.js injection point]
-  #btmbg (decorative)
+```astro
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+<BaseLayout title="..." description="...">
+  <Header slot="header" />
+  <div class="container">
+    ...page content...
+  </div>
+  <Footer slot="footer" />
+</BaseLayout>
 ```
 
-### Styling System
+`BaseLayout.astro` owns `<head>`: title, description, canonical, OG/Twitter tags, favicons, Google Fonts, and the `SportsOrganization` JSON-LD block. It exposes named slots `header` and `footer` plus the default slot for page content. Props: `title` (required), `description`, `ogImage`, `noindex`.
 
-- `style.css` - Main stylesheet with fixed-width layout (973px)
-- `lavalamp.css` - Navigation animation styles
-- Background images define the visual design (header.jpg, footer.jpg, pagebg.png, etc.)
+### Styling
 
-## Key Pages
+- `src/styles/global.css` — design tokens (`--color-*`, `--space-*`, `--font-size-*`, `--radius-*`, `--shadow-*`) plus a small set of global classes: `.container`, `.reveal` / `.reveal-delay-1..4`, `.visually-hidden`, `.sr-only`.
+- Everything else lives in each file's scoped `<style>` block.
+- Palette is "Nordic Cricket Editorial": deep navy `--color-primary`, terracotta `--color-accent`, warm cream surfaces, gold accents. Always use the tokens, never raw hex.
+- Presentational classes like `.page-hero`, `.info-card`, `.card-accent`, `.section-label`, `.cta-band`, `.btn-accent` are **deliberately duplicated per page** because Astro scopes styles. When building a new page, copy these blocks from the closest existing page (`join_us.astro` is the best template for a content page) rather than inventing new ones or hoisting them into `global.css`.
 
-- `index.html` - Home page with club history
-- `join_us.html` - Membership information and fees
-- `members.html` - Member directory
-- `fixtures.html` - Match schedules
-- `gallery.html` - Photo gallery
-- `contact.html` - Contact information
-- `expense_form.html` - Financial management
+### Data
 
-## Development Workflow
+- `src/data/members.json` — `{ executive: [{name, role, email}], players: [{name, role}] }`, rendered through `MemberCard.astro`.
+- `src/data/gallery.json` — `{ albums: [{id, title, description, date, location, coverImage, images[]}], note }`, rendered through `Gallery.astro`. Image entries need `width`/`height` for PhotoSwipe.
+- Fixtures are **not** in JSON — the fixture list is an inline array in `src/pages/fixtures.astro`.
 
-### Making Changes
+## Development
 
-**No build process is required.** Simply edit HTML, CSS, or JS files directly.
-
-### Testing Changes
-
-Open HTML files directly in a browser:
 ```bash
-open index.html
-# or
-python3 -m http.server 8000  # Then visit http://localhost:8000
+npm install
+npm run dev      # http://localhost:4321
+npm run build    # astro build + scripts/make-relative-paths.mjs → dist/
+npm run preview
 ```
 
-### Navigation Menu Updates
+There is no test suite and no linter. Verification is `npm run build` (must complete with no errors) plus manual checks — see `TESTING.md` for the checklist.
 
-When adding/removing pages, update `js/header.js`:
-1. Add/remove the page detection block (lines 14-43)
-2. Maintain the pattern: check if current page matches, add `class="current"` if so
+CI (`.github/workflows/ci.yml`) runs on PRs to `master`: `npm ci`, `npm audit --audit-level=critical`, `npm run build`.
 
-### Content Updates
+## Conventions and Gotchas
 
-For content changes:
-- Main content goes in `#left .post .postcontent` sections
-- Sidebar content managed via `js/links.js` and `js/events.js`
+### CRLF line endings
 
-## Technical Constraints
+Most `.astro` files, `CLAUDE.md`, and `TESTING.md` use **CRLF**. There is no `.gitattributes`. Editing tools that rewrite a file wholesale can silently convert it to LF and produce a diff touching every line. After editing, check `git diff --stat` — if a file shows hundreds of changed lines for a one-line edit, the endings were flipped; restore with `perl -pi -e 's/\r?\n/\r\n/' <file>`. (`src/pages/index.astro` and `README.md` are LF.)
 
-### Legacy Dependencies
+### Always write root-relative links in source
 
-- jQuery 1.1.3.1 (from 2007)
-- XHTML 1.0 Strict doctype
-- ISO-8859-1 character encoding (not UTF-8)
-- Uses `document.write()` for component injection (not modern practice)
-- HTTP feeds (mixed content warning in modern browsers)
+Write `/juniors/`, not `../juniors/`. The post-build script `scripts/make-relative-paths.mjs` rewrites every root-relative `href`/`src`/`content` in `dist/**/*.html` into a path relative to that file's depth, so the built site also works over `file://`. Hand-written relative paths defeat it.
 
-### Browser Compatibility
+### Trailing slashes
 
-The site targets older browser standards. Modern updates should:
-- Test in multiple browsers
-- Avoid ES6+ JavaScript features
-- Maintain jQuery 1.x compatibility
+`astro.config.mjs` sets `trailingSlash: 'always'`. Internal links must end with `/` (`/members/`, not `/members`).
 
-## Important Notes
+### Adding a page
 
-- **No automated deployment** - Changes must be manually uploaded to hosting
-- The site has no build system, transpilation, or minification
-- Images are stored in `/images/` directory
-- PDFs (AGM minutes, bylaws, tournament info) stored in subdirectories: `agms/`, `by-laws/`, `smviikko2024/`
-- Character encoding issues: Use HTML entities for special characters (e.g., `&Auml;` for Ä)
+1. Create `src/pages/<name>.astro` following the layout composition above.
+2. Add an entry to the `navItems` array in `src/components/Header.astro`. `isActive()` handles highlighting via `startsWith`, so no other change is needed.
+3. Add a link to the relevant column in `src/components/Footer.astro` (Navigate or Resources).
+4. Sitemap is automatic. `netlify.toml` redirects exist only to map legacy `*.html` URLs from the pre-Astro site — a new page needs one only if an old URL pointed at it.
+5. The desktop nav row is near capacity; adding items may need spacing tightened at the 1024–1279px band in `Header.astro`.
+
+### Text
+
+Files are UTF-8, so literal `ä`/`ö` are fine and are what `title`/`description` props use. In markup body text the existing pages lean on HTML entities (`&auml;`, `&mdash;`, `&euro;`) — match whichever the surrounding file already does. Entities do **not** work inside `.astro` attribute values or expressions, which are escaped as text.
+
+### Assets
+
+- Images and PDFs are static files under `public/` (`public/images/`, `public/pdfs/{agms,by-laws,smviikko2024}/`), referenced as `/images/...` and `/pdfs/...`. There is no `src/assets/` pipeline in use.
+- `dist/` and `.astro/` are generated; both are gitignored.
+
+## Deployment
+
+Netlify builds `npm run build` and publishes `dist/` on push to `master` (Node 20). `netlify.toml` also sets security headers and long cache lifetimes for `/assets/*`, `/images/*`, and `/pdfs/*`. See `DEPLOYMENT.md`.
