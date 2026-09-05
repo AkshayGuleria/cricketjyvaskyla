@@ -42,23 +42,25 @@ import Footer from '../components/Footer.astro';
       </div>
     </section>
 
-    <!-- Juniors -->
-    <section class="cta-band reveal">
-      <div class="cta-content">
-        <h2>Junior Cricket</h2>
-        <p>Our two junior clubs &mdash; SisuLeijonat at Kuokkala school and Sisukarhut at Kortepohja school &mdash; are back for the autumn season. Both are free of charge and registration is open now.</p>
-        <a href="/juniors/" class="btn-accent">Junior Clubs &amp; Registration</a>
-      </div>
-    </section>
+    <!-- Juniors + Join CTAs -->
+    <div class="cta-row">
+      <section class="cta-band reveal">
+        <div class="cta-content">
+          <h2>Junior Cricket</h2>
+          <p>Our two junior clubs &mdash; SisuLeijonat at Kuokkala school and Sisukarhut at Kortepohja school &mdash; are back for the autumn season. Both are free of charge and registration is open now.</p>
+          <a href="/juniors/" class="btn-accent">Junior Clubs &amp; Registration</a>
+        </div>
+      </section>
 
-    <!-- Join CTA -->
-    <section class="cta-band reveal">
-      <div class="cta-content">
-        <h2>Ready to Play?</h2>
-        <p>JCC welcomes all those interested in cricket, both experienced players and complete beginners. During summer we train outdoors at Kotalampi field, and in winter at the University's U1 sports hall.</p>
-        <a href="/join_us/" class="btn-accent">Learn About Membership</a>
-      </div>
-    </section>
+      <!-- Join CTA -->
+      <section class="cta-band reveal">
+        <div class="cta-content">
+          <h2>Ready to Play?</h2>
+          <p>JCC welcomes all those interested in cricket, both experienced players and complete beginners. During summer we train outdoors at Kotalampi field, and in winter at the University's U1 sports hall.</p>
+          <a href="/join_us/" class="btn-accent">Learn About Membership</a>
+        </div>
+      </section>
+    </div>
   </div>
 
   <Footer slot="footer" />
@@ -300,13 +302,26 @@ import Footer from '../components/Footer.astro';
   /* ===================================
      CTA Band
      =================================== */
+  .cta-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-3xl);
+  }
+
+  @media (min-width: 880px) {
+    .cta-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
   .cta-band {
     background: var(--color-primary);
     border-radius: var(--radius-lg);
-    padding: var(--space-3xl);
-    margin-bottom: var(--space-3xl);
+    padding: var(--space-2xl);
     position: relative;
     overflow: hidden;
+    display: flex;
   }
 
   .cta-band::before {
@@ -324,6 +339,10 @@ import Footer from '../components/Footer.astro';
     position: relative;
     z-index: 1;
     max-width: 600px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .cta-content h2 {
@@ -338,6 +357,10 @@ import Footer from '../components/Footer.astro';
     font-size: 1.02rem;
     line-height: 1.7;
     margin-bottom: var(--space-xl);
+  }
+
+  .cta-content .btn-accent {
+    margin-top: auto;
   }
 
   .btn-accent {
