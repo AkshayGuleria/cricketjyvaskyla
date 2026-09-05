@@ -5,6 +5,7 @@ const navItems = [
   { href: '/', label: 'Home' },
   { href: '/members/', label: 'Members' },
   { href: '/fixtures/', label: 'Fixtures' },
+  { href: '/juniors/', label: 'Juniors' },
   { href: '/gallery/', label: 'Gallery' },
   { href: '/expense_form/', label: 'Expenses' },
   { href: '/join_us/', label: 'Join Us' },
@@ -370,6 +371,20 @@ function isActive(itemHref: string): boolean {
 
     .nav-link {
       padding: 0.5rem 1rem;
+    }
+  }
+
+  /* Eight nav items are tight on smaller desktops - tighten before they wrap */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .nav-link {
+      padding: 0.5rem 0.55rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-link::after {
+      left: 0.55rem;
+      right: 0.55rem;
     }
   }
 </style>

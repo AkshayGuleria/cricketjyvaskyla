@@ -1,0 +1,343 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+// TODO: swap for the junior-specific address once it is confirmed.
+const juniorContact = 'info@cricketjyvaskyla.com';
+
+const clubs = [
+  {
+    name: 'SisuLeijonat',
+    grades: 'Grades 5–9',
+    school: 'Kuokkala school',
+    starts: 'Monday 7 September 2026',
+    description: 'For older school children ready for a faster game — batting, bowling and match play with the club’s senior coaches.',
+    registerUrl: 'https://www.lyyti.fi/reg/Krikettikerho_SisuLeijonat_3593'
+  },
+  {
+    name: 'Sisukarhut',
+    grades: 'Grades 1–6',
+    school: 'Kortepohja school',
+    starts: 'Tuesday 22 September 2026',
+    description: 'An introduction to cricket for younger children, built around games, catching and simple bat-and-ball skills.',
+    registerUrl: 'https://www.lyyti.fi/reg/Krikettikerho_Sisukarhut_7092'
+  }
+];
+---
+
+<BaseLayout
+  title="Junior Cricket - Jyväskylä Cricket Club"
+  description="Free junior cricket clubs in Jyväskylä: SisuLeijonat (grades 5–9, Kuokkala school) and Sisukarhut (grades 1–6, Kortepohja school). Registration is open for the autumn season."
+>
+  <Header slot="header" />
+
+  <div class="container">
+    <!-- Page Header -->
+    <header class="page-hero reveal">
+      <div class="page-hero-label">Juniors</div>
+      <h1>Junior Cricket</h1>
+      <p class="page-hero-lead">Our two junior clubs are back for the autumn season. Both are free of charge and open to school children in Jyv&auml;skyl&auml; &mdash; no previous cricket experience needed.</p>
+    </header>
+
+    <!-- Club Cards -->
+    <div class="info-row reveal reveal-delay-1">
+      {clubs.map((club) => (
+        <article class="info-card">
+          <div class="card-accent"></div>
+          <div class="free-badge">Free</div>
+          <h2>{club.name}</h2>
+          <p class="club-meta">{club.grades} &middot; {club.school}</p>
+          <p class="club-starts">Starts {club.starts}</p>
+          <p>{club.description}</p>
+          <a href={club.registerUrl} target="_blank" rel="noopener" class="btn-accent">
+            Register
+          </a>
+        </article>
+      ))}
+    </div>
+
+    <!-- Practicalities -->
+    <section class="practical-section reveal reveal-delay-2">
+      <div class="section-label">Good to Know</div>
+      <h2>Before You Register</h2>
+      <ul class="practical-list">
+        <li><strong>Free of charge.</strong> There is no fee to join either junior club.</li>
+        <li><strong>No experience needed.</strong> Complete beginners are welcome, and the club provides all bats, balls and protective gear.</li>
+        <li><strong>Session times and venue details</strong> are confirmed as part of registration.</li>
+        <li><strong>Spread the word.</strong> Feel free to share these registration links with other families.</li>
+      </ul>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-band reveal reveal-delay-3">
+      <div class="cta-content">
+        <h3>Questions About Junior Cricket?</h3>
+        <p>Get in touch and we will help you pick the right club for your child.</p>
+        <a href={`mailto:${juniorContact}`} class="btn-accent">Email Us</a>
+      </div>
+    </section>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  /* Page Hero */
+  .page-hero {
+    padding: var(--space-3xl) 0 var(--space-2xl);
+    max-width: 680px;
+  }
+
+  .page-hero-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .page-hero-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .page-hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+    line-height: 1.1;
+  }
+
+  .page-hero-lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    color: var(--color-neutral-500);
+  }
+
+  /* Club Cards */
+  .info-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-4xl);
+  }
+
+  .info-card {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow var(--transition-base);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .info-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--color-accent);
+  }
+
+  .free-badge {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    font-family: var(--font-accent);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    color: var(--color-gold);
+    background: rgba(212, 168, 71, 0.16);
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius-full);
+  }
+
+  .info-card h2 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: var(--color-primary);
+    margin-bottom: var(--space-xs);
+    padding-right: 4rem;
+  }
+
+  .club-meta {
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-xs);
+  }
+
+  .club-starts {
+    font-size: 0.95rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+  }
+
+  .info-card p {
+    color: var(--color-neutral-600);
+    line-height: 1.7;
+    margin-bottom: var(--space-md);
+  }
+
+  .info-card p.club-meta {
+    margin-bottom: var(--space-xs);
+  }
+
+  .info-card .btn-accent {
+    margin-top: auto;
+  }
+
+  /* Practicalities */
+  .practical-section {
+    margin-bottom: var(--space-4xl);
+  }
+
+  .section-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .section-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .practical-section > h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-xl);
+  }
+
+  .practical-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: 720px;
+  }
+
+  .practical-list li {
+    position: relative;
+    padding-left: 1.75rem;
+    margin-bottom: var(--space-md);
+    color: var(--color-neutral-600);
+    line-height: 1.7;
+  }
+
+  .practical-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+  }
+
+  .practical-list strong {
+    color: var(--color-primary);
+  }
+
+  /* CTA Band */
+  .cta-band {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    margin-bottom: var(--space-3xl);
+    text-align: center;
+  }
+
+  .cta-content h3 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .cta-content p {
+    color: var(--color-neutral-500);
+    margin-bottom: var(--space-lg);
+  }
+
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.875rem 2rem;
+    background: var(--color-accent);
+    color: var(--color-cream-light);
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+  }
+
+  .btn-accent:hover {
+    background: var(--color-accent-dark);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(196, 74, 47, 0.3);
+  }
+
+  .btn-accent:visited {
+    color: var(--color-cream-light);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page-hero {
+      padding: var(--space-2xl) 0 var(--space-xl);
+    }
+
+    .info-row {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-band {
+      padding: var(--space-xl);
+    }
+  }
+</style>
