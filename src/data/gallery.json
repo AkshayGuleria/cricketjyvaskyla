@@ -1,11 +1,132 @@
 {
   "albums": [
     {
+      "id": "nfct-final-2026",
+      "title": "NFCT Final 2026",
+      "description": "JCC travelled north and beat Oulu Cricket Club in the Northern Finland Cricket Tournament final to take the title.",
+      "date": "August 2026",
+      "location": "Oulu, Finland",
+      "badge": "Champions",
+      "coverImage": "/images/nfct_final_2026/nfct-final-2026-squads.webp",
+      "images": [
+        {
+          "src": "/images/nfct_final_2026/nfct-final-2026-squads.webp",
+          "thumbnail": "/images/nfct_final_2026/nfct-final-2026-squads-thumb.webp",
+          "caption": "Both squads together after the final in Oulu",
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "src": "/images/nfct_final_2026/nfct-final-2026-trophy-lift.webp",
+          "thumbnail": "/images/nfct_final_2026/nfct-final-2026-trophy-lift-thumb.webp",
+          "caption": "The trophy goes up at the final whistle",
+          "width": 1200,
+          "height": 1600
+        },
+        {
+          "src": "/images/nfct_final_2026/nfct-final-2026-team.webp",
+          "thumbnail": "/images/nfct_final_2026/nfct-final-2026-team-thumb.webp",
+          "caption": "The winning group with the NFCT trophy",
+          "width": 1600,
+          "height": 900
+        },
+        {
+          "src": "/images/nfct_final_2026/nfct-final-2026-trophy-01.webp",
+          "thumbnail": "/images/nfct_final_2026/nfct-final-2026-trophy-01-thumb.webp",
+          "caption": "Silverware in hand after the win",
+          "width": 900,
+          "height": 1600
+        },
+        {
+          "src": "/images/nfct_final_2026/nfct-final-2026-trophy-02.webp",
+          "thumbnail": "/images/nfct_final_2026/nfct-final-2026-trophy-02-thumb.webp",
+          "caption": "Club colours and the NFCT trophy",
+          "width": 900,
+          "height": 1600
+        },
+        {
+          "src": "/images/nfct_final_2026/nfct-final-2026-trophy-03.webp",
+          "thumbnail": "/images/nfct_final_2026/nfct-final-2026-trophy-03-thumb.webp",
+          "caption": "A moment with the trophy at the ground",
+          "width": 900,
+          "height": 1600
+        },
+        {
+          "src": "/images/nfct_final_2026/nfct-final-2026-trophy-04.webp",
+          "thumbnail": "/images/nfct_final_2026/nfct-final-2026-trophy-04-thumb.webp",
+          "caption": "Trophy raised on the outfield",
+          "width": 900,
+          "height": 1600
+        },
+        {
+          "src": "/images/nfct_final_2026/nfct-final-2026-trophy-05.webp",
+          "thumbnail": "/images/nfct_final_2026/nfct-final-2026-trophy-05-thumb.webp",
+          "caption": "Winner's medal and the NFCT trophy",
+          "width": 900,
+          "height": 1600
+        },
+        {
+          "src": "/images/nfct_final_2026/nfct-final-2026-trophy-06.webp",
+          "thumbnail": "/images/nfct_final_2026/nfct-final-2026-trophy-06-thumb.webp",
+          "caption": "All smiles at the end of a long season",
+          "width": 900,
+          "height": 1600
+        },
+        {
+          "src": "/images/nfct_final_2026/nfct-final-2026-sidelines.webp",
+          "thumbnail": "/images/nfct_final_2026/nfct-final-2026-sidelines-thumb.webp",
+          "caption": "Club members on the sidelines in Oulu",
+          "width": 900,
+          "height": 1600
+        }
+      ]
+    },
+    {
+      "id": "sm-viikko-2024",
+      "title": "SM-viikko 2024",
+      "description": "JCC won the Finnish Cage Cricket Championship at SM-viikko 2024 and were crowned national champions.",
+      "date": "2024",
+      "location": "Jyväskylä, Finland",
+      "badge": "National champions",
+      "coverImage": "/images/sm_viikko_2024/sm-viikko-2024-champions.webp",
+      "images": [
+        {
+          "src": "/images/sm_viikko_2024/sm-viikko-2024-champions.webp",
+          "thumbnail": "/images/sm_viikko_2024/sm-viikko-2024-champions-thumb.webp",
+          "caption": "The champions lift the SM-viikko trophy",
+          "width": 1600,
+          "height": 1200
+        },
+        {
+          "src": "/images/sm_viikko_2024/sm-viikko-2024-squads.webp",
+          "thumbnail": "/images/sm_viikko_2024/sm-viikko-2024-squads-thumb.webp",
+          "caption": "Squads together in front of the SM-viikko banner",
+          "width": 1600,
+          "height": 1200
+        },
+        {
+          "src": "/images/sm_viikko_2024/sm-viikko-2024-celebration.webp",
+          "thumbnail": "/images/sm_viikko_2024/sm-viikko-2024-celebration-thumb.webp",
+          "caption": "Players, families and supporters celebrate the title",
+          "width": 1600,
+          "height": 1200
+        },
+        {
+          "src": "/images/sm_viikko_2024/sm-viikko-2024-semi-final.webp",
+          "thumbnail": "/images/sm_viikko_2024/sm-viikko-2024-semi-final-thumb.webp",
+          "caption": "3-0 in the group stage and through to the final",
+          "width": 900,
+          "height": 1600
+        }
+      ]
+    },
+    {
       "id": "oulu-jcc-2012",
       "title": "Oulu vs JCC 2012",
       "description": "Away game highlights from our match against Oulu Cricket Club",
       "date": "2012",
       "location": "Oulu, Finland",
+      "badge": "",
       "coverImage": "/images/jcc_logo.jpg",
       "images": []
     },
@@ -15,9 +136,10 @@
       "description": "Home game at Kotalampi field",
       "date": "2012",
       "location": "Keltinmäki, Jyväskylä",
+      "badge": "",
       "coverImage": "/images/jcc_logo.jpg",
       "images": []
     }
   ],
-  "note": "To add photos to the gallery, populate the 'images' arrays with objects containing: src (image path), thumbnail (optional), caption, width, and height."
+  "note": "Albums render newest first. Each image needs src, thumbnail, caption, width and height - width/height must match the full-size file, PhotoSwipe uses them to size the lightbox. Optional per-album fields: badge (accent pill in the album header), location (omit with an empty string to hide the tag)."
 }

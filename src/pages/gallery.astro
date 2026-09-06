@@ -4,11 +4,15 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Gallery from '../components/Gallery.astro';
 import galleryData from '../data/gallery.json';
+
+const albums = galleryData.albums.filter((album) => album.images.length > 0);
+const archive = galleryData.albums.filter((album) => album.images.length === 0);
+const photoCount = albums.reduce((total, album) => total + album.images.length, 0);
 ---
 
 <BaseLayout
   title="Gallery - Jyväskylä Cricket Club"
-  description="Browse photos from Jyväskylä Cricket Club matches, events, and memorable moments."
+  description="Photos from Jyväskylä Cricket Club - the NFCT 2026 final win in Oulu, the SM-viikko 2024 national title, matches and club events."
 >
   <Header slot="header" />
 
@@ -16,36 +20,32 @@ import galleryData from '../data/gallery.json';
     <header class="page-hero reveal">
       <div class="page-hero-label">Moments</div>
       <h1>Photo Gallery</h1>
-      <p class="page-hero-lead">Relive the best moments from our matches, tournaments, and club events.</p>
+      <p class="page-hero-lead">
+        Browse the photos from our championship runs, match days and club events.
+      </p>
+      <div class="hero-stats">
+        <span class="stat"><strong>{albums.length}</strong> albums</span>
+        <span class="stat"><strong>{photoCount}</strong> photos</span>
+      </div>
     </header>
 
     <div class="gallery-content">
-      {galleryData.albums.map((album) => (
-        <section class="album-section reveal">
+      {albums.map((album) => (
+        <section class="album-section reveal" id={album.id}>
           <div class="album-head">
+            {album.badge && <div class="album-badge">{album.badge}</div>}
             <h2>{album.title}</h2>
             <p class="album-desc">{album.description}</p>
             <div class="album-meta">
               <span class="meta-tag">{album.date}</span>
-              <span class="meta-tag">{album.location}</span>
-              {album.images.length > 0 && (
-                <span class="meta-tag">{album.images.length} photos</span>
-              )}
+              {album.location && <span class="meta-tag">{album.location}</span>}
+              <span class="meta-tag">{album.images.length} photos</span>
             </div>
           </div>
 
           <Gallery images={album.images} albumId={album.id} />
         </section>
       ))}
-
-      <!-- CTA -->
-      <section class="cta-band reveal">
-        <div class="cta-content">
-          <h3>Have Photos to Share?</h3>
-          <p>If you have photos from club events or matches that you'd like to contribute, please get in touch.</p>
-          <a href="/contact/" class="btn-accent">Contact Us</a>
-        </div>
-      </section>
     </div>
   </div>
 
@@ -94,6 +94,28 @@ import galleryData from '../data/gallery.json';
     color: var(--color-neutral-500);
   }
 
+  .hero-stats {
+    display: flex;
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+  }
+
+  .stat {
+    font-family: var(--font-accent);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-500);
+  }
+
+  .stat strong {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    color: var(--color-primary);
+    letter-spacing: 0;
+    margin-right: 0.3rem;
+  }
+
   .gallery-content {
     max-width: 1100px;
   }
@@ -113,6 +135,28 @@ import galleryData from '../data/gallery.json';
     margin-bottom: var(--space-xl);
   }
 
+  .album-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-accent);
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-cream-light);
+    background: var(--color-accent);
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .album-badge::before {
+    content: '\2605';
+    font-size: 0.8rem;
+    letter-spacing: 0;
+  }
+
   .album-head h2 {
     font-family: var(--font-heading);
     font-size: var(--font-size-xl);
@@ -125,6 +169,7 @@ import galleryData from '../data/gallery.json';
     color: var(--color-neutral-500);
     margin-bottom: var(--space-md);
     line-height: 1.6;
+    max-width: 640px;
   }
 
   .album-meta {
@@ -142,6 +187,68 @@ import galleryData from '../data/gallery.json';
     border: 1px solid var(--color-cream-dark);
     border-radius: var(--radius-sm);
     letter-spacing: 0.02em;
+  }
+
+  /* Archive */
+  .archive {
+    margin-bottom: var(--space-3xl);
+  }
+
+  .section-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+    font-weight: 600;
+  }
+
+  .archive h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-lg);
+    color: var(--color-primary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .archive-lead {
+    color: var(--color-neutral-500);
+    line-height: 1.7;
+    max-width: 560px;
+    margin-bottom: var(--space-lg);
+  }
+
+  .archive-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    max-width: 560px;
+  }
+
+  .archive-list li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-sm);
+  }
+
+  .archive-title {
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .archive-detail {
+    font-family: var(--font-accent);
+    font-size: 0.78rem;
+    color: var(--color-neutral-500);
   }
 
   /* CTA */
