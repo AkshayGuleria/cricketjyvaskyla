@@ -21,34 +21,37 @@
       "email": "treasurer@cricketjyvaskyla.com"
     },
     {
-      "name": "Mohsin Riaz",
-      "role": "Liaison Officer",
-      "email": null
-    },
-    {
       "name": "Paul Abbey",
       "role": "Development Director",
       "email": null
     },
     {
-      "name": "Awais Ahmad",
+      "name": "Ajay Chand Thakuri",
       "role": "Social Media Coordinator",
       "email": null
     },
     {
-      "name": "Saiyansh Kaushal",
+      "name": "Abhiskek Sanadhaya",
       "role": "Social Media Coordinator",
       "email": null
     }
   ],
   "players": [
     {
-      "name": "Saqib Arshad",
+      "name": "Mohsin Riaz",
       "role": "Captain"
     },
     {
-      "name": "Rajnish Kumar",
+      "name": "Wahid Ullah",
       "role": "Vice Captain"
+    },
+    {
+      "name": "Saqib Arshad",
+      "role": "Player"
+    },
+    {
+      "name": "Rajnish Kumar",
+      "role": "Player"
     },
     {
       "name": "Akshay Guleria",
@@ -59,75 +62,23 @@
       "role": "Player"
     },
     {
-      "name": "Mohsin Riaz",
-      "role": "Player"
-    },
-    {
-      "name": "Kashif Naveed",
-      "role": "Player"
-    },
-    {
-      "name": "Paul Abbey",
-      "role": "Player"
-    },
-    {
-      "name": "Awais Ahmad",
-      "role": "Player"
-    },
-    {
-      "name": "Nasir Naveed",
-      "role": "Player"
-    },
-    {
-      "name": "Saiyansh Kaushal",
-      "role": "Player"
-    },
-    {
-      "name": "Mangala Rajapaksa",
-      "role": "Player"
-    },
-    {
-      "name": "Vicky",
-      "role": "Player"
-    },
-    {
-      "name": "Wahid Ullah",
-      "role": "Player"
-    },
-    {
-      "name": "Jamshaid Ali",
-      "role": "Player"
-    },
-    {
-      "name": "Bhagirath Kanchava",
-      "role": "Player"
-    },
-    {
-      "name": "Akash Agnihotri",
-      "role": "Player"
-    },
-    {
       "name": "Akein Fernando",
       "role": "Player"
     },
     {
-      "name": "Prabin Osti",
+      "name": "Ajay Chand Thakuri",
       "role": "Player"
     },
     {
-      "name": "Said Azizullah",
+      "name": "Abhiskek Sanadhaya",
       "role": "Player"
     },
     {
-      "name": "Deni Khatri",
+      "name": "Mohan Chand Gurajala",
       "role": "Player"
     },
     {
-      "name": "Zaki Ahmad",
-      "role": "Player"
-    },
-    {
-      "name": "Abdullah Wasim",
+      "name": "Pamadu Miuranga",
       "role": "Player"
     },
     {
@@ -136,6 +87,42 @@
     },
     {
       "name": "Navneet Singh",
+      "role": "Player"
+    },
+    {
+      "name": "Mangala Rajapaksa",
+      "role": "Player"
+    },
+    {
+      "name": "Vicky Vagh",
+      "role": "Player"
+    },
+    {
+      "name": "Jamshaid Ali",
+      "role": "Player"
+    },
+    {
+      "name": "Christin Paul",
+      "role": "Player"
+    },
+    {
+      "name": "Saiful Islam",
+      "role": "Player"
+    },
+    {
+      "name": "Kabir",
+      "role": "Player"
+    },
+    {
+      "name": "Nasir Naveed",
+      "role": "Player"
+    },
+    {
+      "name": "Kashif Naveed",
+      "role": "Player"
+    },
+    {
+      "name": "Paul Abbey",
       "role": "Player"
     }
   ]
