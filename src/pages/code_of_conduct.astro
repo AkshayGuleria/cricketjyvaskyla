@@ -1,0 +1,781 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const severityLevels = [
+  {
+    level: 'Low',
+    modifier: 'sev-low',
+    examples: 'Minor disrespect; one-off inappropriate comment; minor equipment care issue',
+    consequence: 'Verbal warning (documented)',
+    process: 'Captain or board member addresses informally; recorded in notes'
+  },
+  {
+    level: 'Medium',
+    modifier: 'sev-medium',
+    examples: 'Repeated minor disrespect; shouting or raised voice; public disagreement with captain',
+    consequence: 'Written warning + mediation/apology discussion',
+    process: 'Board investigates; warning letter sent; member invited to explain; Chair follows up'
+  },
+  {
+    level: 'High',
+    modifier: 'sev-high',
+    examples: 'Aggressive shouting at captain or board; aggressive language toward members; deliberate exclusion; alcohol misuse',
+    consequence: 'Suspension from 1–3 matches; mandatory apology/mediation',
+    process: 'Full board investigation; members have the right to respond; decision is documented; escalation clause for repeat offenses'
+  },
+  {
+    level: 'Very High',
+    modifier: 'sev-very-high',
+    examples: 'Physical aggression/violence; repeated high-severity violations; discriminatory behavior; board member non-engagement',
+    consequence: 'Removal from board role; suspension from 4+ matches or full season; expulsion from club',
+    process: 'Full formal investigation; member right to respond in writing; board decision; right of appeal to Chair and/or general meeting for expulsion'
+  }
+];
+
+const tocItems = [
+  { id: 'scope', num: '1', title: 'Scope and Applicability' },
+  { id: 'core-principles', num: '2', title: 'Core Principles' },
+  { id: 'expected-conduct', num: '3', title: 'Expected Conduct' },
+  { id: 'prohibited-conduct', num: '4', title: 'Prohibited Conduct' },
+  { id: 'consequences', num: '5', title: 'Consequences' },
+  { id: 'disciplinary-process', num: '6', title: 'Disciplinary Process' },
+  { id: 'board-obligations', num: '7', title: 'Board Member Obligations' },
+  { id: 'confidentiality', num: '8', title: 'Confidentiality' },
+  { id: 'questions', num: '9', title: 'Questions' }
+];
+---
+
+<BaseLayout
+  title="Code of Conduct - Jyväskylä Cricket Club"
+  description="The Jyväskylä Cricket Club Code of Conduct: the standards of behavior expected from all members, and how the club handles conduct concerns, discipline, and appeals."
+>
+  <Header slot="header" />
+
+  <div class="container">
+    <!-- Page Header -->
+    <header class="page-hero reveal">
+      <div class="page-hero-label">Club Policy</div>
+      <h1>Code of Conduct</h1>
+      <p class="page-hero-lead">Jyv&auml;skyl&auml; Cricket Club (JCC) is a community-based cricket club that welcomes players of all levels. The Club is committed to fostering an inclusive and respectful environment, where members can enjoy the game, improve their skills, and build lasting friendships.</p>
+    </header>
+
+    <div class="coc-layout reveal reveal-delay-1">
+      <!-- Contents sidebar (desktop only) -->
+      <nav class="coc-toc" aria-label="On this page">
+        <div class="toc-card">
+          <div class="card-accent"></div>
+          <div class="toc-label">On this page</div>
+          <ol class="toc-list">
+            {tocItems.map((item) => (
+              <li>
+                <a href={`#${item.id}`} class="toc-link">
+                  <span class="toc-num">{item.num}</span>{item.title}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </nav>
+
+      <article class="coc">
+        <div class="coc-intro">
+          <p>This Code of Conduct sets out the standards of behavior that the Club expects from all its members and outlines how it will address conduct that falls short of these standards.</p>
+          <p>This Code is designed to protect the club's culture and reputation, ensure a safe and welcoming environment, and provide a fair process when concerns arise.</p>
+        </div>
+
+        <section class="coc-section" id="scope">
+          <h2><span class="coc-num">1</span> Scope and Applicability</h2>
+          <ul class="coc-list">
+            <li>This Code applies to all members of Jyv&auml;skyl&auml; Cricket Club, including players, board members, volunteers, and support staff.</li>
+            <li>The Code applies to all club activities, including matches, practices, training, social events, board meetings, and online communication (WhatsApp groups, email, social media).</li>
+            <li>Membership in JCC implies acceptance of this Code of Conduct. New members will be asked to acknowledge they have read and agree to abide by it.</li>
+          </ul>
+        </section>
+
+        <section class="coc-section" id="core-principles">
+          <h2><span class="coc-num">2</span> Core Principles</h2>
+          <p>All members of JCC are expected to uphold the following principles:</p>
+          <ol class="coc-olist">
+            <li>To respect everyone, such that everyone is treated with respect and dignity.</li>
+            <li>To respect the authority of the captain in issues that relate to the playing of games, such as the selection of the team, and actions in the field of play. The captain makes decisions about team selection and match day tactics. Members may respectfully discuss concerns with the captain at any time, but public disagreement or undermining of the captain's authority is not acceptable.</li>
+            <li>Support the team. Cricket is a team game. Members are expected to support teammates, celebrate successes, and help each other improve.</li>
+            <li>Look after the club. Members are expected to protect club property, equipment, and reputation.</li>
+            <li>Be ambassadors of the Club, be it on the cricket grounds, in our communities, or online. Members of the Club are expected to conduct themselves in a way that brings credit to the club.</li>
+          </ol>
+        </section>
+
+        <section class="coc-section" id="expected-conduct">
+          <h2><span class="coc-num">3</span> Expected Conduct</h2>
+          <p>Members are expected to:</p>
+          <ul class="coc-list">
+            <li>Communicate respectfully with other members, the captain, and the board, both in person and online.</li>
+            <li>Accept decisions made by the captain and the board. If there are concerns, these should be raised through appropriate channels, rather than airing them publicly.</li>
+            <li>Play fairly and follow the rules of cricket and the laws of the game.</li>
+            <li>Support and encourage teammates, especially younger or less experienced players.</li>
+            <li>Respect the opposition and compete fairly.</li>
+            <li>Take care of club equipment and facilities, and report any damage immediately, when such is noticed.</li>
+          </ul>
+        </section>
+
+        <section class="coc-section" id="prohibited-conduct">
+          <h2><span class="coc-num">4</span> Prohibited Conduct</h2>
+          <p>The following behaviors are prohibited and may result in disciplinary action:</p>
+
+          <h3><span class="coc-num">4.1</span> Disrespect of the Captain or Board</h3>
+          <p>Examples include, but are not limited to:</p>
+          <ul class="coc-list">
+            <li>Public argument or confrontation with the captain regarding selection or match day decisions.</li>
+            <li>Shouting at, insulting, or using aggressive language toward the captain, board member, or umpire.</li>
+            <li>Refusing to follow the captain's instructions on match days.</li>
+            <li>Undermining the captain's authority in front of other players or using social media/messaging to encourage others to challenge the captain's decisions.</li>
+          </ul>
+
+          <h3><span class="coc-num">4.2</span> Disrespect to Members</h3>
+          <p>Examples include, but are not limited to:</p>
+          <ul class="coc-list">
+            <li>Verbal abuse, insults, or aggressive language directed at another member.</li>
+            <li>Deliberately excluding or isolating a member.</li>
+            <li>Making derogatory comments.</li>
+            <li>Spreading rumors, gossip, or false information about another member.</li>
+          </ul>
+
+          <h3><span class="coc-num">4.3</span> Physical Aggression or Violence</h3>
+          <p>Physical aggression, intimidation, threats, or violence toward any person is strictly prohibited and will result in immediate action, up to and including expulsion from the club.</p>
+
+          <h3><span class="coc-num">4.4</span> Alcohol and Substance Misuse</h3>
+          <p>Members are expected to refrain from being intoxicated during club activities (matches, practices, training). Substance abuse or being under the influence of substances or alcohol at club events is prohibited.</p>
+          <p>Social alcohol consumption is normal and acceptable, provided it is done responsibly and does not affect conduct or safety.</p>
+
+          <h3><span class="coc-num">4.5</span> Damage to Club Property or Equipment</h3>
+          <p>Deliberate damage to club equipment or facilities is prohibited. Accidental damage should be reported immediately to the board.</p>
+        </section>
+
+        <section class="coc-section" id="consequences">
+          <h2><span class="coc-num">5</span> Consequences for Violations</h2>
+          <p>Consequences are determined based on the severity of the violation and context. The board will assess each case individually and apply consequences that are fair and appropriate. Repeat violations will be treated more seriously than isolated incidents.</p>
+
+          <table class="severity-table">
+            <caption class="visually-hidden">Severity levels, examples, typical consequences, and process</caption>
+            <thead>
+              <tr>
+                <th scope="col">Severity</th>
+                <th scope="col">Examples</th>
+                <th scope="col">Typical Consequence</th>
+                <th scope="col">Process</th>
+              </tr>
+            </thead>
+            <tbody>
+              {severityLevels.map((row) => (
+                <tr class={row.modifier}>
+                  <th scope="row">
+                    <span class="sev-label"><span class="sev-dot" aria-hidden="true"></span>{row.level}</span>
+                  </th>
+                  <td data-label="Examples">{row.examples}</td>
+                  <td data-label="Typical Consequence">{row.consequence}</td>
+                  <td data-label="Process">{row.process}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <section class="coc-section" id="disciplinary-process">
+          <h2><span class="coc-num">6</span> Investigation and Disciplinary Process</h2>
+
+          <h3><span class="coc-num">6.1</span> How to Report Conduct Concerns</h3>
+          <p>If you witness or experience behavior that violates this Code, you can report it to <a href="/members/">any board member</a>, the Captain, or the Chair. You can report in person, by email, or by phone.</p>
+
+          <h3><span class="coc-num">6.2</span> Investigation</h3>
+          <ol class="coc-olist">
+            <li>The board will review the report and gather facts from the relevant parties. The person reported will be contacted and asked to provide their account.</li>
+            <li>Witnesses will be asked for their recollection of events.</li>
+            <li>The board will document its findings and share them with the person involved before making a decision.</li>
+          </ol>
+
+          <h3><span class="coc-num">6.3</span> Decision</h3>
+          <ol class="coc-olist">
+            <li>The board will meet and decide on the outcome. For minor matters (low severity), the Captain may decide with the board's input.</li>
+            <li>For serious matters (high/very high severity), the full board decides.</li>
+            <li>The decision will be communicated to the person in writing, with clear explanation of the reasons and the consequences.</li>
+          </ol>
+
+          <h3><span class="coc-num">6.4</span> Proportionality and Fairness</h3>
+          <ul class="coc-list">
+            <li>Consequences will be fair, proportional, and consistent with past decisions.</li>
+            <li>The board will consider mitigating factors (e.g., first-time offense, provocation, genuine remorse) in determining consequences.</li>
+          </ul>
+
+          <h3 id="appeal"><span class="coc-num">6.5</span> Right of Appeal</h3>
+          <p>If a member disagrees with a disciplinary decision, they may appeal to the Chair in writing within 14 days of the decision.</p>
+          <p>The Chair will review the appeal and may:</p>
+          <ol class="coc-olist">
+            <li>Uphold the original decision;</li>
+            <li>Overturn or reduce the consequence; or</li>
+            <li>Refer the matter to a General Meeting of club members if the appeal raises concerns about fairness of process.</li>
+          </ol>
+        </section>
+
+        <section class="coc-section" id="board-obligations">
+          <h2><span class="coc-num">7</span> Board Member-Specific Obligations</h2>
+          <p>In addition to the general Code of Conduct, board members have additional responsibilities to the club:</p>
+          <ul class="coc-list">
+            <li>Attend board meetings and engage actively in decision-making.</li>
+            <li>Respond to board communications (email, messages) in a timely manner.</li>
+            <li>Support the club's strategic direction and decisions, which have been made by the majority.</li>
+            <li>Uphold a standard of conduct appropriate to a leadership role, both in club settings and in the broader community.</li>
+          </ul>
+          <p>Board members who fail to meet these obligations may be removed from their board position following a formal process, independent of any player-level discipline. The specifics and conditions should be referenced from the club's <a href="/pdfs/by-laws/jcc_bylaws_en.pdf" target="_blank" rel="noopener">bylaws</a>.</p>
+        </section>
+
+        <section class="coc-section" id="confidentiality">
+          <h2><span class="coc-num">8</span> Confidentiality</h2>
+          <p>Disciplinary investigations and decisions will be treated as confidential. Information will be shared only with those who are affected (the person involved, relevant witnesses, the board). Members should not publicly discuss another member's disciplinary matter.</p>
+        </section>
+
+        <section class="coc-section" id="questions">
+          <h2><span class="coc-num">9</span> Questions?</h2>
+          <p>If there are any questions related to this Code of Conduct, or there is a lack of surety as to whether a situation would be considered a violation, a Board Member or the Captain should be consulted.</p>
+        </section>
+      </article>
+    </div>
+
+    <!-- CTA -->
+    <section class="cta-band reveal reveal-delay-2">
+      <div class="cta-content">
+        <h3>Questions About the Code?</h3>
+        <p>Speak to any board member or the captain, or get in touch with us.</p>
+        <p class="cta-note">Ready to become a member? See <a href="/join_us/">how to join the club</a>.</p>
+        <a href="/contact/" class="btn-accent">Contact Us</a>
+      </div>
+    </section>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<script>
+  // Highlight the contents entry for the section currently being read
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.toc-link'));
+  const sections = links
+    .map((link) => document.getElementById(link.hash.slice(1)))
+    .filter((section): section is HTMLElement => section !== null);
+
+  let ticking = false;
+
+  function updateActive() {
+    ticking = false;
+    const offset = 160;
+    let current: HTMLElement | undefined;
+    for (const section of sections) {
+      if (section.getBoundingClientRect().top - offset <= 0) current = section;
+    }
+    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 24;
+    if (atBottom) current = sections[sections.length - 1];
+
+    for (const link of links) {
+      const active = current !== undefined && link.hash === `#${current.id}`;
+      link.classList.toggle('is-active', active);
+      if (active) {
+        link.setAttribute('aria-current', 'true');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    }
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(updateActive);
+    }
+  }, { passive: true });
+
+  updateActive();
+</script>
+
+<style>
+  /* Page Hero */
+  .page-hero {
+    padding: var(--space-3xl) 0 var(--space-2xl);
+    max-width: 680px;
+  }
+
+  .page-hero-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .page-hero-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .page-hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+    line-height: 1.1;
+  }
+
+  .page-hero-lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    color: var(--color-neutral-500);
+  }
+
+  /* Layout: content + contents sidebar */
+  .coc-layout {
+    margin-bottom: var(--space-4xl);
+  }
+
+  .coc {
+    min-width: 0;
+    max-width: 860px;
+  }
+
+  /* Contents sidebar */
+  .coc-toc {
+    display: none;
+  }
+
+  .toc-card {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--color-accent);
+  }
+
+  .toc-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+  }
+
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc-list li {
+    margin: 0;
+  }
+
+  .toc-link {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: var(--space-sm);
+    min-height: auto;
+    min-width: auto;
+    padding: 0.4rem 0.75rem;
+    margin: 0 -0.75rem;
+    border-left: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    font-size: 0.92rem;
+    line-height: 1.4;
+    color: var(--color-neutral-600);
+    text-decoration: none;
+  }
+
+  .toc-link:visited {
+    color: var(--color-neutral-600);
+  }
+
+  .toc-link:hover {
+    color: var(--color-primary);
+    background: var(--color-cream-light);
+    text-decoration: none;
+  }
+
+  .toc-link.is-active {
+    color: var(--color-primary);
+    background: var(--color-cream-light);
+    border-left-color: var(--color-accent);
+  }
+
+  .toc-num {
+    font-family: var(--font-accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    min-width: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .coc-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 240px;
+      gap: var(--space-2xl);
+      align-items: start;
+    }
+
+    .coc {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .coc-toc {
+      display: block;
+      grid-column: 2;
+      grid-row: 1;
+      position: sticky;
+      top: calc(72px + var(--space-xl));
+      max-height: calc(100vh - 72px - var(--space-2xl));
+      overflow-y: auto;
+    }
+  }
+
+  .coc-intro p {
+    color: var(--color-neutral-600);
+    line-height: 1.7;
+    max-width: 720px;
+  }
+
+  .coc-section {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-2xl);
+    border-top: 1px solid var(--color-cream-dark);
+    scroll-margin-top: 8rem;
+  }
+
+  .coc-section > p,
+  .coc-section > ul,
+  .coc-section > ol {
+    max-width: 720px;
+  }
+
+  .coc-section p {
+    color: var(--color-neutral-600);
+    line-height: 1.7;
+  }
+
+  /* Inline text links: undo the global 44px touch-target box */
+  .coc-section p a,
+  .cta-note a {
+    display: inline;
+    min-height: auto;
+    min-width: auto;
+  }
+
+  .coc-section h2 {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-md);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-lg);
+  }
+
+  .coc-section h3 {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    color: var(--color-primary);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-md);
+    scroll-margin-top: 8rem;
+  }
+
+  .coc-num {
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .coc-section h2 .coc-num {
+    font-size: 1rem;
+    min-width: 1.5rem;
+  }
+
+  .coc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-md);
+  }
+
+  .coc-list li {
+    position: relative;
+    padding-left: 1.75rem;
+    margin-bottom: var(--space-md);
+    color: var(--color-neutral-600);
+    line-height: 1.7;
+  }
+
+  .coc-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+  }
+
+  .coc-olist {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-md);
+    counter-reset: coc-item;
+  }
+
+  .coc-olist li {
+    position: relative;
+    padding-left: 2.25rem;
+    margin-bottom: var(--space-md);
+    color: var(--color-neutral-600);
+    line-height: 1.7;
+    counter-increment: coc-item;
+  }
+
+  .coc-olist li::before {
+    content: counter(coc-item);
+    position: absolute;
+    left: 0;
+    top: 0.15em;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    font-family: var(--font-accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  /* Severity table */
+  .sev-low { --sev: var(--color-secondary); }
+  .sev-medium { --sev: var(--color-gold); }
+  .sev-high { --sev: var(--color-accent); }
+  .sev-very-high { --sev: var(--color-primary); }
+
+  .severity-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: var(--space-lg);
+    font-size: 0.92rem;
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .severity-table thead th {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    text-align: left;
+    color: var(--color-cream);
+    background: var(--color-primary);
+    padding: var(--space-md);
+  }
+
+  .severity-table tbody th,
+  .severity-table td {
+    text-align: left;
+    vertical-align: top;
+    padding: var(--space-md);
+    line-height: 1.6;
+    hyphens: manual;
+    border-top: 1px solid var(--color-cream-dark);
+  }
+
+  .severity-table td {
+    color: var(--color-neutral-600);
+  }
+
+  .severity-table tbody th {
+    font-family: var(--font-accent);
+    font-weight: 600;
+    color: var(--color-primary);
+    white-space: nowrap;
+    box-shadow: inset 3px 0 0 var(--sev);
+  }
+
+  .sev-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .sev-dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: var(--radius-full);
+    background: var(--sev);
+    flex-shrink: 0;
+  }
+
+  /* CTA Band */
+  .cta-band {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    margin-bottom: var(--space-3xl);
+    text-align: center;
+  }
+
+  .cta-content h3 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .cta-content p {
+    color: var(--color-neutral-500);
+    margin-bottom: var(--space-lg);
+  }
+
+  .cta-note {
+    font-size: 0.95rem;
+  }
+
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.875rem 2rem;
+    background: var(--color-accent);
+    color: var(--color-cream-light);
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+  }
+
+  .btn-accent:hover {
+    background: var(--color-accent-dark);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(196, 74, 47, 0.3);
+  }
+
+  .btn-accent:visited {
+    color: var(--color-cream-light);
+  }
+
+  /* Responsive */
+  @media (max-width: 760px) {
+    /* Severity table becomes one card per level */
+    .severity-table,
+    .severity-table tbody,
+    .severity-table tr,
+    .severity-table th,
+    .severity-table td {
+      display: block;
+    }
+
+    .severity-table {
+      background: none;
+      border: none;
+      border-radius: 0;
+      overflow: visible;
+    }
+
+    .severity-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+
+    .severity-table tbody tr {
+      background: var(--color-cream);
+      border: 1px solid var(--color-cream-dark);
+      border-top: 3px solid var(--sev);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+    }
+
+    .severity-table tbody th {
+      box-shadow: none;
+      border-top: none;
+      padding: 0 0 var(--space-sm);
+      font-size: 1rem;
+    }
+
+    .severity-table td {
+      border-top: none;
+      padding: var(--space-xs) 0 var(--space-sm);
+    }
+
+    .severity-table td::before {
+      content: attr(data-label);
+      display: block;
+      font-family: var(--font-accent);
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--color-neutral-500);
+      margin-bottom: 0.15rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .page-hero {
+      padding: var(--space-2xl) 0 var(--space-xl);
+    }
+
+    .coc-section {
+      margin-top: var(--space-xl);
+      padding-top: var(--space-xl);
+    }
+
+    .cta-band {
+      padding: var(--space-xl);
+    }
+  }
+</style>

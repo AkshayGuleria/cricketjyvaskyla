@@ -6,7 +6,7 @@ import Footer from '../components/Footer.astro';
 
 <BaseLayout
   title="Join Us - Jyväskylä Cricket Club"
-  description="Join Jyväskylä Cricket Club - membership information, practice locations, and fees for both experienced players and beginners."
+  description="Join Jyväskylä Cricket Club - membership information, practice locations, fees, and how to register, for both experienced players and beginners."
 >
   <Header slot="header" />
 
@@ -60,8 +60,40 @@ import Footer from '../components/Footer.astro';
       </div>
     </section>
 
+    <!-- How to Join -->
+    <section class="steps-section reveal reveal-delay-3">
+      <div class="section-label">Getting Started</div>
+      <h2>How to Join</h2>
+      <ol class="steps-grid">
+        <li class="step-card">
+          <div class="card-accent"></div>
+          <div class="step-num" aria-hidden="true">1</div>
+          <h3>Read the Code of Conduct</h3>
+          <p>Membership in JCC means accepting our Code of Conduct &mdash; the standards of behavior we expect from everyone at matches, practices, social events and online.</p>
+          <a href="/code_of_conduct/" class="card-link">
+            Read the Code <span aria-hidden="true">&rarr;</span>
+          </a>
+        </li>
+        <li class="step-card">
+          <div class="card-accent"></div>
+          <div class="step-num" aria-hidden="true">2</div>
+          <h3>Register</h3>
+          <p>Fill in the short membership registration form. Submitting it confirms that you agree to pay the club fee and abide by the club's rules and Code of Conduct.</p>
+          <a href="https://forms.gle/ZnrLugdyuabhkAEt6" target="_blank" rel="noopener" class="btn-accent">
+            Membership Registration Form
+          </a>
+        </li>
+        <li class="step-card">
+          <div class="card-accent"></div>
+          <div class="step-num" aria-hidden="true">3</div>
+          <h3>Pay the Membership Fee</h3>
+          <p>Pay the annual fee for your membership type shown above. Questions about payment? <a href="/contact/">Contact us</a>.</p>
+        </li>
+      </ol>
+    </section>
+
     <!-- CTA -->
-    <section class="cta-band reveal reveal-delay-3">
+    <section class="cta-band reveal reveal-delay-4">
       <div class="cta-content">
         <h3>Have Questions?</h3>
         <p>If you have more questions or queries, please feel free to contact us.</p>
@@ -301,6 +333,85 @@ import Footer from '../components/Footer.astro';
 
   .featured .fee-desc {
     color: rgba(245, 240, 232, 0.5);
+  }
+
+  /* How to Join */
+  .steps-section {
+    margin-bottom: var(--space-4xl);
+  }
+
+  .steps-section > h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-xl);
+  }
+
+  .steps-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .step-card {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: box-shadow var(--transition-base);
+  }
+
+  .step-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .step-num {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    line-height: 1;
+    color: var(--color-gold);
+    margin-bottom: var(--space-md);
+  }
+
+  .step-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+  }
+
+  .step-card p {
+    color: var(--color-neutral-600);
+    line-height: 1.7;
+    margin-bottom: var(--space-lg);
+  }
+
+  .step-card p:last-child {
+    margin-bottom: 0;
+  }
+
+  .step-card p a {
+    display: inline;
+    min-height: auto;
+    min-width: auto;
+  }
+
+  .step-card .card-link,
+  .step-card .btn-accent {
+    margin-top: auto;
+  }
+
+  .step-card .btn-accent {
+    text-align: center;
   }
 
   /* CTA Band */

@@ -343,7 +343,8 @@ function isActive(itemHref: string): boolean {
       z-index: var(--z-sticky);
     }
 
-    :global(body.menu-open) {
+    /* Lock scrolling on html, not body: overflow on body breaks the sticky header */
+    :global(html:has(body.menu-open)) {
       overflow: hidden;
     }
   }

@@ -144,7 +144,8 @@ body {
   line-height: var(--line-height-normal);
   color: var(--color-neutral-700);
   background-color: var(--color-cream-light);
-  overflow-x: hidden;
+  /* clip, not hidden: hidden makes body a scroll container, which breaks position: sticky */
+  overflow-x: clip;
   font-weight: 400;
 }
 
