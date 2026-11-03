@@ -1,0 +1,9 @@
+/caveman:caveman-review the current branch against main and find any possible simple suggestions
+
+---
+
+Fix the first two 🟡 items /goal
+
+---
+
+Commit and push the change to remote
