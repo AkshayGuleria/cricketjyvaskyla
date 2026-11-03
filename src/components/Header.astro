@@ -71,6 +71,7 @@ function isActive(itemHref: string): boolean {
         const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
         toggle.setAttribute('aria-expanded', String(!isExpanded));
         nav.classList.toggle('open');
+        document.documentElement.classList.toggle('menu-open');
         document.body.classList.toggle('menu-open');
       });
 
@@ -79,6 +80,7 @@ function isActive(itemHref: string): boolean {
           if (nav.classList.contains('open')) {
             toggle.setAttribute('aria-expanded', 'false');
             nav.classList.remove('open');
+            document.documentElement.classList.remove('menu-open');
             document.body.classList.remove('menu-open');
           }
         }
@@ -88,6 +90,7 @@ function isActive(itemHref: string): boolean {
         if (e.key === 'Escape' && nav.classList.contains('open')) {
           toggle.setAttribute('aria-expanded', 'false');
           nav.classList.remove('open');
+          document.documentElement.classList.remove('menu-open');
           document.body.classList.remove('menu-open');
           toggle.focus();
         }
@@ -344,7 +347,7 @@ function isActive(itemHref: string): boolean {
     }
 
     /* Lock scrolling on html, not body: overflow on body breaks the sticky header */
-    :global(html:has(body.menu-open)) {
+    :global(html.menu-open) {
       overflow: hidden;
     }
   }
