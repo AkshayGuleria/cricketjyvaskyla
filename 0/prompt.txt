@@ -1,0 +1,5 @@
+/goal now fix the 4 wording fixes described under the copy section
+
+---
+
+Commit and push the change to remote
