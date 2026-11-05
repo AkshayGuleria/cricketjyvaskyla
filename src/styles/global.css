@@ -144,7 +144,9 @@ body {
   line-height: var(--line-height-normal);
   color: var(--color-neutral-700);
   background-color: var(--color-cream-light);
+  /* clip, not hidden: hidden makes body a scroll container, which breaks position: sticky. The hidden line is the fallback for Safari < 16, which lacks clip. */
   overflow-x: hidden;
+  overflow-x: clip;
   font-weight: 400;
 }
 
