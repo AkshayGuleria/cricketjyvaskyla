@@ -2,11 +2,12 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import CopyEmailButton from '../components/CopyEmailButton.astro';
 ---
 
 <BaseLayout
   title="Contact - Jyväskylä Cricket Club"
-  description="Get in touch with Jyväskylä Cricket Club. Contact details for the Chairman and Secretary."
+  description="Get in touch with Jyväskylä Cricket Club. General enquiries and contact details for the Chairman, Secretary and Treasurer."
 >
   <Header slot="header" />
 
@@ -19,22 +20,54 @@ import Footer from '../components/Footer.astro';
 
     <!-- Contact Cards -->
     <div class="contact-row reveal reveal-delay-1">
+      <article class="contact-card contact-card--general">
+        <div class="general-text">
+          <div class="contact-role">General Enquiries</div>
+          <h2 class="contact-name">Not sure who to contact?</h2>
+          <p class="contact-desc">Questions about the club, matches, practice sessions or anything else &mdash; start here.</p>
+        </div>
+        <div class="email-row">
+          <a href="mailto:info@cricketjyvaskyla.com" class="contact-email">
+            info@<wbr />cricketjyvaskyla.com
+          </a>
+          <CopyEmailButton email="info@cricketjyvaskyla.com" />
+        </div>
+      </article>
+
       <article class="contact-card">
         <div class="contact-role">Chairman</div>
         <h2 class="contact-name">Akshay Guleria</h2>
-        <a href="mailto:chairman@cricketjyvaskyla.com" class="contact-email">
-          chairman@cricketjyvaskyla.com
-        </a>
-        <p class="contact-desc">For general inquiries, membership questions, and club matters.</p>
+        <div class="email-row">
+          <a href="mailto:chairman@cricketjyvaskyla.com" class="contact-email">
+            chairman@<wbr />cricketjyvaskyla.com
+          </a>
+          <CopyEmailButton email="chairman@cricketjyvaskyla.com" />
+        </div>
+        <p class="contact-desc">For membership questions and club matters.</p>
       </article>
 
       <article class="contact-card">
         <div class="contact-role">Secretary</div>
         <h2 class="contact-name">Shehriyar Arif</h2>
-        <a href="mailto:secretary@cricketjyvaskyla.com" class="contact-email">
-          secretary@cricketjyvaskyla.com
-        </a>
+        <div class="email-row">
+          <a href="mailto:secretary@cricketjyvaskyla.com" class="contact-email">
+            secretary@<wbr />cricketjyvaskyla.com
+          </a>
+          <CopyEmailButton email="secretary@cricketjyvaskyla.com" />
+        </div>
         <p class="contact-desc">For official correspondence and administrative matters.</p>
+      </article>
+
+      <article class="contact-card">
+        <div class="contact-role">Treasurer</div>
+        <h2 class="contact-name">Nasir Naveed</h2>
+        <div class="email-row">
+          <a href="mailto:treasurer@cricketjyvaskyla.com" class="contact-email">
+            treasurer@<wbr />cricketjyvaskyla.com
+          </a>
+          <CopyEmailButton email="treasurer@cricketjyvaskyla.com" />
+        </div>
+        <p class="contact-desc">For membership fees, payments and expense claims.</p>
       </article>
     </div>
 
@@ -113,10 +146,10 @@ import Footer from '../components/Footer.astro';
   /* Contact Row */
   .contact-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: var(--space-lg);
     margin-bottom: var(--space-3xl);
-    max-width: 800px;
+    max-width: 1100px;
   }
 
   .contact-card {
@@ -148,16 +181,23 @@ import Footer from '../components/Footer.astro';
     margin-bottom: var(--space-md);
   }
 
+  .email-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.35rem;
+    margin-bottom: var(--space-md);
+  }
+
   .contact-email {
     display: inline-block;
+    min-width: 0;
     font-size: 0.92rem;
     color: var(--color-accent);
     text-decoration: none;
-    padding: 0.6rem 1.25rem;
+    padding: 0.6rem 1rem;
     background: rgba(196, 74, 47, 0.06);
     border-radius: var(--radius-sm);
     transition: all var(--transition-base);
-    margin-bottom: var(--space-md);
     min-height: auto;
     min-width: auto;
     font-weight: 500;
@@ -184,6 +224,30 @@ import Footer from '../components/Footer.astro';
     margin: 0;
   }
 
+  /* General enquiries: full-width card above the role cards */
+  .contact-card--general {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg) var(--space-2xl);
+    padding: var(--space-xl);
+    border-left: 3px solid var(--color-accent);
+  }
+
+  .general-text {
+    flex: 1 1 320px;
+  }
+
+  .contact-card--general .contact-name {
+    margin-bottom: var(--space-sm);
+  }
+
+  .contact-card--general .email-row {
+    margin-bottom: 0;
+  }
+
   /* Info Strip */
   .info-strip {
     display: flex;
@@ -193,7 +257,7 @@ import Footer from '../components/Footer.astro';
     background: var(--color-primary);
     border-radius: var(--radius-md);
     margin-bottom: var(--space-3xl);
-    max-width: 800px;
+    max-width: 1100px;
   }
 
   .info-item {
@@ -301,6 +365,19 @@ import Footer from '../components/Footer.astro';
   @media (max-width: 640px) {
     .page-hero {
       padding: var(--space-2xl) 0 var(--space-xl);
+    }
+
+    /* a little more room so email + copy button stay on one line */
+    .contact-card {
+      padding: var(--space-xl) var(--space-lg);
+    }
+
+    .email-row {
+      gap: 0.25rem;
+    }
+
+    .contact-email {
+      padding: 0.6rem 0.75rem;
     }
   }
 </style>

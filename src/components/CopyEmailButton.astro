@@ -1,0 +1,141 @@
+---
+// Small icon button that copies an email address to the clipboard.
+// Usage: <CopyEmailButton email="info@cricketjyvaskyla.com" /> next to the mailto link.
+interface Props {
+  email: string;
+}
+
+const { email } = Astro.props;
+---
+
+<button
+  type="button"
+  class="copy-email"
+  data-email={email}
+  aria-label={`Copy email address ${email}`}
+  title="Copy email address"
+>
+  <svg class="icon icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <rect x="9" y="9" width="12" height="12" rx="2" />
+    <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
+  </svg>
+  <svg class="icon icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="m5 12.5 4.5 4.5L19 7.5" />
+  </svg>
+  <span class="copy-tip" aria-hidden="true">Copied</span>
+</button>
+
+<script>
+  // One polite live region so screen readers hear the confirmation.
+  const status = document.createElement('span');
+  status.className = 'sr-only';
+  status.setAttribute('role', 'status');
+  document.body.appendChild(status);
+
+  async function copyText(text: string): Promise<void> {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    // Fallback for non-secure contexts (e.g. the built site opened over file://).
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    const ok = document.execCommand('copy');
+    area.remove();
+    if (!ok) throw new Error('Copy command was refused');
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.copy-email').forEach((button) => {
+    let resetTimer: number | undefined;
+    button.addEventListener('click', async () => {
+      const email = button.dataset.email ?? '';
+      try {
+        await copyText(email);
+      } catch {
+        status.textContent = 'Could not copy the email address';
+        return;
+      }
+      button.classList.add('is-copied');
+      status.textContent = `Copied ${email}`;
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        button.classList.remove('is-copied');
+        status.textContent = '';
+      }, 2000);
+    });
+  });
+</script>
+
+<style>
+  .copy-email {
+    position: relative;
+    flex-shrink: 0;
+    align-self: stretch;
+    width: 2.5rem;
+    min-width: auto;
+    min-height: auto;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: rgba(196, 74, 47, 0.06);
+    color: var(--color-accent);
+    cursor: pointer;
+    transition: all var(--transition-base);
+  }
+
+  .copy-email:hover {
+    background: var(--color-accent);
+    color: var(--color-cream-light);
+  }
+
+  .icon {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .icon-check {
+    display: none;
+  }
+
+  .copy-email.is-copied {
+    background: var(--color-secondary);
+    color: var(--color-cream-light);
+  }
+
+  .copy-email.is-copied .icon-copy {
+    display: none;
+  }
+
+  .copy-email.is-copied .icon-check {
+    display: block;
+  }
+
+  .copy-tip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translate(-50%, 4px);
+    padding: 0.25rem 0.55rem;
+    background: var(--color-primary);
+    color: var(--color-cream-light);
+    font-family: var(--font-accent);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .copy-email.is-copied .copy-tip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+</style>

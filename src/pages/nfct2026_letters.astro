@@ -1,0 +1,332 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+// Personalised Letters of Appreciation for the NFCT 2026 championship squad.
+// Each PDF is the signed letter with the player's name in the salutation, stored as
+// public/pdfs/nfct2026-letters/JCC_Appreciation_<Name_With_Underscores>.pdf.
+// Linked from the NFCT Final 2026 album on /gallery/ (gallery.json "link") but not
+// from the nav/footer; marked noindex and filtered out of the sitemap in astro.config.mjs.
+const LETTER_DIR = '/pdfs/nfct2026-letters/';
+
+const players = [
+  'Mohsin Riaz',
+  'Wahid Ullah',
+  'Saqib Arshad',
+  'Rajnish Kumar',
+  'Akshay Guleria',
+  'Shehriyar Arif',
+  'Akein Fernando',
+  'Ajay Chand Thakuri',
+  'Abhiskek Sanadhaya',
+  'Mohan Chand Gurajala',
+  'Pamadu Miuranga',
+  'Sunil Kumar',
+  'Navneet Singh',
+  'Mangala Rajapaksa',
+  'Vicky Vagh',
+  'Jamshaid Ali',
+  'Christin Paul',
+  'Saiful Islam',
+  'Kabir',
+  'Nasir Naveed',
+  'Kashif Naveed',
+  'Paul Abbey',
+];
+
+const letters = players
+  .map((name) => {
+    const file = `JCC_Appreciation_${name.replace(/[^A-Za-z0-9]+/g, '_').replace(/^_|_$/g, '')}.pdf`;
+    // Fail the build rather than publish a link to a missing PDF.
+    if (!fs.existsSync(path.join(process.cwd(), 'public', LETTER_DIR, file))) {
+      throw new Error(`Missing letter PDF for "${name}": public${LETTER_DIR}${file}`);
+    }
+    return { name, file, href: `${LETTER_DIR}${file}` };
+  })
+  .sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<BaseLayout
+  title="NFCT 2026 Letters of Appreciation - Jyväskylä Cricket Club"
+  description="Personal letters of appreciation from the JCC Executive Committee to the squad that won the Northern Finland Cricket Tournament 2026."
+  noindex={true}
+>
+  <Header slot="header" />
+
+  <div class="container">
+    <!-- Page Header -->
+    <header class="page-hero reveal">
+      <div class="page-hero-label">NFCT 2026 &middot; Champions</div>
+      <h1>Letters of Appreciation</h1>
+      <p class="page-hero-lead">Congratulations on winning the Northern Finland Cricket Tournament 2026. The Executive Committee has written a personal letter to every player in the squad &mdash; find your name below to download yours.</p>
+    </header>
+
+    <!-- Letters -->
+    <section class="letters-section reveal reveal-delay-1" aria-labelledby="letters-heading">
+      <div class="section-label">The Squad</div>
+      <h2 id="letters-heading">Download Your Letter</h2>
+      <ul class="letters-grid">
+        {letters.map(({ name, file, href }) => (
+          <li>
+            <a class="letter-card" href={href} download={file} aria-label={`Download the letter for ${name} (PDF)`}>
+              <span class="letter-name">{name}</span>
+              <span class="letter-meta" aria-hidden="true">
+                PDF
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11" /><path d="m7 10 5 5 5-5" /><path d="M5 20h14" /></svg>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p class="letters-note">Each letter is a single-page A4 PDF, ready to keep or print.</p>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-band reveal reveal-delay-2">
+      <div class="cta-content">
+        <h3>Name Missing or Misspelt?</h3>
+        <p>Let us know and we will send you a corrected letter.</p>
+        <a href="/contact/" class="btn-accent">Contact Us</a>
+      </div>
+    </section>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  /* Page Hero */
+  .page-hero {
+    padding: var(--space-3xl) 0 var(--space-2xl);
+    max-width: 680px;
+  }
+
+  .page-hero-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .page-hero-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .page-hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-md);
+    line-height: 1.1;
+  }
+
+  .page-hero-lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.15rem);
+    line-height: 1.7;
+    color: var(--color-neutral-500);
+  }
+
+  /* Letters */
+  .letters-section {
+    margin-bottom: var(--space-4xl);
+  }
+
+  .section-label {
+    font-family: var(--font-accent);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .section-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  .letters-section > h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-xl);
+  }
+
+  .letters-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-md);
+  }
+
+  .letters-grid li {
+    margin: 0;
+    display: flex; /* equal-height cards per row */
+  }
+
+  .letter-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    width: 100%;
+    padding: var(--space-lg);
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow var(--transition-base), border-color var(--transition-base), transform var(--transition-base);
+  }
+
+  .letter-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--transition-base);
+  }
+
+  .letter-card:visited {
+    color: var(--color-primary);
+  }
+
+  .letter-card:hover {
+    color: var(--color-primary);
+    text-decoration: none;
+    border-color: var(--color-neutral-300);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .letter-card:hover::before,
+  .letter-card:focus-visible::before {
+    transform: scaleX(1);
+  }
+
+  .letter-name {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  .letter-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+    font-family: var(--font-accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .letter-meta svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .letters-note {
+    margin-top: var(--space-lg);
+    font-size: 0.95rem;
+    color: var(--color-neutral-500);
+  }
+
+  /* CTA Band */
+  .cta-band {
+    background: var(--color-cream);
+    border: 1px solid var(--color-cream-dark);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    margin-bottom: var(--space-3xl);
+    text-align: center;
+  }
+
+  .cta-content h3 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .cta-content p {
+    color: var(--color-neutral-500);
+    margin-bottom: var(--space-lg);
+  }
+
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.875rem 2rem;
+    background: var(--color-accent);
+    color: var(--color-cream-light);
+    font-family: var(--font-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+  }
+
+  .btn-accent:hover {
+    background: var(--color-accent-dark);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(196, 74, 47, 0.3);
+  }
+
+  .btn-accent:visited {
+    color: var(--color-cream-light);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page-hero {
+      padding: var(--space-2xl) 0 var(--space-xl);
+    }
+
+    .letter-card {
+      padding: var(--space-md) var(--space-lg);
+    }
+
+    .cta-band {
+      padding: var(--space-xl);
+    }
+  }
+</style>

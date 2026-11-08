@@ -7,6 +7,10 @@
       "date": "August 2026",
       "location": "Oulu, Finland",
       "badge": "Champions",
+      "link": {
+        "href": "/nfct2026_letters/",
+        "label": "Download your letter of appreciation"
+      },
       "coverImage": "/images/nfct_final_2026/nfct-final-2026-squads.webp",
       "images": [
         {
@@ -141,5 +145,5 @@
       "images": []
     }
   ],
-  "note": "Albums render newest first. Each image needs src, thumbnail, caption, width and height - width/height must match the full-size file, PhotoSwipe uses them to size the lightbox. Optional per-album fields: badge (accent pill in the album header), location (omit with an empty string to hide the tag)."
+  "note": "Albums render newest first. Each image needs src, thumbnail, caption, width and height - width/height must match the full-size file, PhotoSwipe uses them to size the lightbox. Optional per-album fields: badge (accent pill in the album header), location (omit with an empty string to hide the tag), link ({href, label} button shown next to the album title)."
 }
