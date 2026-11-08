@@ -7,7 +7,12 @@ export default defineConfig({
   output: 'static', // this is the default, but explicit is nice
   site: 'https://cricketjyvaskyla.com',
   trailingSlash: 'always',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // Unlisted, noindex page shared with players by link
+      filter: (page) => !page.includes('/nfct2026_letters/')
+    })
+  ],
   image: {
     domains: ['cricketjyvaskyla.com']
   },
