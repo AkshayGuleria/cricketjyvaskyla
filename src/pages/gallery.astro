@@ -34,7 +34,14 @@ const photoCount = albums.reduce((total, album) => total + album.images.length, 
         <section class="album-section reveal" id={album.id}>
           <div class="album-head">
             {album.badge && <div class="album-badge">{album.badge}</div>}
-            <h2>{album.title}</h2>
+            <div class="album-title-row">
+              <h2>{album.title}</h2>
+              {album.link && (
+                <a class="album-link" href={album.link.href}>
+                  {album.link.label} <span aria-hidden="true">→</span>
+                </a>
+              )}
+            </div>
             <p class="album-desc">{album.description}</p>
             <div class="album-meta">
               <span class="meta-tag">{album.date}</span>
@@ -162,6 +169,46 @@ const photoCount = albums.reduce((total, album) => total + album.images.length, 
     font-size: var(--font-size-xl);
     color: var(--color-primary);
     margin-bottom: var(--space-sm);
+  }
+
+  .album-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm) var(--space-lg);
+    margin-bottom: var(--space-sm);
+  }
+
+  .album-head .album-title-row h2 {
+    margin-bottom: 0;
+  }
+
+  .album-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: auto;
+    padding: 0.45rem 0.9rem;
+    font-family: var(--font-accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all var(--transition-base);
+  }
+
+  .album-link:visited {
+    color: var(--color-accent);
+  }
+
+  .album-link:hover {
+    background: var(--color-accent);
+    color: var(--color-cream-light);
+    text-decoration: none;
   }
 
   .album-desc {
@@ -313,6 +360,12 @@ const photoCount = albums.reduce((total, album) => total + album.images.length, 
     .album-section {
       margin-bottom: var(--space-2xl);
       padding-bottom: var(--space-2xl);
+    }
+
+    .album-link {
+      font-size: 0.72rem;
+      letter-spacing: 0.02em;
+      padding: 0.45rem 0.75rem;
     }
 
     .cta-band {

@@ -8,8 +8,8 @@ import Footer from '../components/Footer.astro';
 // Personalised Letters of Appreciation for the NFCT 2026 championship squad.
 // Each PDF is the signed letter with the player's name in the salutation, stored as
 // public/pdfs/nfct2026-letters/JCC_Appreciation_<Name_With_Underscores>.pdf.
-// Unlisted page: shared with players by link, so it is not in the nav/footer,
-// is marked noindex, and is filtered out of the sitemap in astro.config.mjs.
+// Linked from the NFCT Final 2026 album on /gallery/ (gallery.json "link") but not
+// from the nav/footer; marked noindex and filtered out of the sitemap in astro.config.mjs.
 const LETTER_DIR = '/pdfs/nfct2026-letters/';
 
 const players = [
@@ -179,7 +179,7 @@ const letters = players
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: var(--space-md);
   }
 
