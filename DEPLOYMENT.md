@@ -71,6 +71,36 @@ If using traditional hosting (FTP/cPanel):
    - Ensure PDF files in `dist/pdfs/` are uploaded
    - Check that `robots.txt` and `sitemap.xml` are in root
 
+### Secured upload script (FTPS)
+
+`scripts/deploy-ftp.sh` builds the site and mirrors `dist/` over FTP with mandatory TLS (explicit FTPS, via lftp). It never sends the password unless TLS is negotiated and the server certificate and hostname verify.
+
+One-time setup (macOS):
+
+```bash
+brew install lftp
+export FTP_USER=<your-ftp-login>
+# Store the password in the Keychain. -T "" makes every read ask for approval
+# (choose "Allow", never "Always Allow").
+security add-generic-password -a "$FTP_USER" -s jcc-ftp -T "" -w
+```
+
+Usage:
+
+```bash
+export FTP_USER=<your-ftp-login>
+export FTP_REMOTE_DIR=/<web-root>      # folder that holds the live site
+scripts/deploy-ftp.sh                  # dry run: summary of files that would change
+scripts/deploy-ftp.sh --apply          # upload
+scripts/deploy-ftp.sh --apply --delete # also delete remote files not in dist/
+```
+
+- Host defaults to `ftps4.us.freehostia.com` (override with `FTP_HOST`).
+- Asks for confirmation when not run from `master`.
+- Run it in your own terminal, not through an AI agent's shell, so the session transcript never contains deploy output.
+- `scripts/test-deploy-ftp.sh` is an offline regression test against a fake FTP server: it checks the password is never sent when the server refuses TLS or presents an untrusted certificate. Run it after changing the deploy script.
+- FileZilla: use host `ftps4.us.freehostia.com` with "Require explicit FTP over TLS". Plain FTP sends the password unencrypted.
+
 ## Environment Variables
 
 No environment variables needed for basic deployment. All configuration is in `astro.config.mjs`.
