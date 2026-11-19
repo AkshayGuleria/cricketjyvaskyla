@@ -6,9 +6,9 @@
       "email": "chairman@cricketjyvaskyla.com"
     },
     {
-      "name": "Kashif Naveed",
+      "name": "Sunil Kumar",
       "role": "Vice Chairman",
-      "email": null
+      "email": "vice.chairman@cricketjyvaskyla.com"
     },
     {
       "name": "Shehriyar Arif",
@@ -16,7 +16,7 @@
       "email": "secretary@cricketjyvaskyla.com"
     },
     {
-      "name": "Nasir Naveed",
+      "name": "Position open",
       "role": "Treasurer",
       "email": "treasurer@cricketjyvaskyla.com"
     },
@@ -31,8 +31,8 @@
       "email": null
     },
     {
-      "name": "Abhiskek Sanadhaya",
-      "role": "Social Media Coordinator",
+      "name": "Abhishek Sanadhaya",
+      "role": "Team Coordinator",
       "email": null
     }
   ],
@@ -70,7 +70,7 @@
       "role": "Player"
     },
     {
-      "name": "Abhiskek Sanadhaya",
+      "name": "Abhishek Sanadhaya",
       "role": "Player"
     },
     {
@@ -115,10 +115,6 @@
     },
     {
       "name": "Nasir Naveed",
-      "role": "Player"
-    },
-    {
-      "name": "Kashif Naveed",
       "role": "Player"
     },
     {
