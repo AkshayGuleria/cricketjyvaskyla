@@ -1,0 +1,60 @@
+Fix the first two 🟡 items /goal
+
+---
+
+Commit and push the change to remote
+
+---
+
+Commit and push the change to remote
+
+---
+
+my github pipeline has an entire.com gate, which seems to be stuck at
+
+
+<pasted_content id="1a61">
+ Entire / Entire Gates Started 36m 6s ago
+Gates are evaluating
+
+    ⏳ unassessed: pending — PR #7 has no active assessed Change for its current comparison (or its close is still pending)
+
+</pasted_content id="1a61">
+
+---
+
+There are role changes in the club
+1. New Vice Chair (Sunil Kumar)
+2. New Team Coordinator (Abhishek Sanadhaya
+3. Treasurer has left
+
+Create a plan to update the website, do it in a different branch
+
+---
+
+I want to upload the site thru an ftp connection. Bring up a secured way to do that
+
+---
+
+1. members.json: Sunil's email (vice.chairman@cricketjyvaskyla.com). Treasurer entry should remain but with position open instead of name.
+2. contact: use position open instead of vacant
+
+---
+
+The letters page still spells Abhishek as "Abhiskek". fix this too
+
+---
+
+fix the letter as well
+
+---
+
+verify local changes and push to remote
+
+---
+
+create a PR for this branch
+
+---
+
+create the entire trail as well fro this work
