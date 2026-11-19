@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01YLbGbCwgcqMJcJoavBV4kH",
+  "agent_id": "a2f246f1b4f0a851f",
+  "subagent_type": "general-purpose",
+  "task_description": "FP filter: cleartext FTP creds",
+  "token_usage": {
+    "input_tokens": 4,
+    "cache_creation_tokens": 27006,
+    "cache_read_tokens": 57104,
+    "output_tokens": 1753,
+    "api_call_count": 2
+  },
+  "started_at": "2026-11-19T23:50:42.701755+02:00",
+  "completed_at": "2026-11-19T23:51:05.112331+02:00"
+}

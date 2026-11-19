@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_011sPhAowXio12iogvyB6eRi",
+  "agent_id": "ac06ddb93543bff6f",
+  "subagent_type": "general-purpose",
+  "task_description": "Identify deploy security vulns",
+  "token_usage": {
+    "input_tokens": 70,
+    "cache_creation_tokens": 104493,
+    "cache_read_tokens": 2488600,
+    "output_tokens": 44227,
+    "api_call_count": 35
+  },
+  "started_at": "2026-11-19T23:40:42.826603+02:00",
+  "completed_at": "2026-11-19T23:49:59.464704+02:00"
+}
