@@ -1,0 +1,19 @@
+my github pipeline has an entire.com gate, which seems to be stuck at
+
+
+<pasted_content id="1a61">
+ Entire / Entire Gates Started 36m 6s ago
+Gates are evaluating
+
+    ⏳ unassessed: pending — PR #7 has no active assessed Change for its current comparison (or its close is still pending)
+
+</pasted_content id="1a61">
+
+---
+
+There are role changes in the club
+1. New Vice Chair (Sunil Kumar)
+2. New Team Coordinator (Abhishek Sanadhaya
+3. Treasurer has left
+
+Create a plan to update the website, do it in a different branch
