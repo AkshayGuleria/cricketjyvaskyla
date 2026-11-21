@@ -12,18 +12,23 @@
 // record no longer vouches for files the server may now hold in a newer
 // version, so the next deploy compares them again instead of skipping them.
 //
+// Before a live --full upload, which re-sends every file, `clear` deletes the
+// record: a --full run cut off part way can leave any file incomplete on the
+// server, so no entry may survive it.
+//
 // Usage:
 //   node scripts/deploy-ftp-state.mjs restore <distDir> <manifest.json>
 //   node scripts/deploy-ftp-state.mjs prune   <distDir> <manifest.json>
+//   node scripts/deploy-ftp-state.mjs clear   <distDir> <manifest.json>
 //   node scripts/deploy-ftp-state.mjs save    <distDir> <manifest.json>
 
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, readdirSync, renameSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
 
 const [cmd, distDir, manifestPath] = process.argv.slice(2);
-if (!['restore', 'prune', 'save'].includes(cmd) || !distDir || !manifestPath) {
-  console.error('usage: deploy-ftp-state.mjs restore|prune|save <distDir> <manifest.json>');
+if (!['restore', 'prune', 'clear', 'save'].includes(cmd) || !distDir || !manifestPath) {
+  console.error('usage: deploy-ftp-state.mjs restore|prune|clear|save <distDir> <manifest.json>');
   process.exit(2);
 }
 
@@ -54,7 +59,9 @@ function writeManifest(files) {
   renameSync(tmp, manifestPath);
 }
 
-if (cmd === 'prune') {
+if (cmd === 'clear') {
+  rmSync(manifestPath, { force: true });
+} else if (cmd === 'prune') {
   const manifest = readManifest();
   if (manifest === null) process.exit(0);
   const files = {};

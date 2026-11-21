@@ -304,11 +304,19 @@ if [ "$APPLY" -eq 0 ]; then
 fi
 
 # Before anything on the server changes, forget the recorded state of every
-# file this build changed. A failed or interrupted upload can leave the server
-# holding this build's version of such a file; the record must not then claim
-# the previous version is there, or a later deploy of that version (a
-# rollback) would skip it.
-[ "$APPLY" -eq 1 ] && node scripts/deploy-ftp-state.mjs prune dist "$STATE_FILE"
+# file this run will upload. A failed or interrupted upload can leave the
+# server holding this build's version of such a file, or a cut-off copy; the
+# record must not then claim the previous version is there, or a later deploy
+# would skip it (with its old mtime restored, it looks older than the server's
+# copy). An ordinary run uploads the files this build changed; --full uploads
+# every file, so it drops the whole record.
+if [ "$APPLY" -eq 1 ]; then
+  if [ "$FULL" -eq 1 ]; then
+    node scripts/deploy-ftp-state.mjs clear dist "$STATE_FILE"
+  else
+    node scripts/deploy-ftp-state.mjs prune dist "$STATE_FILE"
+  fi
+fi
 
 # Never upload, overwrite or --delete these. .DS_Store is macOS litter; the
 # rest are files the host or other tools manage in the web root (a glob

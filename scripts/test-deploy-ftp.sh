@@ -34,6 +34,7 @@
 #     still removes stale folders without them
 #   - Ctrl-C during an upload: exit 130, no temp files left, and the deploy
 #     record does not claim the new version
+#   - Ctrl-C during --full: the next normal deploy re-sends the cut-off file
 #
 # Usage: scripts/test-deploy-ftp.sh      (needs python3, lftp, openssl, node)
 set -uo pipefail
@@ -408,30 +409,64 @@ for f in $HOST_FILES; do
 done
 end
 
-# Like pressing Ctrl-C in a terminal: SIGINT to the deploy's whole process
-# group while the server is stalling on an upload. set -m gives the
-# background job its own process group (and leaves SIGINT not ignored).
+# interrupt_deploy FILE [deploy-ftp.sh args...]: like pressing Ctrl-C in a
+# terminal while the server stalls on the upload of FILE (a path under dist/):
+# SIGINT to the deploy's whole process group. The server then aborts that
+# upload and leaves the file empty. set -m gives the background job its own
+# process group (and leaves SIGINT not ignored). Sets OUT, RC and STALLED (1
+# if the upload of FILE had started). Temp files go to $WORK/tmp-int.
+interrupt_deploy() {
+  local file="$1" log_lines pid; shift
+  server_flags "slowstor=${file##*/}"
+  RUN=$((RUN + 1)); OUT="$WORK/out.$RUN"; mkdir -p "$WORK/tmp-int"
+  log_lines="$(wc -l <"$STATE/log")"
+  set -m
+  PATH="$WORK/bin:$PATH" TMPDIR="$WORK/tmp-int" LFTP_HOME="$WORK/lftp-home" FTP_CA_FILE="$WORK/certs/ca.pem" \
+    FTP_HOST="localhost:$PORT" FTP_USER=tester FTP_PASS="$FAKE_PW" FTP_REMOTE_DIR=/www \
+    "$FAKE/scripts/deploy-ftp.sh" "$@" <<<y >"$OUT" 2>&1 &
+  pid=$!
+  set +m
+  STALLED=0
+  for _ in $(seq 200); do
+    tail -n "+$((log_lines + 1))" "$STATE/log" | grep -qF -- "DATA STOR /www/$file " && { STALLED=1; break; }
+    sleep 0.05
+  done
+  kill -INT -- "-$pid" 2>/dev/null
+  wait "$pid"; RC=$?
+  server_flags ok
+}
+
 begin "Ctrl-C during an upload"
 head -c 9000 /dev/urandom >"$FAKE/dist/pdfs/agm.pdf"
-server_flags slowstor=agm.pdf
-RUN=$((RUN + 1)); OUT="$WORK/out.$RUN"; mkdir -p "$WORK/tmp-int"
-log_lines="$(wc -l <"$STATE/log")"
-new_log_has() { tail -n "+$((log_lines + 1))" "$STATE/log" | grep -qE -- "$1"; }
-set -m
-PATH="$WORK/bin:$PATH" TMPDIR="$WORK/tmp-int" LFTP_HOME="$WORK/lftp-home" FTP_CA_FILE="$WORK/certs/ca.pem" \
-  FTP_HOST="localhost:$PORT" FTP_USER=tester FTP_PASS="$FAKE_PW" FTP_REMOTE_DIR=/www \
-  "$FAKE/scripts/deploy-ftp.sh" --apply <<<y >"$OUT" 2>&1 &
-pid=$!
-set +m
-for _ in $(seq 200); do new_log_has '^DATA STOR /www/pdfs/agm.pdf' && break; sleep 0.05; done
-stalled=0; new_log_has '^DATA STOR /www/pdfs/agm.pdf' && stalled=1
-kill -INT -- "-$pid" 2>/dev/null
-wait "$pid"; RC=$?
-server_flags ok
-check "upload of agm.pdf was in progress"       [ "$stalled" -eq 1 ]
+interrupt_deploy pdfs/agm.pdf --apply
+check "upload of agm.pdf was in progress"       [ "$STALLED" -eq 1 ]
 check "deploy exits 130 (rc=$RC)"               [ "$RC" -eq 130 ]
 check "no temp files left"                      [ -z "$(ls -A "$WORK/tmp-int")" ]
 check "record does not claim the new agm.pdf"   record_lacks_current pdfs/agm.pdf
+end
+
+# --full re-sends files whose record says the server already has them. If it
+# is cut off in such a file, the record must not make the next deploy skip
+# the now empty server copy. agm.pdf is dated 2020 before the first --full,
+# so the record's mtime for it is far older than the cut-off copy's (as after
+# a real gap between deploys; lftp treats mtimes a second or two apart as
+# equal and would then re-send the file because the sizes differ). sleep 1:
+# the next build's mtimes must be newer than the server's, to the second.
+begin "Ctrl-C during --full, then a normal deploy"
+touch -t 202001010000 "$FAKE/dist/pdfs/agm.pdf"
+deploy --full --apply
+first_rc=$RC
+interrupt_deploy pdfs/agm.pdf --full --apply
+full_rc=$RC; cut_size="$(remote_size /www/pdfs/agm.pdf)"
+sleep 1; rebuild
+deploy --apply
+check "first --full succeeds (rc=$first_rc)"   [ "$first_rc" -eq 0 ]
+check "upload of agm.pdf was in progress"       [ "$STALLED" -eq 1 ]
+check "second --full exits 130 (rc=$full_rc)"   [ "$full_rc" -eq 130 ]
+check "agm.pdf on the server was cut off"       [ "$cut_size" -eq 0 ]
+check "next deploy succeeds (rc=$RC)"           succeeded
+check "agm.pdf complete on the server again"    [ "$(remote_size /www/pdfs/agm.pdf)" = "$(local_size pdfs/agm.pdf)" ]
+check "no temp files left"                      [ -z "$(ls -A "$WORK/tmp-int")" ]
 end
 
 begin "Every run cleaned up its temp files"

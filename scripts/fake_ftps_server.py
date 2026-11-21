@@ -19,8 +19,9 @@ server's behaviour between runs by rewriting that file:
   clockahead=SECS the server's clock runs SECS seconds fast (upload times)
   protfirst       accepts PROT P on the first connection that asks for it,
                   refuses it on every later one
-  slowstor=NAME   STOR of a file whose basename is NAME waits 30 s before
-                  reading the data (to interrupt an upload mid-transfer)
+  slowstor=NAME   STOR of a file whose basename is NAME truncates it, stalls
+                  until the flag is cleared (at most 30 s), then aborts with
+                  426 and leaves the file empty (to interrupt an upload)
 
 Like real FTP servers, STOR truncates the target as soon as the upload
 starts and writes data as it arrives, so an upload that fails or is cut off
@@ -309,7 +310,17 @@ class Session:
                 FS[p] = {"data": b"", "mtime": server_now()}
                 dump_fs()
             if flag("slowstor") == posixpath.basename(p):
-                time.sleep(30)
+                # Stall until the test clears the flag (at most 30 s), then
+                # drop the upload as a broken connection would. Reading the
+                # data later could complete the file, or write into the next
+                # test's upload of the same path.
+                for _ in range(600):
+                    if flag("slowstor") != posixpath.basename(p):
+                        break
+                    time.sleep(0.05)
+                d.close()
+                self.send("426 Simulated: connection lost, transfer aborted")
+                return True
             while True:
                 b = d.recv(65536)
                 if not b:
