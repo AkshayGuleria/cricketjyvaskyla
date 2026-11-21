@@ -18,6 +18,8 @@ server's behaviour between runs by rewriting that file:
   noutime         accepts SITE UTIME but ignores it (mtime stays upload time)
   protfirst       accepts PROT P on the first connection that asks for it,
                   refuses it on every later one
+  slowstor=NAME   STOR of a file whose basename is NAME waits 30 s before
+                  reading the data (to interrupt an upload mid-transfer)
 
 CERTDIR holds cert.pem / key.pem (the test chooses whether the client trusts
 them). STATEDIR receives:
@@ -40,7 +42,7 @@ import time
 import traceback
 
 INITIAL_FLAGS, CERTDIR, STATEDIR, PASSWORD = sys.argv[1:5]
-KNOWN_FLAGS = {"ok", "notls", "noprot", "failstor", "nochmod", "noutime", "protfirst"}
+KNOWN_FLAGS = {"ok", "notls", "noprot", "failstor", "nochmod", "noutime", "protfirst", "slowstor"}
 LOCK = threading.Lock()
 PROT_P_ACCEPTED = [0]  # connections that were granted PROT P (for protfirst)
 FLAGS_FILE = os.path.join(STATEDIR, "flags")
@@ -290,6 +292,8 @@ class Session:
             d = self.open_data("STOR " + p)
             if d is None:
                 return True
+            if flag("slowstor") == posixpath.basename(p):
+                time.sleep(30)
             chunks = []
             while True:
                 b = d.recv(65536)

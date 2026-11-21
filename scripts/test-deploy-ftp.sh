@@ -26,6 +26,8 @@
 #   - a server that ignores SITE UTIME gets no needless re-uploads
 #   - --delete leaves host-managed files (.htaccess, .well-known/, cgi-bin/,
 #     .ftpquota) alone
+#   - Ctrl-C during an upload: exit 130, no temp files left, the live file is
+#     still there, and the deploy record does not claim the new version
 #
 # Usage: scripts/test-deploy-ftp.sh      (needs python3, lftp, openssl, node)
 set -uo pipefail
@@ -71,7 +73,7 @@ printf '%s\n' 'set ssl:verify-certificate/localhost no' 'set ssl:check-hostname/
 
 # --- Fake repo: copy of the deploy script + synthetic dist/ -----------------
 FAKE="$WORK/repo"
-mkdir -p "$FAKE/scripts" "$FAKE/dist/css" "$FAKE/dist/images" "$FAKE/dist/pdfs" "$WORK/bin"
+mkdir -p "$FAKE/scripts" "$FAKE/dist/css" "$FAKE/dist/images" "$FAKE/dist/pdfs" "$WORK/bin" "$WORK/tmp"
 cp "$REPO/scripts/deploy-ftp.sh" "$REPO/scripts/deploy-ftp-state.mjs" "$FAKE/scripts/"
 printf '<h1>JCC</h1>\n' >"$FAKE/dist/index.html"
 printf 'body { color: navy; }\n' >"$FAKE/dist/css/site.css"
@@ -89,13 +91,23 @@ chmod +x "$WORK/bin/npm"
 STATE=""; PORT=""; OUT=""; RC=0; RUN=0
 FAILS=0; CASE_FAILS=0
 
-start_server() { # start_server FLAGS [seed-json]
+start_server() { # start_server FLAGS [seed-json]; exits 2 if it does not start
   STATE="$(mktemp -d "$WORK/state.XXXX")"
   [ -n "${2:-}" ] && printf '%s' "$2" >"$STATE/seed.json"
   python3 -I "$REPO/scripts/fake_ftps_server.py" "$1" "$WORK/certs" "$STATE" "$FAKE_PW" \
     2>>"$STATE/stderr" &
   SRV_PID=$!
-  for _ in $(seq 100); do [ -s "$STATE/port" ] && break; sleep 0.05; done
+  for _ in $(seq 100); do
+    [ -s "$STATE/port" ] && break
+    kill -0 "$SRV_PID" 2>/dev/null || break
+    sleep 0.05
+  done
+  if [ ! -s "$STATE/port" ]; then
+    echo "Fake FTPS server ($1) did not start within 5 s:" >&2
+    sed 's/^/  /' "$STATE/stderr" >&2
+    stop_server
+    exit 2
+  fi
   PORT="$(cat "$STATE/port")"
 }
 
@@ -108,7 +120,7 @@ deploy() {
   local ca="$WORK/certs/ca.pem"
   [ "${T_UNTRUSTED:-}" = 1 ] && ca=""
   # "y" answers the branch guard (the fake repo is not a git checkout).
-  echo y | PATH="$WORK/bin:$PATH" LFTP_HOME="$WORK/lftp-home" FTP_CA_FILE="$ca" \
+  echo y | PATH="$WORK/bin:$PATH" TMPDIR="$WORK/tmp" LFTP_HOME="$WORK/lftp-home" FTP_CA_FILE="$ca" \
     FTP_HOST="localhost:$PORT" FTP_USER=tester \
     FTP_PASS="${T_PASS:-$FAKE_PW}" FTP_REMOTE_DIR="${T_DIR:-/www}" LC_ALL="${T_LC_ALL:-}" LANG="${T_LANG:-${LANG:-}}" \
     "$FAKE/scripts/deploy-ftp.sh" "$@" >"$OUT" 2>&1
@@ -149,6 +161,17 @@ local_size() { wc -c <"$FAKE/dist/$1" | tr -d ' '; }
 server_flags() { printf '%s' "$1" >"$STATE/flags"; }
 # The deploy script's record of the last deploy to the current fake server.
 record_file() { echo "$FAKE/node_modules/.cache/deploy-ftp/localhost_${PORT}_www.json"; }
+# record_lacks_current FILE: the record does not hold dist/FILE's current hash
+record_lacks_current() { ! grep -qF "$(shasum -a 256 "$FAKE/dist/$1" | cut -d' ' -f1)" "$(record_file)"; }
+
+# --- Harness self-check -----------------------------------------------------
+begin "Harness: a fake server that cannot start is reported"
+( start_server no-such-flag ) >"$WORK/harness.out" 2>&1
+hrc=$?
+check "start_server exits 2 (rc=$hrc)"          [ "$hrc" -eq 2 ]
+check "says the server did not start"           grep -qF 'did not start' "$WORK/harness.out"
+check "shows the server's error"                grep -qF 'unknown flag' "$WORK/harness.out"
+end
 
 # --- Refusal cases ----------------------------------------------------------
 begin "Server refuses TLS"
@@ -338,6 +361,37 @@ check "stale.html deleted"                      remote_lacks /www/stale.html
 for f in $HOST_FILES; do
   check "$f kept"                               remote_has "$f"
 done
+end
+
+# Like pressing Ctrl-C in a terminal: SIGINT to the deploy's whole process
+# group while the server is stalling on an upload. set -m gives the
+# background job its own process group (and leaves SIGINT not ignored).
+begin "Ctrl-C during an upload"
+head -c 9000 /dev/urandom >"$FAKE/dist/pdfs/agm.pdf"
+server_flags slowstor=agm.pdf
+RUN=$((RUN + 1)); OUT="$WORK/out.$RUN"; mkdir -p "$WORK/tmp-int"
+log_lines="$(wc -l <"$STATE/log")"
+new_log_has() { tail -n "+$((log_lines + 1))" "$STATE/log" | grep -qE -- "$1"; }
+set -m
+PATH="$WORK/bin:$PATH" TMPDIR="$WORK/tmp-int" LFTP_HOME="$WORK/lftp-home" FTP_CA_FILE="$WORK/certs/ca.pem" \
+  FTP_HOST="localhost:$PORT" FTP_USER=tester FTP_PASS="$FAKE_PW" FTP_REMOTE_DIR=/www \
+  "$FAKE/scripts/deploy-ftp.sh" --apply <<<y >"$OUT" 2>&1 &
+pid=$!
+set +m
+for _ in $(seq 200); do new_log_has '^DATA STOR /www/pdfs/agm.pdf' && break; sleep 0.05; done
+stalled=0; new_log_has '^DATA STOR /www/pdfs/agm.pdf' && stalled=1
+kill -INT -- "-$pid" 2>/dev/null
+wait "$pid"; RC=$?
+server_flags ok
+check "upload of agm.pdf was in progress"       [ "$stalled" -eq 1 ]
+check "deploy exits 130 (rc=$RC)"               [ "$RC" -eq 130 ]
+check "no temp files left"                      [ -z "$(ls -A "$WORK/tmp-int")" ]
+check "agm.pdf still on the server"             remote_has /www/pdfs/agm.pdf
+check "record does not claim the new agm.pdf"   record_lacks_current pdfs/agm.pdf
+end
+
+begin "Every run cleaned up its temp files"
+check "no temp files left by any run"           [ -z "$(ls -A "$WORK/tmp")" ]
 end
 
 stop_server

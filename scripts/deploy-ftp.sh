@@ -106,12 +106,16 @@ if [ "$BRANCH" != "master" ] && [ "$BRANCH" != "main" ]; then
 fi
 
 # --- Temp files -------------------------------------------------------------
-BUILD_LOG="$(mktemp)"
-ACTIONS="$(mktemp)"
-PRE_OUT="$(mktemp)"
-PRE_DEBUG="$(mktemp)"
-MIRROR_DEBUG="$(mktemp)"
-trap 'rm -f "$BUILD_LOG" "$ACTIONS" "$PRE_OUT" "$PRE_DEBUG" "$MIRROR_DEBUG"' EXIT
+# One private (0700) directory, removed on any exit including Ctrl-C. Named
+# under $TMPDIR explicitly: macOS mktemp without a template ignores it.
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/deploy-ftp.XXXXXX")"
+trap '[ -n "$TMP_DIR" ] && rm -rf -- "$TMP_DIR"' EXIT
+BUILD_LOG="$TMP_DIR/build.log"
+ACTIONS="$TMP_DIR/actions"
+PRE_OUT="$TMP_DIR/preflight.out"
+PRE_DEBUG="$TMP_DIR/preflight.debug"
+MIRROR_DEBUG="$TMP_DIR/mirror.debug"
+: >"$ACTIONS"
 
 # Record of the last successful deploy to this host + directory (gitignored,
 # lives under node_modules/.cache). See scripts/deploy-ftp-state.mjs.
