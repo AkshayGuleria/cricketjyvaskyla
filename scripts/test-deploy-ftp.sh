@@ -12,6 +12,7 @@
 #     turns certificate checks off for this host
 #   - server rejects PROT P (data connections would be cleartext)
 #   - wrong password
+#   - --delete with FTP_REMOTE_DIR at the FTP root (/, //, /., .)
 #   - server accepts PROT P on the first connection only (checked after the
 #     upload: the run must fail and the deploy record must not be saved)
 # Success cases (summary and server state must match):
@@ -23,6 +24,8 @@
 #   - rolling back after a failed upload re-uploads the files that changed
 #   - a server that refuses SITE CHMOD still gets the files
 #   - a server that ignores SITE UTIME gets no needless re-uploads
+#   - --delete leaves host-managed files (.htaccess, .well-known/, cgi-bin/,
+#     .ftpquota) alone
 #
 # Usage: scripts/test-deploy-ftp.sh      (needs python3, lftp, openssl, node)
 set -uo pipefail
@@ -98,7 +101,8 @@ start_server() { # start_server FLAGS [seed-json]
 
 # deploy [deploy-ftp.sh args...]; sets OUT (output file) and RC.
 # T_PASS / T_LC_ALL / T_LANG override the password and locale for one run;
-# T_UNTRUSTED=1 leaves the test CA out (server certificate not trusted).
+# T_UNTRUSTED=1 leaves the test CA out (server certificate not trusted);
+# T_DIR overrides FTP_REMOTE_DIR (default /www).
 deploy() {
   RUN=$((RUN + 1)); OUT="$WORK/out.$RUN"
   local ca="$WORK/certs/ca.pem"
@@ -106,7 +110,7 @@ deploy() {
   # "y" answers the branch guard (the fake repo is not a git checkout).
   echo y | PATH="$WORK/bin:$PATH" LFTP_HOME="$WORK/lftp-home" FTP_CA_FILE="$ca" \
     FTP_HOST="localhost:$PORT" FTP_USER=tester \
-    FTP_PASS="${T_PASS:-$FAKE_PW}" FTP_REMOTE_DIR=/www LC_ALL="${T_LC_ALL:-}" LANG="${T_LANG:-${LANG:-}}" \
+    FTP_PASS="${T_PASS:-$FAKE_PW}" FTP_REMOTE_DIR="${T_DIR:-/www}" LC_ALL="${T_LC_ALL:-}" LANG="${T_LANG:-${LANG:-}}" \
     "$FAKE/scripts/deploy-ftp.sh" "$@" >"$OUT" 2>&1
   RC=$?
 }
@@ -126,6 +130,7 @@ end() {
 failed()       { [ "$RC" -ne 0 ]; }
 succeeded()    { [ "$RC" -eq 0 ]; }
 out_has()      { grep -qF -- "$1" "$OUT"; }
+out_lacks()    { ! grep -qF -- "$1" "$OUT"; }
 log_has()      { grep -qE -- "$1" "$STATE/log"; }
 log_lacks()    { ! grep -qE -- "$1" "$STATE/log"; }
 pw_hidden()    { ! grep -qF -- "$FAKE_PW" "$OUT" "$STATE/log"; }
@@ -136,6 +141,7 @@ all_encrypted() {
     ! grep -qE '^DATA .* tls=0$' "$STATE/log"
 }
 remote_has() { python3 -I -c 'import json,sys; fs=json.load(open(sys.argv[1])); sys.exit(0 if sys.argv[2] in fs else 1)' "$STATE/fs.json" "$1"; }
+remote_lacks() { ! remote_has "$1"; }
 # remote_size PATH: size in bytes of a file on the fake server, -1 if absent
 remote_size() { python3 -I -c 'import json,sys; e=json.load(open(sys.argv[1])).get(sys.argv[2]); print(e[0] if isinstance(e, list) else -1)' "$STATE/fs.json" "$1"; }
 local_size() { wc -c <"$FAKE/dist/$1" | tr -d ' '; }
@@ -189,14 +195,28 @@ check "script reports the login failure"        out_has 'Could not log in'
 check "nothing uploaded"                        log_lacks '^C: STOR '
 end
 
+begin "--delete refused at the FTP root"
+start_server ok
+for d in / // /. .; do
+  T_DIR="$d" deploy --apply --delete
+  check "FTP_REMOTE_DIR=$d refused (rc=$RC)"      failed
+  check "FTP_REMOTE_DIR=$d: reason given"         out_has 'Refusing --delete'
+done
+check "server never received USER"              log_lacks '^C: USER '
+stop_server
+end
+
 # --- Success cases (one server, state carries over) -------------------------
-start_server ok '{"/www/stale.html": "left over from an old upload"}'
+# Host-managed files, which the site does not contain and --delete must keep.
+HOST_FILES="/www/.htaccess /www/images/.htaccess /www/.ftpquota /www/.well-known/acme-challenge/t1 /www/cgi-bin/form.cgi"
+start_server ok "$(printf '{"/www/stale.html": "left over from an old upload"'
+  for f in $HOST_FILES; do printf ', "%s": "host file"' "$f"; done; printf '}')"
 
 begin "Dry run on a fresh remote"
 deploy
 check "deploy succeeds (rc=$RC)"                succeeded
 check "TLS preflight passed"                    out_has 'TLS OK'
-check "summary: 5 new, 3 dirs"                  out_has 'Would change: 0 updated, 5 new, 0 deleted, 3 dirs created'
+check "summary: 5 new, 2 dirs (images/ exists)" out_has 'Would change: 0 updated, 5 new, 0 deleted, 2 dirs created'
 check "summary lists the UTF-8 file name"       out_has '+ jyväskylä.txt'
 check "nothing uploaded"                        log_lacks '^C: STOR '
 check "everything after AUTH was encrypted"     all_encrypted
@@ -209,12 +229,13 @@ check "deploy succeeds (rc=$RC)"                succeeded
 check "summary: 1 deleted"                      out_has 'Would change: 0 updated, 5 new, 1 deleted'
 check "summary lists stale.html"                out_has '- stale.html'
 check "stale.html still on the server"          remote_has /www/stale.html
+check "host-managed files not listed"           out_lacks 'htaccess'
 end
 
 begin "Apply"
 deploy --apply
 check "deploy succeeds (rc=$RC)"                succeeded
-check "summary: 5 new"                          out_has 'Changed: 0 updated, 5 new, 0 deleted, 3 dirs created'
+check "summary: 5 new"                          out_has 'Changed: 0 updated, 5 new, 0 deleted, 2 dirs created'
 check "index.html on the server"                remote_has /www/index.html
 check "nested file on the server"               remote_has /www/pdfs/agm.pdf
 check "UTF-8 file name on the server"           remote_has '/www/jyväskylä.txt'
@@ -307,6 +328,16 @@ check "first deploy succeeds (rc=$first_rc)"    [ "$first_rc" -eq 0 ]
 check "rebuild deploy succeeds (rc=$RC)"        succeeded
 check "summary: nothing to do"                  out_has 'Nothing to do'
 check "no file re-uploaded"                     [ "$(stor_count)" -eq "$before" ]
+end
+
+begin "Apply --delete keeps host-managed files"
+deploy --apply --delete
+check "deploy succeeds (rc=$RC)"                succeeded
+check "summary: 1 deleted"                      out_has 'Changed: 0 updated, 0 new, 1 deleted, 0 dirs created, 0 dirs removed'
+check "stale.html deleted"                      remote_lacks /www/stale.html
+for f in $HOST_FILES; do
+  check "$f kept"                               remote_has "$f"
+done
 end
 
 stop_server

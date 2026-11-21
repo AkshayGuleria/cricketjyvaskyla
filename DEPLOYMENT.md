@@ -99,6 +99,7 @@ scripts/deploy-ftp.sh --full --apply   # re-upload everything
 - Only files whose content changed since the last successful `--apply` from this computer are uploaded. Every build gives every file a new mtime, so the script keeps a record of the last deploy (content hashes and mtimes, in `node_modules/.cache/deploy-ftp/`) and puts back the old mtime on unchanged files. A changed file is uploaded over the old copy, so a failed upload leaves the previous version on the site.
 - If a run fails, the script lists what it attempted and the site may be part old, part new. Re-run the same command first.
 - Use `--full` when the record may not match the server: after deploying from another computer, after changing files on the server by other means (FileZilla, the host's file manager), when a failed run is not fixed by re-running it, or when a file you changed was not uploaded (lftp compares timestamps, so a server clock running ahead can hide a change made just after an upload).
+- `--delete` refuses to run when `FTP_REMOTE_DIR` is the FTP root (`/`) or the login directory (`.`). It never deletes `.htaccess`, `.ftpquota`, `.well-known/` or `cgi-bin/`, which the host may manage. The same names in `public/` are never uploaded.
 - Host defaults to `ftps4.us.freehostia.com` (override with `FTP_HOST`).
 - Asks for confirmation when not run from `master`.
 - Run it in your own terminal, not through an AI agent's shell, so the session transcript never contains deploy output.

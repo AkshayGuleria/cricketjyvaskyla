@@ -76,6 +76,19 @@ for arg in "$@"; do
   esac
 done
 
+# --delete removes every remote file that is not in dist/. At the FTP root
+# (or the login directory) that can include things outside the web site.
+if [ "$DELETE" -eq 1 ]; then
+  norm="$(printf '%s' "$REMOTE_DIR" | sed -E 's#/+#/#g; s#(/\.)+/?$##; s#/$##')"
+  case "$norm" in
+    ""|"."|"~")
+      echo "Refusing --delete with FTP_REMOTE_DIR=$REMOTE_DIR: that is the FTP root or" >&2
+      echo "login directory, which may hold more than the web site. Set FTP_REMOTE_DIR" >&2
+      echo "to the web root folder." >&2
+      exit 2 ;;
+  esac
+fi
+
 command -v lftp >/dev/null || { echo "lftp missing: brew install lftp" >&2; exit 1; }
 command -v node >/dev/null || { echo "node missing" >&2; exit 1; }
 
@@ -271,6 +284,12 @@ fi
 # rollback) would skip it.
 [ "$APPLY" -eq 1 ] && node scripts/deploy-ftp-state.mjs prune dist "$STATE_FILE"
 
+# Never upload, overwrite or --delete these. .DS_Store is macOS litter; the
+# rest are files the host or other tools manage in the web root (a glob
+# without a slash matches at any depth, "x/" matches a directory).
+EXCLUDES="--exclude-glob .DS_Store --exclude-glob .htaccess --exclude-glob .ftpquota"
+EXCLUDES="$EXCLUDES --exclude-glob .well-known/ --exclude-glob cgi-bin/"
+
 # --- Run lftp, parse its output into live status + action list --------------
 # The password is handed over in LFTP_PASSWORD (read by open --env-password);
 # it is never part of argv, the lftp script text, or the session URL.
@@ -288,7 +307,7 @@ $LFTP_SETTINGS
 debug -o "$MIRROR_DEBUG" 9
 open --env-password -u "$USER_NAME" ftp://$HOST
 cd "$REMOTE_DIR"
-mirror $OPTS --exclude-glob .DS_Store dist/ .
+mirror $OPTS $EXCLUDES dist/ .
 bye
 EOF
   case "$line" in
