@@ -127,6 +127,10 @@ ACTIONS="$TMP_DIR/actions"
 PRE_OUT="$TMP_DIR/preflight.out"
 PRE_DEBUG="$TMP_DIR/preflight.debug"
 MIRROR_DEBUG="$TMP_DIR/mirror.debug"
+LIST_OUT="$TMP_DIR/list.out"
+LIST_ERR="$TMP_DIR/list.err"
+LIST_DEBUG="$TMP_DIR/list.debug"
+KEEP_LIST="$TMP_DIR/keep.list"
 : >"$ACTIONS"
 
 # Record of the last successful deploy to this host + directory (gitignored,
@@ -310,6 +314,68 @@ fi
 # without a slash matches at any depth, "x/" matches a directory).
 EXCLUDES="--exclude-glob .DS_Store --exclude-glob .htaccess --exclude-glob .ftpquota"
 EXCLUDES="$EXCLUDES --exclude-glob .well-known/ --exclude-glob cgi-bin/"
+
+# --delete removes a folder that is not in dist/ with "rm -r", which ignores
+# the exclusions above, so a host-managed file inside it (old/.htaccess)
+# would go too. List the remote tree first (its own session, PROT-checked
+# like the others) and exclude the topmost such folder from the mirror.
+if [ "$DELETE" -eq 1 ]; then
+  status "Listing $REMOTE_DIR..."
+  set +e
+  LC_ALL= LANGUAGE= LC_MESSAGES=C LC_CTYPE="$LFTP_CTYPE" LFTP_PASSWORD="$PASS" \
+    lftp --norc >"$LIST_OUT" 2>"$LIST_ERR" <<EOF
+$LFTP_SETTINGS
+debug -o "$LIST_DEBUG" 9
+open --env-password -u "$USER_NAME" ftp://$HOST
+cd "$REMOTE_DIR"
+find .
+bye
+EOF
+  LIST_RC=$?
+  set -e
+  endstatus
+  if [ "$LIST_RC" -ne 0 ]; then
+    while IFS= read -r line; do redact "$line" >&2; done <"$LIST_ERR"
+    echo "Could not list $REMOTE_DIR (lftp exit $LIST_RC). Nothing was changed." >&2
+    exit 1
+  fi
+  if ! prot_ok "$LIST_DEBUG"; then
+    echo "The server did not accept PROT P for the listing, so it was not encrypted." >&2
+    echo "Refusing to continue. Nothing was changed." >&2
+    exit 1
+  fi
+  : >"$KEEP_LIST"
+  while IFS= read -r entry; do
+    entry="${entry#./}"; entry="${entry%/}"
+    case "/$entry/" in
+      */.htaccess/|*/.ftpquota/|*/.well-known/*|*/cgi-bin/*) ;;
+      *) continue ;;
+    esac
+    # Walk the folders above it, top down, to the first one not in dist/.
+    prefix=""; rest="$entry"
+    while [ "${rest#*/}" != "$rest" ]; do
+      part="${rest%%/*}"; rest="${rest#*/}"
+      case "$part" in .well-known|cgi-bin) break ;; esac   # excluded already
+      prefix="${prefix:+$prefix/}$part"
+      if [ ! -d "dist/$prefix" ]; then printf '%s\n' "$prefix" >>"$KEEP_LIST"; break; fi
+    done
+  done <"$LIST_OUT"
+  KEPT=""
+  while IFS= read -r d; do
+    case "$d" in
+      *[!A-Za-z0-9._/-]*)
+        echo "Folder $d on the server is not in dist/ but holds host-managed files, and" >&2
+        echo "its name cannot be excluded safely. Remove or rename it by hand, or run" >&2
+        echo "without --delete. Nothing was changed." >&2
+        exit 1 ;;
+    esac
+    EXCLUDES="$EXCLUDES --exclude \"^$(printf '%s' "$d" | sed 's/\./[.]/g')/\""
+    KEPT="$KEPT $d/"
+  done < <(sort -u "$KEEP_LIST")
+  if [ -n "$KEPT" ]; then
+    echo "Keeping folders not in dist/ that hold host-managed files:$KEPT"
+  fi
+fi
 
 # --- Run lftp, parse its output into live status + action list --------------
 # The password is handed over in LFTP_PASSWORD (read by open --env-password);

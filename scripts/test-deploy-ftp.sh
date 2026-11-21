@@ -15,7 +15,10 @@
 #   - --delete with FTP_REMOTE_DIR at the FTP root (/, //, /., ., /www/..,
 #     www/.., /www/../..)
 #   - server accepts PROT P on the first connection only (checked after the
-#     upload: the run must fail and the deploy record must not be saved)
+#     upload: the run must fail and the deploy record must not be saved;
+#     with --delete the listing is refused before anything changes)
+#   - --delete when a folder that must be kept has a name the script cannot
+#     exclude safely
 # Success cases (summary and server state must match):
 #   - dry run, dry run --delete, apply, no-op re-run after a rebuild,
 #     single changed file, German locale, --full
@@ -27,7 +30,8 @@
 #   - a server that ignores SITE UTIME gets no needless re-uploads
 #   - --full uploads a changed file even when the server's clock runs ahead
 #   - --delete leaves host-managed files (.htaccess, .well-known/, cgi-bin/,
-#     .ftpquota) alone
+#     .ftpquota) alone, also inside folders the site no longer has, and
+#     still removes stale folders without them
 #   - Ctrl-C during an upload: exit 130, no temp files left, and the deploy
 #     record does not claim the new version
 #
@@ -213,6 +217,21 @@ check "deploy record not saved"                 [ ! -e "$(record_file)" ]
 check "password not in any output"              pw_hidden
 end
 
+begin "Server accepts PROT P on the first connection only, --delete"
+start_server protfirst; deploy --apply --delete; stop_server
+check "deploy fails (rc=$RC)"                   failed
+check "script refuses after the listing"        out_has 'for the listing'
+check "nothing uploaded or deleted"             log_lacks '^C: (STOR|DELE|RMD) '
+end
+
+begin "--delete with a kept folder it cannot exclude safely"
+start_server ok '{"/www/old page/.htaccess": "host file"}'
+deploy --apply --delete; stop_server
+check "deploy fails (rc=$RC)"                   failed
+check "names the folder"                        out_has 'Folder old page on the server'
+check "nothing uploaded or deleted"             log_lacks '^C: (STOR|DELE|RMD) '
+end
+
 begin "Wrong password"
 start_server ok; T_PASS="wrong-password" deploy --apply; stop_server
 check "deploy fails (rc=$RC)"                   failed
@@ -233,8 +252,11 @@ end
 
 # --- Success cases (one server, state carries over) -------------------------
 # Host-managed files, which the site does not contain and --delete must keep.
-HOST_FILES="/www/.htaccess /www/images/.htaccess /www/.ftpquota /www/.well-known/acme-challenge/t1 /www/cgi-bin/form.cgi"
+# old-page/ is not in dist/ either, but holds one; old-blog/ is just stale.
+HOST_FILES="/www/.htaccess /www/images/.htaccess /www/.ftpquota /www/.well-known/acme-challenge/t1
+  /www/cgi-bin/form.cgi /www/old-page/.htaccess"
 start_server ok "$(printf '{"/www/stale.html": "left over from an old upload"'
+  printf ', "/www/old-blog/post.html": "stale folder"'
   for f in $HOST_FILES; do printf ', "%s": "host file"' "$f"; done; printf '}')"
 
 begin "Dry run on a fresh remote"
@@ -251,7 +273,8 @@ end
 begin "Dry run --delete"
 deploy --delete
 check "deploy succeeds (rc=$RC)"                succeeded
-check "summary: 1 deleted"                      out_has 'Would change: 0 updated, 5 new, 1 deleted'
+check "summary: 1 deleted, 1 dir removed"      out_has 'Would change: 0 updated, 5 new, 1 deleted, 2 dirs created, 1 dirs removed'
+check "summary lists old-blog"                  out_has '- old-blog'
 check "summary lists stale.html"                out_has '- stale.html'
 check "stale.html still on the server"          remote_has /www/stale.html
 check "host-managed files not listed"           out_lacks 'htaccess'
@@ -376,8 +399,10 @@ end
 begin "Apply --delete keeps host-managed files"
 deploy --apply --delete
 check "deploy succeeds (rc=$RC)"                succeeded
-check "summary: 1 deleted"                      out_has 'Changed: 0 updated, 0 new, 1 deleted, 0 dirs created, 0 dirs removed'
+check "summary: 1 deleted, 1 dir removed"      out_has 'Changed: 0 updated, 0 new, 1 deleted, 0 dirs created, 1 dirs removed'
 check "stale.html deleted"                      remote_lacks /www/stale.html
+check "stale old-blog/ deleted"                 remote_lacks /www/old-blog/post.html
+check "says why old-page/ is kept"              out_has 'old-page/'
 for f in $HOST_FILES; do
   check "$f kept"                               remote_has "$f"
 done
