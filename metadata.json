@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.13.1",
+  "checkpoint_id": "01M7ZCM8FCPH1EYFA5DGA8VGCR",
+  "strategy": "manual-commit",
+  "branch": "feat/secure-ftp-deploy",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "DEPLOYMENT.md",
+    "scripts/deploy-ftp.sh",
+    "scripts/test-deploy-ftp.sh"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 3393,
+    "cache_read_tokens": 1128880,
+    "output_tokens": 2863,
+    "api_call_count": 4
+  },
+  "redaction": {
+    "replacements": 190,
+    "layers": {
+      "betterleaks": 110,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 13,
+      "credentialed_uri": 50,
+      "entropy": 54,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
