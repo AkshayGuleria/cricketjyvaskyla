@@ -15,6 +15,7 @@ server's behaviour between runs by rewriting that file:
   failstor=NAME   STOR of a file whose basename is NAME fails; the file is
                   left untouched
   nochmod         refuses SITE CHMOD
+  noutime         accepts SITE UTIME but ignores it (mtime stays upload time)
 
 CERTDIR holds cert.pem / key.pem (the test chooses whether the client trusts
 them). STATEDIR receives:
@@ -37,7 +38,7 @@ import time
 import traceback
 
 INITIAL_FLAGS, CERTDIR, STATEDIR, PASSWORD = sys.argv[1:5]
-KNOWN_FLAGS = {"ok", "notls", "noprot", "failstor", "nochmod"}
+KNOWN_FLAGS = {"ok", "notls", "noprot", "failstor", "nochmod", "noutime"}
 LOCK = threading.Lock()
 FLAGS_FILE = os.path.join(STATEDIR, "flags")
 
@@ -322,7 +323,7 @@ class Session:
             if parts[0].upper() == "CHMOD" and flag("nochmod") is not None:
                 self.send("550 SITE CHMOD not allowed")
                 return True
-            if parts[0].upper() == "UTIME" and len(parts) == 3:
+            if parts[0].upper() == "UTIME" and len(parts) == 3 and flag("noutime") is None:
                 # lftp: SITE UTIME YYYYMMDDHHMMSS path  (sets remote mtime, UTC)
                 p = self.path(parts[2])
                 t = calendar.timegm(time.strptime(parts[1], "%Y%m%d%H%M%S"))

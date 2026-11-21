@@ -209,6 +209,13 @@ if [ "$APPLY" -eq 0 ]; then
   echo "DRY RUN (use --apply to upload)"
 fi
 
+# Before anything on the server changes, forget the recorded state of every
+# file this build changed. A failed or interrupted upload can leave the server
+# holding this build's version of such a file; the record must not then claim
+# the previous version is there, or a later deploy of that version (a
+# rollback) would skip it.
+[ "$APPLY" -eq 1 ] && node scripts/deploy-ftp-state.mjs prune dist "$STATE_FILE"
+
 # --- Run lftp, parse its output into live status + action list --------------
 # The password is handed over in LFTP_PASSWORD (read by open --env-password);
 # it is never part of argv, the lftp script text, or the session URL.
@@ -260,20 +267,23 @@ RC="${PIPESTATUS[0]}"
 set -e
 endstatus
 
-if [ "$RC" -ne 0 ]; then
-  echo "lftp failed (exit $RC). Check output above." >&2
-  exit "$RC"
-fi
-
 # Remember what is now on the server, so the next deploy skips unchanged files.
-# Only after a fully successful upload: a failed or partial run keeps the
-# previous record, so its files are compared again next time.
-[ "$APPLY" -eq 1 ] && node scripts/deploy-ftp-state.mjs save dist "$STATE_FILE"
+# Only after a fully successful upload: after a failed or partial run, the
+# files this build changed stay out of the record (see prune above), so they
+# are compared again next time.
+[ "$RC" -eq 0 ] && [ "$APPLY" -eq 1 ] && node scripts/deploy-ftp-state.mjs save dist "$STATE_FILE"
 
 # --- Summary ----------------------------------------------------------------
 # A file with both R and T = updated (overwritten); T only = new;
-# R only = deleted.
-awk -F'\t' -v apply="$APPLY" '
+# R only = deleted. After a failure it lists what was attempted.
+if [ "$RC" -ne 0 ]; then
+  [ "$APPLY" -eq 1 ] && VERB="Attempted before the failure" || VERB="Would change (incomplete)"
+elif [ "$APPLY" -eq 1 ]; then
+  VERB="Changed"
+else
+  VERB="Would change"
+fi
+awk -F'\t' -v verb="$VERB" -v failed="$([ "$RC" -ne 0 ] && echo 1 || echo 0)" '
   $1=="T" { t[$2]=1; order[++n]=$2 }
   $1=="R" { r[$2]=1; if (!($2 in seen)) { seen[$2]=1; rorder[++m]=$2 } }
   $1=="M" { dirs[++d]=$2 }
@@ -281,7 +291,6 @@ awk -F'\t' -v apply="$APPLY" '
   END {
     for (i=1;i<=n;i++) { f=order[i]; if (f in r) upd[++u]=f; else new[++w]=f }
     for (i=1;i<=m;i++) { f=rorder[i]; if (!(f in t)) del[++k]=f }
-    verb = apply ? "Changed" : "Would change"
     print ""
     print "== " verb ": " u+0 " updated, " w+0 " new, " k+0 " deleted, " d+0 " dirs created, " x+0 " dirs removed =="
     cap=100
@@ -290,7 +299,7 @@ awk -F'\t' -v apply="$APPLY" '
     sec("Deleted", del, k, cap, "-")
     sec("Dirs created", dirs, d, cap, "+")
     sec("Dirs removed", rdirs, x, cap, "-")
-    if (u+w+k+d+x == 0) print "Nothing to do: remote already up to date."
+    if (u+w+k+d+x == 0 && !failed) print "Nothing to do: remote already up to date."
   }
   function sec(title, arr, cnt, cap, mark,   i) {
     if (cnt+0 == 0) return
@@ -299,6 +308,16 @@ awk -F'\t' -v apply="$APPLY" '
     if (cnt > cap) print "  ... and " (cnt-cap) " more"
   }
 ' "$ACTIONS"
+
+if [ "$RC" -ne 0 ]; then
+  echo >&2
+  echo "lftp failed (exit $RC). Check output above." >&2
+  if [ "$APPLY" -eq 1 ]; then
+    echo "The server may be in a mixed state (some files from this build, some older):" >&2
+    echo "re-run the same command, or use --full if that does not fix it." >&2
+  fi
+  exit "$RC"
+fi
 
 [ "$APPLY" -eq 0 ] && echo && echo "Dry run only. Re-run with --apply to upload."
 exit 0

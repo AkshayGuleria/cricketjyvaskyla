@@ -15,8 +15,11 @@
 #   - dry run, dry run --delete, apply, no-op re-run after a rebuild,
 #     single changed file, German locale, --full
 # Failure handling:
-#   - an upload that fails leaves the old file on the server
+#   - an upload that fails leaves the old file on the server and prints what
+#     was attempted
+#   - rolling back after a failed upload re-uploads the files that changed
 #   - a server that refuses SITE CHMOD still gets the files
+#   - a server that ignores SITE UTIME gets no needless re-uploads
 #
 # Usage: scripts/test-deploy-ftp.sh      (needs python3, lftp, openssl, node)
 set -uo pipefail
@@ -234,23 +237,56 @@ check "deploy succeeds (rc=$RC)"                succeeded
 check "summary: 5 updated"                      out_has 'Would change: 5 updated, 0 new, 0 deleted'
 end
 
-# dist/index.html is still the "New season" version, not yet on the server.
+# Build "B": dist/index.html is still the "New season" version from above,
+# and site.css changes too. The index.html upload fails, site.css succeeds.
 begin "Upload fails: the live file is kept"
 old_index="$(remote_size /www/index.html)"
+printf 'body { color: maroon; }\n' >"$FAKE/dist/css/site.css"
 server_flags failstor=index.html
 deploy "$WORK/home-trust" --apply
 server_flags ok
 check "deploy fails (rc=$RC)"                   failed
 check "old index.html still on the server"      [ "$(remote_size /www/index.html)" = "$old_index" ]
+check "new site.css reached the server"         [ "$(remote_size /www/css/site.css)" = "$(local_size css/site.css)" ]
+check "summary of what was attempted"           out_has '~ css/site.css'
+check "warns about a mixed state"               out_has 'mixed state'
+end
+
+# Roll back to build "A" (what the last successful deploy uploaded).
+begin "Rollback after the failed upload"
+printf '<h1>JCC</h1>\n' >"$FAKE/dist/index.html"
+printf 'body { color: navy; }\n' >"$FAKE/dist/css/site.css"
+rebuild
+deploy "$WORK/home-trust" --apply
+check "deploy succeeds (rc=$RC)"                succeeded
+check "summary lists site.css as updated"       out_has '~ css/site.css'
+check "only the 2 files build B touched resent" out_has 'Changed: 2 updated, 0 new, 0 deleted'
+check "old site.css back on the server"         [ "$(remote_size /www/css/site.css)" = "$(local_size css/site.css)" ]
 end
 
 begin "Server refuses SITE CHMOD"
+printf '<h1>JCC</h1><p>Fixtures</p>\n' >"$FAKE/dist/index.html"
 server_flags nochmod
 deploy "$WORK/home-trust" --apply
 server_flags ok
 check "deploy succeeds (rc=$RC)"                succeeded
 check "summary: 1 updated"                      out_has 'Changed: 1 updated, 0 new, 0 deleted'
 check "new index.html on the server"            [ "$(remote_size /www/index.html)" = "$(local_size index.html)" ]
+end
+
+# The remote mtime is then the upload time, not the local file's mtime.
+begin "Server ignores SITE UTIME"
+server_flags noutime
+printf 'body { color: teal; }\n' >"$FAKE/dist/css/site.css"
+deploy "$WORK/home-trust" --apply
+first_rc=$RC
+rebuild; before="$(stor_count)"
+deploy "$WORK/home-trust" --apply
+server_flags ok
+check "first deploy succeeds (rc=$first_rc)"    [ "$first_rc" -eq 0 ]
+check "rebuild deploy succeeds (rc=$RC)"        succeeded
+check "summary: nothing to do"                  out_has 'Nothing to do'
+check "no file re-uploaded"                     [ "$(stor_count)" -eq "$before" ]
 end
 
 stop_server

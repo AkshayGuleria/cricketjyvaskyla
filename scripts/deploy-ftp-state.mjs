@@ -7,8 +7,14 @@
 // unchanged its recorded mtime back, so only files that really changed look
 // newer than the server's copy.
 //
+// Before a live upload, `prune` drops every record entry whose content differs
+// from dist/ (or whose file is gone). If that upload then fails half way, the
+// record no longer vouches for files the server may now hold in a newer
+// version, so the next deploy compares them again instead of skipping them.
+//
 // Usage:
 //   node scripts/deploy-ftp-state.mjs restore <distDir> <manifest.json>
+//   node scripts/deploy-ftp-state.mjs prune   <distDir> <manifest.json>
 //   node scripts/deploy-ftp-state.mjs save    <distDir> <manifest.json>
 
 import { createHash } from 'node:crypto';
@@ -16,8 +22,8 @@ import { mkdirSync, readFileSync, readdirSync, renameSync, statSync, utimesSync,
 import { dirname, join, relative, sep } from 'node:path';
 
 const [cmd, distDir, manifestPath] = process.argv.slice(2);
-if (!['restore', 'save'].includes(cmd) || !distDir || !manifestPath) {
-  console.error('usage: deploy-ftp-state.mjs restore|save <distDir> <manifest.json>');
+if (!['restore', 'prune', 'save'].includes(cmd) || !distDir || !manifestPath) {
+  console.error('usage: deploy-ftp-state.mjs restore|prune|save <distDir> <manifest.json>');
   process.exit(2);
 }
 
@@ -32,11 +38,34 @@ function* walk(dir) {
 const sha256 = (file) => createHash('sha256').update(readFileSync(file)).digest('hex');
 const key = (file) => relative(distDir, file).split(sep).join('/');
 
-if (cmd === 'restore') {
-  let manifest = {};
+// Returns the recorded files, or null when there is no readable record.
+function readManifest() {
   try {
-    manifest = JSON.parse(readFileSync(manifestPath, 'utf8')).files ?? {};
+    return JSON.parse(readFileSync(manifestPath, 'utf8')).files ?? {};
   } catch {
+    return null;
+  }
+}
+
+function writeManifest(files) {
+  mkdirSync(dirname(manifestPath), { recursive: true });
+  const tmp = `${manifestPath}.tmp`;
+  writeFileSync(tmp, JSON.stringify({ savedAt: new Date().toISOString(), files }, null, 1));
+  renameSync(tmp, manifestPath);
+}
+
+if (cmd === 'prune') {
+  const manifest = readManifest();
+  if (manifest === null) process.exit(0);
+  const files = {};
+  for (const file of walk(distDir)) {
+    const prev = manifest[key(file)];
+    if (prev && prev.sha256 === sha256(file)) files[key(file)] = prev;
+  }
+  writeManifest(files);
+} else if (cmd === 'restore') {
+  const manifest = readManifest();
+  if (manifest === null) {
     console.log('No previous deploy recorded: every file will be uploaded.');
     process.exit(0);
   }
@@ -58,8 +87,5 @@ if (cmd === 'restore') {
   for (const file of walk(distDir)) {
     files[key(file)] = { sha256: sha256(file), mtimeMs: Math.floor(statSync(file).mtimeMs / 1000) * 1000 };
   }
-  mkdirSync(dirname(manifestPath), { recursive: true });
-  const tmp = `${manifestPath}.tmp`;
-  writeFileSync(tmp, JSON.stringify({ savedAt: new Date().toISOString(), files }, null, 1));
-  renameSync(tmp, manifestPath);
+  writeManifest(files);
 }
