@@ -30,7 +30,10 @@
 #   - Data connections must be encrypted too. lftp silently falls back to
 #     cleartext data if the server rejects PROT P, so a preflight session
 #     (login only, no data connection) checks that PROT P was accepted before
-#     anything is listed or uploaded.
+#     anything is listed or uploaded, and the mirror session's own debug log
+#     is checked the same way afterwards. That second check can only detect
+#     a refusal after the fact: the run then fails and the record of the
+#     deploy is not saved.
 #   - Password reaches lftp only via LFTP_PASSWORD (open --env-password), so it
 #     is not in argv, not in the lftp command text, and not in lftp's URLs.
 #   - FTP_PASS is removed from the environment before `npm run build`.
@@ -82,7 +85,8 @@ BUILD_LOG="$(mktemp)"
 ACTIONS="$(mktemp)"
 PRE_OUT="$(mktemp)"
 PRE_DEBUG="$(mktemp)"
-trap 'rm -f "$BUILD_LOG" "$ACTIONS" "$PRE_OUT" "$PRE_DEBUG"' EXIT
+MIRROR_DEBUG="$(mktemp)"
+trap 'rm -f "$BUILD_LOG" "$ACTIONS" "$PRE_OUT" "$PRE_DEBUG" "$MIRROR_DEBUG"' EXIT
 
 # Record of the last successful deploy to this host + directory (gitignored,
 # lives under node_modules/.cache). See scripts/deploy-ftp-state.mjs.
@@ -163,6 +167,44 @@ set ftp:sync-mode yes
 set net:max-retries 2
 set net:timeout 20"
 
+# prot_ok DEBUG_LOG: succeed only if, in an lftp "debug 9" log, every control
+# connection had PROT P accepted (2xx) before it sent any command that opens
+# a data connection, and at least one PROT P was accepted. lftp pipelines
+# commands, so replies are paired with commands in order (FIFO). The log has
+# no connection ids, so this needs one control connection at a time (mirror
+# runs with --parallel=1); overlapping connections fail the check.
+prot_ok() {
+  awk '
+    function reset() { head = 1; tail = 0; ml = ""; prot_sent = 0 }
+    function pop(code,   c) {
+      if (head > tail) return
+      c = q[head]; delete q[head]; head++
+      if (c ~ /^PROT /) { if (code ~ /^2/) ok++; else bad = 1 }
+    }
+    BEGIN { reset() }
+    /^---- Connecting to / { if (open) bad = 1; open = 1; reset(); next }
+    /^---- Closing control socket/ { open = 0; next }
+    /^---> / {
+      c = substr($0, 6); q[++tail] = c
+      if (c ~ /^PROT / && c != "PROT P") bad = 1
+      if (c == "PROT P") prot_sent = 1
+      if (c ~ /^(STOR|STOU|APPE|RETR|LIST|NLST|MLSD)( |$)/ && !prot_sent) bad = 1
+      next
+    }
+    /^<--- / {
+      r = substr($0, 6)
+      if (ml != "") { if (substr(r, 1, 4) == ml " ") { ml = ""; pop(substr(r, 1, 3)) } next }
+      if (r ~ /^[0-9][0-9][0-9]-/) { ml = substr(r, 1, 3); next }
+      if (r ~ /^1[0-9][0-9]/) next
+      if (r ~ /^[0-9][0-9][0-9]/) pop(substr(r, 1, 3))
+    }
+    END {
+      for (i = head; i <= tail; i++) if (q[i] ~ /^PROT /) bad = 1
+      exit (ok > 0 && !bad) ? 0 : 1
+    }
+  ' "$1"
+}
+
 # --- Preflight: login over TLS, check PROT P was accepted, check the dir -----
 # lftp sends PROT P during login (protect-data and protect-list are both on),
 # so this session never opens a data connection. The debug log masks the
@@ -185,24 +227,21 @@ if [ "$PRE_RC" -ne 0 ]; then
   echo "Could not log in over TLS or open $REMOTE_DIR (lftp exit $PRE_RC). Nothing was uploaded." >&2
   exit 1
 fi
-# Every PROT P must be answered with 2xx, and there must be at least one.
-if ! awk '
-  /---> PROT P/ { want = 1; seen = 1; next }
-  want && /<--- / { if ($0 !~ /<--- 2[0-9][0-9]/) bad = 1; want = 0 }
-  END { exit (seen && !bad) ? 0 : 1 }
-' "$PRE_DEBUG"; then
+if ! prot_ok "$PRE_DEBUG"; then
   echo "The server did not accept PROT P, so data connections would not be encrypted." >&2
   echo "Refusing to list or upload anything. Nothing was uploaded." >&2
   exit 1
 fi
-echo "TLS OK: login and data connections encrypted, $REMOTE_DIR exists."
+echo "TLS OK: logged in over TLS, server accepted PROT P, $REMOTE_DIR exists."
 
 # --overwrite: replace changed files in place (STOR over the old copy). Without
 #   it lftp deletes the live file first, so a failed or interrupted upload
 #   would leave it missing from the site.
 # --no-perms: do not send SITE CHMOD; some hosts refuse it, and the host's
 #   default permissions are what a static site needs.
-OPTS="--reverse --only-newer --overwrite --no-perms --parallel=2 --verbose"
+# --parallel=1: one control connection, so prot_ok can pair replies with
+#   commands in the debug log (it has no connection ids).
+OPTS="--reverse --only-newer --overwrite --no-perms --parallel=1 --verbose"
 [ "$DELETE" -eq 1 ] && OPTS="$OPTS --delete"
 if [ "$APPLY" -eq 0 ]; then
   OPTS="$OPTS --dry-run"
@@ -230,6 +269,7 @@ set +e
 LC_ALL= LANGUAGE= LC_MESSAGES=C LC_CTYPE="$LFTP_CTYPE" LFTP_PASSWORD="$PASS" \
   lftp <<EOF 2>&1 | while IFS= read -r line; do
 $LFTP_SETTINGS
+debug -o "$MIRROR_DEBUG" 9
 open --env-password -u "$USER_NAME" ftp://$HOST
 cd "$REMOTE_DIR"
 mirror $OPTS --exclude-glob .DS_Store dist/ .
@@ -267,11 +307,17 @@ RC="${PIPESTATUS[0]}"
 set -e
 endstatus
 
+# Did every connection of the mirror session keep its data connections
+# encrypted? Only checked afterwards; see prot_ok.
+PROT_OK=1
+prot_ok "$MIRROR_DEBUG" || PROT_OK=0
+
 # Remember what is now on the server, so the next deploy skips unchanged files.
 # Only after a fully successful upload: after a failed or partial run, the
 # files this build changed stay out of the record (see prune above), so they
 # are compared again next time.
-[ "$RC" -eq 0 ] && [ "$APPLY" -eq 1 ] && node scripts/deploy-ftp-state.mjs save dist "$STATE_FILE"
+[ "$RC" -eq 0 ] && [ "$PROT_OK" -eq 1 ] && [ "$APPLY" -eq 1 ] &&
+  node scripts/deploy-ftp-state.mjs save dist "$STATE_FILE"
 
 # --- Summary ----------------------------------------------------------------
 # A file with both R and T = updated (overwritten); T only = new;
@@ -309,6 +355,14 @@ awk -F'\t' -v verb="$VERB" -v failed="$([ "$RC" -ne 0 ] && echo 1 || echo 0)" '
   }
 ' "$ACTIONS"
 
+if [ "$PROT_OK" -eq 0 ]; then
+  echo >&2
+  echo "WARNING: the server did not accept PROT P on every connection (or the check" >&2
+  echo "could not confirm it), so some listings or file transfers may NOT have been" >&2
+  echo "encrypted and could have been read or altered in transit." >&2
+  [ "$APPLY" -eq 1 ] && echo "The record of this deploy was not saved. Check the live site." >&2
+  echo "Ask the host why PROT P was refused before deploying again." >&2
+fi
 if [ "$RC" -ne 0 ]; then
   echo >&2
   echo "lftp failed (exit $RC). Check output above." >&2
@@ -318,6 +372,8 @@ if [ "$RC" -ne 0 ]; then
   fi
   exit "$RC"
 fi
+
+[ "$PROT_OK" -eq 0 ] && exit 1
 
 [ "$APPLY" -eq 0 ] && echo && echo "Dry run only. Re-run with --apply to upload."
 exit 0

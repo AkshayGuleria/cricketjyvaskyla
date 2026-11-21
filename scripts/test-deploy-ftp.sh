@@ -11,6 +11,8 @@
 #   - server certificate not trusted
 #   - server rejects PROT P (data connections would be cleartext)
 #   - wrong password
+#   - server accepts PROT P on the first connection only (checked after the
+#     upload: the run must fail and the deploy record must not be saved)
 # Success cases (summary and server state must match):
 #   - dry run, dry run --delete, apply, no-op re-run after a rebuild,
 #     single changed file, German locale, --full
@@ -133,6 +135,8 @@ remote_size() { python3 -I -c 'import json,sys; e=json.load(open(sys.argv[1])).g
 local_size() { wc -c <"$FAKE/dist/$1" | tr -d ' '; }
 # server_flags FLAGS: change the running fake server's behaviour (see its docstring)
 server_flags() { printf '%s' "$1" >"$STATE/flags"; }
+# The deploy script's record of the last deploy to the current fake server.
+record_file() { echo "$FAKE/node_modules/.cache/deploy-ftp/localhost_${PORT}_www.json"; }
 
 # --- Refusal cases ----------------------------------------------------------
 begin "Server refuses TLS"
@@ -159,6 +163,16 @@ check "deploy fails (rc=$RC)"                   failed
 check "script explains the PROT P refusal"      out_has 'did not accept PROT P'
 check "no data connection was opened"           log_lacks '^DATA '
 check "nothing uploaded"                        log_lacks '^C: STOR '
+check "password not in any output"              pw_hidden
+end
+
+begin "Server accepts PROT P on the first connection only"
+start_server protfirst; deploy "$WORK/home-trust" --apply; stop_server
+check "preflight connection got PROT P"         out_has 'TLS OK'
+check "a later data connection was cleartext"   log_has '^DATA .* tls=0$'
+check "deploy fails (rc=$RC)"                   failed
+check "script reports the unencrypted transfer" out_has 'may NOT have been'
+check "deploy record not saved"                 [ ! -e "$(record_file)" ]
 check "password not in any output"              pw_hidden
 end
 

@@ -16,6 +16,8 @@ server's behaviour between runs by rewriting that file:
                   left untouched
   nochmod         refuses SITE CHMOD
   noutime         accepts SITE UTIME but ignores it (mtime stays upload time)
+  protfirst       accepts PROT P on the first connection that asks for it,
+                  refuses it on every later one
 
 CERTDIR holds cert.pem / key.pem (the test chooses whether the client trusts
 them). STATEDIR receives:
@@ -38,8 +40,9 @@ import time
 import traceback
 
 INITIAL_FLAGS, CERTDIR, STATEDIR, PASSWORD = sys.argv[1:5]
-KNOWN_FLAGS = {"ok", "notls", "noprot", "failstor", "nochmod", "noutime"}
+KNOWN_FLAGS = {"ok", "notls", "noprot", "failstor", "nochmod", "noutime", "protfirst"}
 LOCK = threading.Lock()
+PROT_P_ACCEPTED = [0]  # connections that were granted PROT P (for protfirst)
 FLAGS_FILE = os.path.join(STATEDIR, "flags")
 
 
@@ -188,9 +191,14 @@ class Session:
         elif verb == "PBSZ":
             self.send("200 PBSZ=0")
         elif verb == "PROT":
-            if arg.upper() == "P" and flag("noprot") is not None:
+            with LOCK:
+                later = flag("protfirst") is not None and PROT_P_ACCEPTED[0] > 0 and self.prot != "P"
+            if arg.upper() == "P" and (flag("noprot") is not None or later):
                 self.send("536 PROT P not supported")
             elif arg.upper() in ("P", "C"):
+                if arg.upper() == "P" and self.prot != "P":
+                    with LOCK:
+                        PROT_P_ACCEPTED[0] += 1
                 self.prot = arg.upper()
                 self.send("200 PROT %s" % self.prot)
             else:

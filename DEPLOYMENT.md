@@ -73,7 +73,7 @@ If using traditional hosting (FTP/cPanel):
 
 ### Secured upload script (FTPS)
 
-`scripts/deploy-ftp.sh` builds the site and mirrors `dist/` over FTP with mandatory TLS (explicit FTPS, via lftp). It never sends the password unless TLS is negotiated and the server certificate and hostname verify. Before listing or uploading anything, it also checks that the server accepted `PROT P`. Without that, lftp would silently send the files over unencrypted data connections.
+`scripts/deploy-ftp.sh` builds the site and mirrors `dist/` over FTP with mandatory TLS (explicit FTPS, via lftp). It never sends the password unless TLS is negotiated and the server certificate and hostname verify. Before listing or uploading anything, it also checks that the server accepted `PROT P`. Without that, lftp would silently send the files over unencrypted data connections. The upload session is checked the same way afterwards (lftp cannot be told to stop on a refusal): if any connection was refused `PROT P`, the run fails with a warning and the deploy record is not saved.
 
 One-time setup (macOS):
 
@@ -103,8 +103,9 @@ scripts/deploy-ftp.sh --full --apply   # re-upload everything
 - Asks for confirmation when not run from `master`.
 - Run it in your own terminal, not through an AI agent's shell, so the session transcript never contains deploy output.
 - `scripts/test-deploy-ftp.sh` is an offline end-to-end test. It runs the real script against a local fake FTPS server (`scripts/fake_ftps_server.py`) that uses a throwaway test CA, and needs python3, lftp, openssl and node.
-  - Refusal cases: the server refuses TLS, presents an untrusted certificate, rejects `PROT P`, or the password is wrong. The test checks that nothing is uploaded and the password is never sent or printed.
+  - Refusal cases: the server refuses TLS, presents an untrusted certificate, rejects `PROT P`, or the password is wrong. The test checks that nothing is uploaded and the password is never sent or printed. A server that accepts `PROT P` at login but refuses it on the upload connection must make the run fail without saving the deploy record.
   - Success cases: it checks the summary and the server contents for a dry run, `--delete`, `--apply`, a rebuild with no changes, a single changed file, a German locale and `--full`.
+  - Failure cases: a failed upload keeps the old file and is followed by a correct rollback; a server that refuses `SITE CHMOD` or ignores `SITE UTIME` still deploys correctly.
   - Run it after changing the deploy script. `KEEP_WORK=1` keeps its temp files for debugging.
 - FileZilla: use host `ftps4.us.freehostia.com` with "Require explicit FTP over TLS". Plain FTP sends the password unencrypted.
 
