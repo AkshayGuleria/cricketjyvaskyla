@@ -73,7 +73,7 @@ If using traditional hosting (FTP/cPanel):
 
 ### Secured upload script (FTPS)
 
-`scripts/deploy-ftp.sh` builds the site and mirrors `dist/` over FTP with mandatory TLS (explicit FTPS, via lftp). It never sends the password unless TLS is negotiated and the server certificate and hostname verify. Before listing or uploading anything, it also checks that the server accepted `PROT P`. Without that, lftp would silently send the files over unencrypted data connections. The upload session is checked the same way afterwards (lftp cannot be told to stop on a refusal): if any connection was refused `PROT P`, the run fails with a warning and the deploy record is not saved.
+`scripts/deploy-ftp.sh` builds the site and mirrors `dist/` over FTP with mandatory TLS (explicit FTPS, via lftp). It never sends the password unless TLS is negotiated and the server certificate and hostname verify. It runs lftp with `--norc`, so settings in your own lftp config files cannot weaken those checks. Before listing or uploading anything, it also checks that the server accepted `PROT P`. Without that, lftp would silently send the files over unencrypted data connections. The upload session is checked the same way afterwards (lftp cannot be told to stop on a refusal): if any connection was refused `PROT P`, the run fails with a warning and the deploy record is not saved.
 
 One-time setup (macOS):
 

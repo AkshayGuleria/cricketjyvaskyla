@@ -8,7 +8,8 @@
 #
 # Refusal cases (nothing may be uploaded, the password must not be sent):
 #   - server refuses TLS
-#   - server certificate not trusted
+#   - server certificate not trusted, even though the user's lftp rc file
+#     turns certificate checks off for this host
 #   - server rejects PROT P (data connections would be cleartext)
 #   - wrong password
 #   - server accepts PROT P on the first connection only (checked after the
@@ -58,10 +59,12 @@ mkdir -p "$WORK/certs"
   openssl x509 -req -in srv.csr -CA ca.pem -CAkey ca.key -CAcreateserial -days 1 -extfile ext.cnf -out cert.pem
 ) >/dev/null 2>&1 || { echo "Could not create test certificates" >&2; exit 2; }
 
-# lftp reads $LFTP_HOME/rc. One home trusts the test CA, one does not.
-mkdir -p "$WORK/home-trust" "$WORK/home-notrust"
-printf 'set ssl:ca-file "%s"\nset dns:order inet\n' "$WORK/certs/ca.pem" >"$WORK/home-trust/rc"
-printf 'set dns:order inet\n' >"$WORK/home-notrust/rc"
+# lftp reads $LFTP_HOME/rc unless started with --norc. This one plays a
+# user's own lftp config that turns certificate checks off for the host; the
+# deploy script must ignore it. The test CA is trusted via FTP_CA_FILE.
+mkdir -p "$WORK/lftp-home"
+printf '%s\n' 'set ssl:verify-certificate/localhost no' 'set ssl:check-hostname/localhost no' \
+  >"$WORK/lftp-home/rc"
 
 # --- Fake repo: copy of the deploy script + synthetic dist/ -----------------
 FAKE="$WORK/repo"
@@ -93,13 +96,16 @@ start_server() { # start_server FLAGS [seed-json]
   PORT="$(cat "$STATE/port")"
 }
 
-# deploy LFTP_HOME [deploy-ftp.sh args...]; sets OUT (output file) and RC.
-# T_PASS / T_LC_ALL / T_LANG override the password and locale for one run.
+# deploy [deploy-ftp.sh args...]; sets OUT (output file) and RC.
+# T_PASS / T_LC_ALL / T_LANG override the password and locale for one run;
+# T_UNTRUSTED=1 leaves the test CA out (server certificate not trusted).
 deploy() {
-  local home="$1"; shift
   RUN=$((RUN + 1)); OUT="$WORK/out.$RUN"
+  local ca="$WORK/certs/ca.pem"
+  [ "${T_UNTRUSTED:-}" = 1 ] && ca=""
   # "y" answers the branch guard (the fake repo is not a git checkout).
-  echo y | PATH="$WORK/bin:$PATH" LFTP_HOME="$home" FTP_HOST="localhost:$PORT" FTP_USER=tester \
+  echo y | PATH="$WORK/bin:$PATH" LFTP_HOME="$WORK/lftp-home" FTP_CA_FILE="$ca" \
+    FTP_HOST="localhost:$PORT" FTP_USER=tester \
     FTP_PASS="${T_PASS:-$FAKE_PW}" FTP_REMOTE_DIR=/www LC_ALL="${T_LC_ALL:-}" LANG="${T_LANG:-${LANG:-}}" \
     "$FAKE/scripts/deploy-ftp.sh" "$@" >"$OUT" 2>&1
   RC=$?
@@ -140,7 +146,7 @@ record_file() { echo "$FAKE/node_modules/.cache/deploy-ftp/localhost_${PORT}_www
 
 # --- Refusal cases ----------------------------------------------------------
 begin "Server refuses TLS"
-start_server notls; deploy "$WORK/home-trust"; stop_server
+start_server notls; deploy; stop_server
 check "deploy fails (rc=$RC)"                   failed
 check "client asked for TLS"                    log_has '^C: AUTH TLS'
 check "server never received USER or PASS"      log_lacks '^C: (USER|PASS) '
@@ -148,8 +154,8 @@ check "nothing uploaded"                        log_lacks '^C: STOR '
 check "password not in any output"              pw_hidden
 end
 
-begin "Server certificate not trusted"
-start_server ok; deploy "$WORK/home-notrust"; stop_server
+begin "Server certificate not trusted (user rc says: don't check)"
+start_server ok; T_UNTRUSTED=1 deploy; stop_server
 check "deploy fails (rc=$RC)"                   failed
 check "lftp rejected the certificate"           out_has 'Certificate verification'
 check "server never received PASS"              log_lacks '^C: PASS '
@@ -158,7 +164,7 @@ check "password not in any output"              pw_hidden
 end
 
 begin "Server rejects PROT P (cleartext data)"
-start_server noprot; deploy "$WORK/home-trust" --apply; stop_server
+start_server noprot; deploy --apply; stop_server
 check "deploy fails (rc=$RC)"                   failed
 check "script explains the PROT P refusal"      out_has 'did not accept PROT P'
 check "no data connection was opened"           log_lacks '^DATA '
@@ -167,7 +173,7 @@ check "password not in any output"              pw_hidden
 end
 
 begin "Server accepts PROT P on the first connection only"
-start_server protfirst; deploy "$WORK/home-trust" --apply; stop_server
+start_server protfirst; deploy --apply; stop_server
 check "preflight connection got PROT P"         out_has 'TLS OK'
 check "a later data connection was cleartext"   log_has '^DATA .* tls=0$'
 check "deploy fails (rc=$RC)"                   failed
@@ -177,7 +183,7 @@ check "password not in any output"              pw_hidden
 end
 
 begin "Wrong password"
-start_server ok; T_PASS="wrong-password" deploy "$WORK/home-trust" --apply; stop_server
+start_server ok; T_PASS="wrong-password" deploy --apply; stop_server
 check "deploy fails (rc=$RC)"                   failed
 check "script reports the login failure"        out_has 'Could not log in'
 check "nothing uploaded"                        log_lacks '^C: STOR '
@@ -187,7 +193,7 @@ end
 start_server ok '{"/www/stale.html": "left over from an old upload"}'
 
 begin "Dry run on a fresh remote"
-deploy "$WORK/home-trust"
+deploy
 check "deploy succeeds (rc=$RC)"                succeeded
 check "TLS preflight passed"                    out_has 'TLS OK'
 check "summary: 5 new, 3 dirs"                  out_has 'Would change: 0 updated, 5 new, 0 deleted, 3 dirs created'
@@ -198,7 +204,7 @@ check "password not in any output"              pw_hidden
 end
 
 begin "Dry run --delete"
-deploy "$WORK/home-trust" --delete
+deploy --delete
 check "deploy succeeds (rc=$RC)"                succeeded
 check "summary: 1 deleted"                      out_has 'Would change: 0 updated, 5 new, 1 deleted'
 check "summary lists stale.html"                out_has '- stale.html'
@@ -206,7 +212,7 @@ check "stale.html still on the server"          remote_has /www/stale.html
 end
 
 begin "Apply"
-deploy "$WORK/home-trust" --apply
+deploy --apply
 check "deploy succeeds (rc=$RC)"                succeeded
 check "summary: 5 new"                          out_has 'Changed: 0 updated, 5 new, 0 deleted, 3 dirs created'
 check "index.html on the server"                remote_has /www/index.html
@@ -219,7 +225,7 @@ end
 
 begin "Rebuild with no content change"
 rebuild; before="$(stor_count)"
-deploy "$WORK/home-trust" --apply
+deploy --apply
 check "deploy succeeds (rc=$RC)"                succeeded
 check "summary: nothing to do"                  out_has 'Nothing to do'
 check "no file re-uploaded"                     [ "$(stor_count)" -eq "$before" ]
@@ -227,7 +233,7 @@ end
 
 begin "One file changed"
 rebuild; printf '<h1>JCC</h1><p>New season</p>\n' >"$FAKE/dist/index.html"
-deploy "$WORK/home-trust"
+deploy
 check "deploy succeeds (rc=$RC)"                succeeded
 check "summary: 1 updated, 0 new"               out_has 'Would change: 1 updated, 0 new, 0 deleted'
 check "summary lists index.html as updated"     out_has '~ index.html'
@@ -236,7 +242,7 @@ end
 DE_LOCALE="$(locale -a 2>/dev/null | grep -iE '^de_DE\.utf-?8$' | head -n 1)"
 if [ -n "$DE_LOCALE" ]; then
   begin "German locale ($DE_LOCALE)"
-  T_LC_ALL="$DE_LOCALE" T_LANG="$DE_LOCALE" deploy "$WORK/home-trust"
+  T_LC_ALL="$DE_LOCALE" T_LANG="$DE_LOCALE" deploy
   check "deploy succeeds (rc=$RC)"              succeeded
   check "summary still parsed: 1 updated"       out_has 'Would change: 1 updated, 0 new, 0 deleted'
   end
@@ -246,7 +252,7 @@ fi
 
 begin "--full treats every file as changed"
 rebuild
-deploy "$WORK/home-trust" --full
+deploy --full
 check "deploy succeeds (rc=$RC)"                succeeded
 check "summary: 5 updated"                      out_has 'Would change: 5 updated, 0 new, 0 deleted'
 end
@@ -257,7 +263,7 @@ begin "Upload fails: the live file is kept"
 old_index="$(remote_size /www/index.html)"
 printf 'body { color: maroon; }\n' >"$FAKE/dist/css/site.css"
 server_flags failstor=index.html
-deploy "$WORK/home-trust" --apply
+deploy --apply
 server_flags ok
 check "deploy fails (rc=$RC)"                   failed
 check "old index.html still on the server"      [ "$(remote_size /www/index.html)" = "$old_index" ]
@@ -271,7 +277,7 @@ begin "Rollback after the failed upload"
 printf '<h1>JCC</h1>\n' >"$FAKE/dist/index.html"
 printf 'body { color: navy; }\n' >"$FAKE/dist/css/site.css"
 rebuild
-deploy "$WORK/home-trust" --apply
+deploy --apply
 check "deploy succeeds (rc=$RC)"                succeeded
 check "summary lists site.css as updated"       out_has '~ css/site.css'
 check "only the 2 files build B touched resent" out_has 'Changed: 2 updated, 0 new, 0 deleted'
@@ -281,7 +287,7 @@ end
 begin "Server refuses SITE CHMOD"
 printf '<h1>JCC</h1><p>Fixtures</p>\n' >"$FAKE/dist/index.html"
 server_flags nochmod
-deploy "$WORK/home-trust" --apply
+deploy --apply
 server_flags ok
 check "deploy succeeds (rc=$RC)"                succeeded
 check "summary: 1 updated"                      out_has 'Changed: 1 updated, 0 new, 0 deleted'
@@ -292,10 +298,10 @@ end
 begin "Server ignores SITE UTIME"
 server_flags noutime
 printf 'body { color: teal; }\n' >"$FAKE/dist/css/site.css"
-deploy "$WORK/home-trust" --apply
+deploy --apply
 first_rc=$RC
 rebuild; before="$(stor_count)"
-deploy "$WORK/home-trust" --apply
+deploy --apply
 server_flags ok
 check "first deploy succeeds (rc=$first_rc)"    [ "$first_rc" -eq 0 ]
 check "rebuild deploy succeeds (rc=$RC)"        succeeded

@@ -17,6 +17,9 @@
 #   FTP_REMOTE_DIR  REQUIRED, e.g. /public_html
 #   FTP_PASS        optional; else read from macOS Keychain item "jcc-ftp",
 #                   else prompted (hidden). Never put it in a file in the repo.
+#   FTP_CA_FILE     optional CA bundle to verify the server against instead of
+#                   the system's (used by the offline test). Certificate and
+#                   hostname checks stay on either way.
 #
 # One-time Keychain setup. -T "" trusts no app, so every read must be approved
 # in a macOS dialog (choose "Allow", never "Always Allow"):
@@ -27,6 +30,10 @@
 #   - TLS is mandatory (ftp:ssl-force): lftp aborts before sending the
 #     password if the server will not negotiate TLS or its certificate/hostname
 #     fails verification.
+#   - lftp runs with --norc, so no rc file (~/.lftprc, ~/.config/lftp/rc,
+#     $LFTP_HOME/rc, the system lftp.conf) can weaken these settings, e.g.
+#     with a host-scoped "set ssl:verify-certificate/HOST no", which would
+#     beat the plain "set ssl:verify-certificate yes" below.
 #   - Data connections must be encrypted too. lftp silently falls back to
 #     cleartext data if the server rejects PROT P, so a preflight session
 #     (login only, no data connection) checks that PROT P was accepted before
@@ -46,6 +53,11 @@ cd "$(dirname "$0")/.."
 HOST="${FTP_HOST:-ftps4.us.freehostia.com}"
 USER_NAME="${FTP_USER:?Set FTP_USER (your FTP login)}"
 REMOTE_DIR="${FTP_REMOTE_DIR:?Set FTP_REMOTE_DIR (e.g. /public_html)}"
+CA_FILE="${FTP_CA_FILE:-}"
+if [ -n "$CA_FILE" ]; then
+  case "$CA_FILE" in *'"'*|*$'\n'*) echo "FTP_CA_FILE must not contain quotes or newlines" >&2; exit 2 ;; esac
+  [ -f "$CA_FILE" ] && [ -r "$CA_FILE" ] || { echo "FTP_CA_FILE not readable: $CA_FILE" >&2; exit 2; }
+fi
 
 # Take the password out of the environment now, so the build's child
 # processes (Astro, plugins, npm deps) never inherit it.
@@ -166,13 +178,17 @@ set ssl:check-hostname yes
 set ftp:sync-mode yes
 set net:max-retries 2
 set net:timeout 20"
+[ -n "$CA_FILE" ] && LFTP_SETTINGS="$LFTP_SETTINGS
+set ssl:ca-file \"$CA_FILE\""
 
 # prot_ok DEBUG_LOG: succeed only if, in an lftp "debug 9" log, every control
 # connection had PROT P accepted (2xx) before it sent any command that opens
 # a data connection, and at least one PROT P was accepted. lftp pipelines
 # commands, so replies are paired with commands in order (FIFO). The log has
 # no connection ids, so this needs one control connection at a time (mirror
-# runs with --parallel=1); overlapping connections fail the check.
+# runs with --parallel=1); overlapping connections fail the check. (A failed
+# connect attempt, e.g. ::1 refused before 127.0.0.1 is tried, is logged as
+# closed before the next one starts.)
 prot_ok() {
   awk '
     function reset() { head = 1; tail = 0; ml = ""; prot_sent = 0 }
@@ -212,7 +228,7 @@ prot_ok() {
 status "Checking TLS on $HOST..."
 set +e
 LC_ALL= LANGUAGE= LC_MESSAGES=C LC_CTYPE="$LFTP_CTYPE" LFTP_PASSWORD="$PASS" \
-  lftp >"$PRE_OUT" 2>&1 <<EOF
+  lftp --norc >"$PRE_OUT" 2>&1 <<EOF
 $LFTP_SETTINGS
 debug -o "$PRE_DEBUG" 9
 open --env-password -u "$USER_NAME" ftp://$HOST
@@ -267,7 +283,7 @@ fi
 status "Comparing with $HOST..."
 set +e
 LC_ALL= LANGUAGE= LC_MESSAGES=C LC_CTYPE="$LFTP_CTYPE" LFTP_PASSWORD="$PASS" \
-  lftp <<EOF 2>&1 | while IFS= read -r line; do
+  lftp --norc <<EOF 2>&1 | while IFS= read -r line; do
 $LFTP_SETTINGS
 debug -o "$MIRROR_DEBUG" 9
 open --env-password -u "$USER_NAME" ftp://$HOST
