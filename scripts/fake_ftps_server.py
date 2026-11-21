@@ -12,14 +12,18 @@ STATEDIR/flags and re-read on every command, so a test can change the
 server's behaviour between runs by rewriting that file:
   notls           advertises AUTH TLS but refuses it
   noprot          accepts AUTH TLS but refuses PROT P (data would be cleartext)
-  failstor=NAME   STOR of a file whose basename is NAME fails; the file is
-                  left untouched
+  failstor=NAME   STOR of a file whose basename is NAME is refused up front
+                  (553, like a permission or quota check); the file is untouched
   nochmod         refuses SITE CHMOD
   noutime         accepts SITE UTIME but ignores it (mtime stays upload time)
   protfirst       accepts PROT P on the first connection that asks for it,
                   refuses it on every later one
   slowstor=NAME   STOR of a file whose basename is NAME waits 30 s before
                   reading the data (to interrupt an upload mid-transfer)
+
+Like real FTP servers, STOR truncates the target as soon as the upload
+starts and writes data as it arrives, so an upload that fails or is cut off
+part way leaves a partial file.
 
 CERTDIR holds cert.pem / key.pem (the test chooses whether the client trusts
 them). STATEDIR receives:
@@ -289,23 +293,26 @@ class Session:
                 self.send("550 No such file")
         elif verb == "STOR":
             p = self.path(arg)
+            if flag("failstor") == posixpath.basename(p):
+                self.send("553 Simulated: upload refused")
+                return True
             d = self.open_data("STOR " + p)
             if d is None:
                 return True
+            with LOCK:
+                FS[p] = {"data": b"", "mtime": time.time()}
+                dump_fs()
             if flag("slowstor") == posixpath.basename(p):
                 time.sleep(30)
-            chunks = []
             while True:
                 b = d.recv(65536)
                 if not b:
                     break
-                chunks.append(b)
+                with LOCK:
+                    FS[p]["data"] += b
             self.close_data(d)
-            if flag("failstor") == posixpath.basename(p):
-                self.send("550 Simulated write failure")
-                return True
             with LOCK:
-                FS[p] = {"data": b"".join(chunks), "mtime": time.time()}
+                FS[p]["mtime"] = time.time()
                 dump_fs()
             self.send("226 Transfer complete")
         elif verb == "DELE":

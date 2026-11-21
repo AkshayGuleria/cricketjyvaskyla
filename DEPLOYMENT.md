@@ -96,7 +96,7 @@ scripts/deploy-ftp.sh --apply --delete # also delete remote files not in dist/
 scripts/deploy-ftp.sh --full --apply   # re-upload everything
 ```
 
-- Only files whose content changed since the last successful `--apply` from this computer are uploaded. Every build gives every file a new mtime, so the script keeps a record of the last deploy (content hashes and mtimes, in `node_modules/.cache/deploy-ftp/`) and puts back the old mtime on unchanged files. A changed file is uploaded over the old copy, so a failed upload leaves the previous version on the site.
+- Only files whose content changed since the last successful `--apply` from this computer are uploaded. Every build gives every file a new mtime, so the script keeps a record of the last deploy (content hashes and mtimes, in `node_modules/.cache/deploy-ftp/`) and puts back the old mtime on unchanged files. A changed file is uploaded over the old copy instead of being deleted first, so an upload the server refuses leaves the previous version on the site.
 - If a run fails or is interrupted (Ctrl-C), the site may be part old, part new, and the file being uploaded at that moment may be incomplete. A failed run lists what it attempted. Re-run the same command first.
 - Use `--full` when the record may not match the server: after deploying from another computer, after changing files on the server by other means (FileZilla, the host's file manager), when a failed run is not fixed by re-running it, or when a file you changed was not uploaded (lftp compares timestamps, so a server clock running ahead can hide a change made just after an upload).
 - `--delete` refuses to run when `FTP_REMOTE_DIR` is the FTP root (`/`) or the login directory (`.`). It never deletes `.htaccess`, `.ftpquota`, `.well-known/` or `cgi-bin/`, which the host may manage. The same names in `public/` are never uploaded.
@@ -106,7 +106,7 @@ scripts/deploy-ftp.sh --full --apply   # re-upload everything
 - `scripts/test-deploy-ftp.sh` is an offline end-to-end test. It runs the real script against a local fake FTPS server (`scripts/fake_ftps_server.py`) that uses a throwaway test CA, and needs python3, lftp, openssl and node.
   - Refusal cases: the server refuses TLS, presents an untrusted certificate, rejects `PROT P`, or the password is wrong. The test checks that nothing is uploaded and the password is never sent or printed. A server that accepts `PROT P` at login but refuses it on the upload connection must make the run fail without saving the deploy record.
   - Success cases: it checks the summary and the server contents for a dry run, `--delete`, `--apply`, a rebuild with no changes, a single changed file, a German locale and `--full`.
-  - Failure cases: a failed upload keeps the old file and is followed by a correct rollback; a server that refuses `SITE CHMOD` or ignores `SITE UTIME` still deploys correctly.
+  - Failure cases: an upload the server refuses keeps the old file, and a rollback afterwards is correct; a server that refuses `SITE CHMOD` or ignores `SITE UTIME` still deploys correctly.
   - Run it after changing the deploy script. `KEEP_WORK=1` keeps its temp files for debugging.
 - FileZilla: use host `ftps4.us.freehostia.com` with "Require explicit FTP over TLS". Plain FTP sends the password unencrypted.
 

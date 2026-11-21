@@ -267,9 +267,10 @@ if ! prot_ok "$PRE_DEBUG"; then
 fi
 echo "TLS OK: logged in over TLS, server accepted PROT P, $REMOTE_DIR exists."
 
-# --overwrite: replace changed files in place (STOR over the old copy). Without
-#   it lftp deletes the live file first, so a failed or interrupted upload
-#   would leave it missing from the site.
+# --overwrite: upload over the old copy instead of deleting it first (lftp's
+#   default), so an upload the server refuses leaves the old file in place.
+#   It does not make uploads atomic: servers truncate the file when the upload
+#   starts, so a failure part way still leaves that one file incomplete.
 # --no-perms: do not send SITE CHMOD; some hosts refuse it, and the host's
 #   default permissions are what a static site needs.
 # --parallel=1: one control connection, so prot_ok can pair replies with

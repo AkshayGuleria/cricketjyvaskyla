@@ -19,15 +19,15 @@
 #   - dry run, dry run --delete, apply, no-op re-run after a rebuild,
 #     single changed file, German locale, --full
 # Failure handling:
-#   - an upload that fails leaves the old file on the server and prints what
-#     was attempted
+#   - an upload the server refuses leaves the old file on the server, and the
+#     run prints what it attempted
 #   - rolling back after a failed upload re-uploads the files that changed
 #   - a server that refuses SITE CHMOD still gets the files
 #   - a server that ignores SITE UTIME gets no needless re-uploads
 #   - --delete leaves host-managed files (.htaccess, .well-known/, cgi-bin/,
 #     .ftpquota) alone
-#   - Ctrl-C during an upload: exit 130, no temp files left, the live file is
-#     still there, and the deploy record does not claim the new version
+#   - Ctrl-C during an upload: exit 130, no temp files left, and the deploy
+#     record does not claim the new version
 #
 # Usage: scripts/test-deploy-ftp.sh      (needs python3, lftp, openssl, node)
 set -uo pipefail
@@ -302,8 +302,9 @@ check "summary: 5 updated"                      out_has 'Would change: 5 updated
 end
 
 # Build "B": dist/index.html is still the "New season" version from above,
-# and site.css changes too. The index.html upload fails, site.css succeeds.
-begin "Upload fails: the live file is kept"
+# and site.css changes too. The server refuses the index.html upload (as for
+# a permission or quota error), site.css succeeds.
+begin "Upload refused: the live file is kept"
 old_index="$(remote_size /www/index.html)"
 printf 'body { color: maroon; }\n' >"$FAKE/dist/css/site.css"
 server_flags failstor=index.html
@@ -386,7 +387,6 @@ server_flags ok
 check "upload of agm.pdf was in progress"       [ "$stalled" -eq 1 ]
 check "deploy exits 130 (rc=$RC)"               [ "$RC" -eq 130 ]
 check "no temp files left"                      [ -z "$(ls -A "$WORK/tmp-int")" ]
-check "agm.pdf still on the server"             remote_has /www/pdfs/agm.pdf
 check "record does not claim the new agm.pdf"   record_lacks_current pdfs/agm.pdf
 end
 
