@@ -14,6 +14,9 @@
 # Success cases (summary and server state must match):
 #   - dry run, dry run --delete, apply, no-op re-run after a rebuild,
 #     single changed file, German locale, --full
+# Failure handling:
+#   - an upload that fails leaves the old file on the server
+#   - a server that refuses SITE CHMOD still gets the files
 #
 # Usage: scripts/test-deploy-ftp.sh      (needs python3, lftp, openssl, node)
 set -uo pipefail
@@ -75,7 +78,7 @@ chmod +x "$WORK/bin/npm"
 STATE=""; PORT=""; OUT=""; RC=0; RUN=0
 FAILS=0; CASE_FAILS=0
 
-start_server() { # start_server MODE [seed-json]
+start_server() { # start_server FLAGS [seed-json]
   STATE="$(mktemp -d "$WORK/state.XXXX")"
   [ -n "${2:-}" ] && printf '%s' "$2" >"$STATE/seed.json"
   python3 -I "$REPO/scripts/fake_ftps_server.py" "$1" "$WORK/certs" "$STATE" "$FAKE_PW" \
@@ -122,6 +125,11 @@ all_encrypted() {
     ! grep -qE '^DATA .* tls=0$' "$STATE/log"
 }
 remote_has() { python3 -I -c 'import json,sys; fs=json.load(open(sys.argv[1])); sys.exit(0 if sys.argv[2] in fs else 1)' "$STATE/fs.json" "$1"; }
+# remote_size PATH: size in bytes of a file on the fake server, -1 if absent
+remote_size() { python3 -I -c 'import json,sys; e=json.load(open(sys.argv[1])).get(sys.argv[2]); print(e[0] if isinstance(e, list) else -1)' "$STATE/fs.json" "$1"; }
+local_size() { wc -c <"$FAKE/dist/$1" | tr -d ' '; }
+# server_flags FLAGS: change the running fake server's behaviour (see its docstring)
+server_flags() { printf '%s' "$1" >"$STATE/flags"; }
 
 # --- Refusal cases ----------------------------------------------------------
 begin "Server refuses TLS"
@@ -224,6 +232,25 @@ rebuild
 deploy "$WORK/home-trust" --full
 check "deploy succeeds (rc=$RC)"                succeeded
 check "summary: 5 updated"                      out_has 'Would change: 5 updated, 0 new, 0 deleted'
+end
+
+# dist/index.html is still the "New season" version, not yet on the server.
+begin "Upload fails: the live file is kept"
+old_index="$(remote_size /www/index.html)"
+server_flags failstor=index.html
+deploy "$WORK/home-trust" --apply
+server_flags ok
+check "deploy fails (rc=$RC)"                   failed
+check "old index.html still on the server"      [ "$(remote_size /www/index.html)" = "$old_index" ]
+end
+
+begin "Server refuses SITE CHMOD"
+server_flags nochmod
+deploy "$WORK/home-trust" --apply
+server_flags ok
+check "deploy succeeds (rc=$RC)"                succeeded
+check "summary: 1 updated"                      out_has 'Changed: 1 updated, 0 new, 0 deleted'
+check "new index.html on the server"            [ "$(remote_size /www/index.html)" = "$(local_size index.html)" ]
 end
 
 stop_server

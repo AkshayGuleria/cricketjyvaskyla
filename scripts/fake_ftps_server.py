@@ -5,12 +5,16 @@ and PROT P (TLS) on data channels, so the real deploy script can be run end
 to end without touching the network.
 
 Usage:
-  python3 -I fake_ftps_server.py MODE CERTDIR STATEDIR PASSWORD
+  python3 -I fake_ftps_server.py FLAGS CERTDIR STATEDIR PASSWORD
 
-MODE:
-  ok          normal FTPS server
-  notls       advertises AUTH TLS but refuses it
-  noprot      accepts AUTH TLS but refuses PROT P (data would be cleartext)
+FLAGS is a comma-separated list ("ok" for none). It is written to
+STATEDIR/flags and re-read on every command, so a test can change the
+server's behaviour between runs by rewriting that file:
+  notls           advertises AUTH TLS but refuses it
+  noprot          accepts AUTH TLS but refuses PROT P (data would be cleartext)
+  failstor=NAME   STOR of a file whose basename is NAME fails; the file is
+                  left untouched
+  nochmod         refuses SITE CHMOD
 
 CERTDIR holds cert.pem / key.pem (the test chooses whether the client trusts
 them). STATEDIR receives:
@@ -32,8 +36,32 @@ import threading
 import time
 import traceback
 
-MODE, CERTDIR, STATEDIR, PASSWORD = sys.argv[1:5]
+INITIAL_FLAGS, CERTDIR, STATEDIR, PASSWORD = sys.argv[1:5]
+KNOWN_FLAGS = {"ok", "notls", "noprot", "failstor", "nochmod"}
 LOCK = threading.Lock()
+FLAGS_FILE = os.path.join(STATEDIR, "flags")
+
+
+def parse_flags(text):
+    out = {}
+    for item in text.strip().split(","):
+        if item:
+            name, _, value = item.partition("=")
+            out[name] = value
+    return out
+
+
+def flag(name):
+    """Value of flag NAME ("" if set without a value), or None if not set."""
+    with open(FLAGS_FILE) as fh:
+        return parse_flags(fh.read()).get(name)
+
+
+unknown = set(parse_flags(INITIAL_FLAGS)) - KNOWN_FLAGS
+if unknown:
+    sys.exit("unknown flag(s): %s" % ", ".join(sorted(unknown)))
+with open(FLAGS_FILE, "w") as fh:
+    fh.write(INITIAL_FLAGS)
 # path -> {"dir": True} | {"data": bytes, "mtime": float}
 FS = {"/": {"dir": True}, "/www": {"dir": True}}
 
@@ -145,7 +173,7 @@ class Session:
             self.f.write(b"211-Features:\r\n AUTH TLS\r\n PBSZ\r\n PROT\r\n EPSV\r\n PASV\r\n"
                          b" MLST type*;size*;modify*;\r\n SIZE\r\n MDTM\r\n UTF8\r\n211 End\r\n")
         elif verb == "AUTH":
-            if MODE == "notls":
+            if flag("notls") is not None:
                 self.send("534 TLS refused")
                 return True
             self.send("234 Proceed with TLS")
@@ -159,7 +187,7 @@ class Session:
         elif verb == "PBSZ":
             self.send("200 PBSZ=0")
         elif verb == "PROT":
-            if arg.upper() == "P" and MODE == "noprot":
+            if arg.upper() == "P" and flag("noprot") is not None:
                 self.send("536 PROT P not supported")
             elif arg.upper() in ("P", "C"):
                 self.prot = arg.upper()
@@ -260,6 +288,9 @@ class Session:
                     break
                 chunks.append(b)
             self.close_data(d)
+            if flag("failstor") == posixpath.basename(p):
+                self.send("550 Simulated write failure")
+                return True
             with LOCK:
                 FS[p] = {"data": b"".join(chunks), "mtime": time.time()}
                 dump_fs()
@@ -288,6 +319,9 @@ class Session:
             self.send("250 Removed" if ok else "550 No such directory")
         elif verb == "SITE":
             parts = arg.split(" ", 2)
+            if parts[0].upper() == "CHMOD" and flag("nochmod") is not None:
+                self.send("550 SITE CHMOD not allowed")
+                return True
             if parts[0].upper() == "UTIME" and len(parts) == 3:
                 # lftp: SITE UTIME YYYYMMDDHHMMSS path  (sets remote mtime, UTC)
                 p = self.path(parts[2])

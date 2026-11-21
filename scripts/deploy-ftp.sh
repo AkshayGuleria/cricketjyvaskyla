@@ -197,7 +197,12 @@ if ! awk '
 fi
 echo "TLS OK: login and data connections encrypted, $REMOTE_DIR exists."
 
-OPTS="--reverse --only-newer --parallel=2 --verbose"
+# --overwrite: replace changed files in place (STOR over the old copy). Without
+#   it lftp deletes the live file first, so a failed or interrupted upload
+#   would leave it missing from the site.
+# --no-perms: do not send SITE CHMOD; some hosts refuse it, and the host's
+#   default permissions are what a static site needs.
+OPTS="--reverse --only-newer --overwrite --no-perms --parallel=2 --verbose"
 [ "$DELETE" -eq 1 ] && OPTS="$OPTS --delete"
 if [ "$APPLY" -eq 0 ]; then
   OPTS="$OPTS --dry-run"
@@ -209,7 +214,8 @@ fi
 # it is never part of argv, the lftp script text, or the session URL.
 # lftp verbose lines parsed (printed in both dry-run and apply mode):
 #   Transferring file `X'      -> upload X
-#   Removing old file `X'      -> remove X (before an overwrite, or --delete)
+#   Overwriting old file `X'   -> X exists remotely and is replaced
+#   Removing old file `X'      -> remove X (--delete)
 #   Making directory `X'       -> mkdir X
 #   Removing old directory `X' -> rmdir X
 status "Comparing with $HOST..."
@@ -227,10 +233,14 @@ EOF
       f="${line#*\`}"; f="${f%\'}"
       printf 'T\t%s\n' "$f" >>"$ACTIONS"
       status "$([ "$APPLY" -eq 1 ] && echo Uploading || echo Checking): $f" ;;
-    "Removing old file \`"*)
+    "Overwriting old file \`"*)
       f="${line#*\`}"; f="${f%\'}"
       printf 'R\t%s\n' "$f" >>"$ACTIONS"
       status "Replacing: $f" ;;
+    "Removing old file \`"*)
+      f="${line#*\`}"; f="${f%\'}"
+      printf 'R\t%s\n' "$f" >>"$ACTIONS"
+      status "Deleting: $f" ;;
     "Making directory \`"*)
       f="${line#*\`}"; f="${f%\'}"
       printf 'M\t%s\n' "$f" >>"$ACTIONS"
@@ -261,7 +271,8 @@ fi
 [ "$APPLY" -eq 1 ] && node scripts/deploy-ftp-state.mjs save dist "$STATE_FILE"
 
 # --- Summary ----------------------------------------------------------------
-# A file with both R and T = overwritten; T only = new; R only = deleted.
+# A file with both R and T = updated (overwritten); T only = new;
+# R only = deleted.
 awk -F'\t' -v apply="$APPLY" '
   $1=="T" { t[$2]=1; order[++n]=$2 }
   $1=="R" { r[$2]=1; if (!($2 in seen)) { seen[$2]=1; rorder[++m]=$2 } }
