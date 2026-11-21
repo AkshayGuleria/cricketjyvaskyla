@@ -16,6 +16,7 @@ server's behaviour between runs by rewriting that file:
                   (553, like a permission or quota check); the file is untouched
   nochmod         refuses SITE CHMOD
   noutime         accepts SITE UTIME but ignores it (mtime stays upload time)
+  clockahead=SECS the server's clock runs SECS seconds fast (upload times)
   protfirst       accepts PROT P on the first connection that asks for it,
                   refuses it on every later one
   slowstor=NAME   STOR of a file whose basename is NAME waits 30 s before
@@ -46,7 +47,8 @@ import time
 import traceback
 
 INITIAL_FLAGS, CERTDIR, STATEDIR, PASSWORD = sys.argv[1:5]
-KNOWN_FLAGS = {"ok", "notls", "noprot", "failstor", "nochmod", "noutime", "protfirst", "slowstor"}
+KNOWN_FLAGS = {"ok", "notls", "noprot", "failstor", "nochmod", "noutime", "protfirst", "slowstor",
+               "clockahead"}
 LOCK = threading.Lock()
 PROT_P_ACCEPTED = [0]  # connections that were granted PROT P (for protfirst)
 FLAGS_FILE = os.path.join(STATEDIR, "flags")
@@ -107,6 +109,10 @@ CTX.load_cert_chain(os.path.join(CERTDIR, "cert.pem"), os.path.join(CERTDIR, "ke
 # read, which fails with EPIPE when lftp has already closed a short data
 # connection, and breaks the session. Real FTPS servers do not have this issue.
 CTX.num_tickets = 0
+
+
+def server_now():
+    return time.time() + float(flag("clockahead") or 0)
 
 
 def mtime_str(t):
@@ -300,7 +306,7 @@ class Session:
             if d is None:
                 return True
             with LOCK:
-                FS[p] = {"data": b"", "mtime": time.time()}
+                FS[p] = {"data": b"", "mtime": server_now()}
                 dump_fs()
             if flag("slowstor") == posixpath.basename(p):
                 time.sleep(30)
@@ -312,7 +318,7 @@ class Session:
                     FS[p]["data"] += b
             self.close_data(d)
             with LOCK:
-                FS[p]["mtime"] = time.time()
+                FS[p]["mtime"] = server_now()
                 dump_fs()
             self.send("226 Transfer complete")
         elif verb == "DELE":

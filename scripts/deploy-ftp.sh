@@ -6,7 +6,7 @@
 #   scripts/deploy-ftp.sh --apply    # upload for real
 #   scripts/deploy-ftp.sh --apply --delete   # also remove remote files not in dist/
 #   scripts/deploy-ftp.sh --full ... # ignore the record of the last deploy and
-#                                    # treat every file as changed
+#                                    # upload every file, whatever its mtime
 #
 # Shows a single live-updating status line while running, then a summary of
 # the files targeted for change. Asks for confirmation when not on master/main.
@@ -176,7 +176,7 @@ echo "Build OK (branch: $BRANCH)"
 # Give unchanged files back the mtime they had at the last deploy, so
 # --only-newer uploads only what actually changed.
 if [ "$FULL" -eq 1 ]; then
-  echo "--full: treating every file as changed."
+  echo "--full: uploading every file."
 else
   node scripts/deploy-ftp-state.mjs restore dist "$STATE_FILE"
 fi
@@ -287,7 +287,11 @@ echo "TLS OK: logged in over TLS, server accepted PROT P, $REMOTE_DIR exists."
 #   default permissions are what a static site needs.
 # --parallel=1: one control connection, so prot_ok can pair replies with
 #   commands in the debug log (it has no connection ids).
-OPTS="--reverse --only-newer --overwrite --no-perms --parallel=1 --verbose"
+# --only-newer uploads a file only if it is newer than the server's copy;
+#   --full uses --transfer-all instead, so a server copy with a later mtime
+#   (e.g. a server clock running fast) cannot hide a change.
+OPTS="--reverse --overwrite --no-perms --parallel=1 --verbose"
+[ "$FULL" -eq 1 ] && OPTS="$OPTS --transfer-all" || OPTS="$OPTS --only-newer"
 [ "$DELETE" -eq 1 ] && OPTS="$OPTS --delete"
 if [ "$APPLY" -eq 0 ]; then
   OPTS="$OPTS --dry-run"

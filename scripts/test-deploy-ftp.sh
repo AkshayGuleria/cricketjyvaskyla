@@ -25,6 +25,7 @@
 #   - rolling back after a failed upload re-uploads the files that changed
 #   - a server that refuses SITE CHMOD still gets the files
 #   - a server that ignores SITE UTIME gets no needless re-uploads
+#   - --full uploads a changed file even when the server's clock runs ahead
 #   - --delete leaves host-managed files (.htaccess, .well-known/, cgi-bin/,
 #     .ftpquota) alone
 #   - Ctrl-C during an upload: exit 130, no temp files left, and the deploy
@@ -353,6 +354,23 @@ check "first deploy succeeds (rc=$first_rc)"    [ "$first_rc" -eq 0 ]
 check "rebuild deploy succeeds (rc=$RC)"        succeeded
 check "summary: nothing to do"                  out_has 'Nothing to do'
 check "no file re-uploaded"                     [ "$(stor_count)" -eq "$before" ]
+end
+
+# A server whose clock runs 2 h fast and ignores SITE UTIME dates every upload
+# in the future, so --only-newer would skip later changes; --full must not.
+begin "--full with a server clock running ahead"
+server_flags noutime,clockahead=7200
+printf 'body { color: olive; }\n' >"$FAKE/dist/css/site.css"
+deploy --apply
+first_rc=$RC
+printf 'body { color: rebeccapurple; }\n' >"$FAKE/dist/css/site.css"
+deploy --full --apply
+server_flags ok
+check "first deploy succeeds (rc=$first_rc)"    [ "$first_rc" -eq 0 ]
+check "--full deploy succeeds (rc=$RC)"         succeeded
+check "new site.css on the server"              [ "$(remote_size /www/css/site.css)" = "$(local_size css/site.css)" ]
+deploy --full --apply   # put normal mtimes back for the cases below
+check "reset with a normal clock (rc=$RC)"      succeeded
 end
 
 begin "Apply --delete keeps host-managed files"
