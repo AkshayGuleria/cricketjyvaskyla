@@ -12,7 +12,8 @@
 #     turns certificate checks off for this host
 #   - server rejects PROT P (data connections would be cleartext)
 #   - wrong password
-#   - --delete with FTP_REMOTE_DIR at the FTP root (/, //, /., .)
+#   - --delete with FTP_REMOTE_DIR at the FTP root (/, //, /., ., /www/..,
+#     www/.., /www/../..)
 #   - server accepts PROT P on the first connection only (checked after the
 #     upload: the run must fail and the deploy record must not be saved)
 # Success cases (summary and server state must match):
@@ -220,7 +221,7 @@ end
 
 begin "--delete refused at the FTP root"
 start_server ok
-for d in / // /. .; do
+for d in / // /. . /www/.. www/.. /www/../..; do
   T_DIR="$d" deploy --apply --delete
   check "FTP_REMOTE_DIR=$d refused (rc=$RC)"      failed
   check "FTP_REMOTE_DIR=$d: reason given"         out_has 'Refusing --delete'

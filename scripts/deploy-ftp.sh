@@ -78,13 +78,25 @@ done
 
 # --delete removes every remote file that is not in dist/. At the FTP root
 # (or the login directory) that can include things outside the web site.
+# The path is resolved lexically first ("", "." and ".." segments), so
+# /www/.. or www/.. cannot slip past the check; "!" means it climbs above
+# the root or login directory.
 if [ "$DELETE" -eq 1 ]; then
-  norm="$(printf '%s' "$REMOTE_DIR" | sed -E 's#/+#/#g; s#(/\.)+/?$##; s#/$##')"
+  norm="$(printf '%s\n' "$REMOTE_DIR" | awk -F/ '{
+    n = 0
+    for (i = 1; i <= NF; i++) {
+      if ($i == "" || $i == ".") continue
+      if ($i == "..") { if (n == 0) { print "!"; exit } n--; continue }
+      seg[++n] = $i
+    }
+    out = ""; for (i = 1; i <= n; i++) out = out (i > 1 ? "/" : "") seg[i]
+    print out
+  }')"
   case "$norm" in
-    ""|"."|"~")
-      echo "Refusing --delete with FTP_REMOTE_DIR=$REMOTE_DIR: that is the FTP root or" >&2
-      echo "login directory, which may hold more than the web site. Set FTP_REMOTE_DIR" >&2
-      echo "to the web root folder." >&2
+    ""|"!"|"~")
+      echo "Refusing --delete with FTP_REMOTE_DIR=$REMOTE_DIR: once . and .. are resolved" >&2
+      echo "that is (or is above) the FTP root or login directory, which may hold more" >&2
+      echo "than the web site. Set FTP_REMOTE_DIR to the web root folder." >&2
       exit 2 ;;
   esac
 fi
