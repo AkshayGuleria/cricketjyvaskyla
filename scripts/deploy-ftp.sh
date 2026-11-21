@@ -5,6 +5,8 @@
 #   scripts/deploy-ftp.sh            # dry run (shows what would change)
 #   scripts/deploy-ftp.sh --apply    # upload for real
 #   scripts/deploy-ftp.sh --apply --delete   # also remove remote files not in dist/
+#   scripts/deploy-ftp.sh --full ... # ignore the record of the last deploy and
+#                                    # treat every file as changed
 #
 # Shows a single live-updating status line while running, then a summary of
 # the files targeted for change. Asks for confirmation when not on master/main.
@@ -24,11 +26,16 @@
 # Security model:
 #   - TLS is mandatory (ftp:ssl-force): lftp aborts before sending the
 #     password if the server will not negotiate TLS or its certificate/hostname
-#     fails verification. Run scripts/test-deploy-ftp.sh to check this.
+#     fails verification.
+#   - Data connections must be encrypted too. lftp silently falls back to
+#     cleartext data if the server rejects PROT P, so a preflight session
+#     (login only, no data connection) checks that PROT P was accepted before
+#     anything is listed or uploaded.
 #   - Password reaches lftp only via LFTP_PASSWORD (open --env-password), so it
 #     is not in argv, not in the lftp command text, and not in lftp's URLs.
 #   - FTP_PASS is removed from the environment before `npm run build`.
 #   - Any unrecognised lftp output is scrubbed of user:pass@ before printing.
+#   Run scripts/test-deploy-ftp.sh after changing this script.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -44,15 +51,18 @@ unset FTP_PASS
 
 APPLY=0
 DELETE=0
+FULL=0
 for arg in "$@"; do
   case "$arg" in
     --apply) APPLY=1 ;;
     --delete) DELETE=1 ;;
+    --full) FULL=1 ;;
     *) echo "Unknown arg: $arg" >&2; exit 2 ;;
   esac
 done
 
 command -v lftp >/dev/null || { echo "lftp missing: brew install lftp" >&2; exit 1; }
+command -v node >/dev/null || { echo "node missing" >&2; exit 1; }
 
 # --- Branch guard -----------------------------------------------------------
 BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
@@ -70,7 +80,13 @@ fi
 # --- Temp files -------------------------------------------------------------
 BUILD_LOG="$(mktemp)"
 ACTIONS="$(mktemp)"
-trap 'rm -f "$BUILD_LOG" "$ACTIONS"' EXIT
+PRE_OUT="$(mktemp)"
+PRE_DEBUG="$(mktemp)"
+trap 'rm -f "$BUILD_LOG" "$ACTIONS" "$PRE_OUT" "$PRE_DEBUG"' EXIT
+
+# Record of the last successful deploy to this host + directory (gitignored,
+# lives under node_modules/.cache). See scripts/deploy-ftp-state.mjs.
+STATE_FILE="node_modules/.cache/deploy-ftp/$(printf '%s' "$HOST$REMOTE_DIR" | tr -c 'A-Za-z0-9._-' '_').json"
 
 # --- Live status line -------------------------------------------------------
 if [ -t 1 ]; then
@@ -94,6 +110,11 @@ status() {
 # endstatus: clear the live line
 endstatus() { [ "$TTY" -eq 1 ] && printf '\r\033[K' || true; }
 
+# redact: strip credentials from any ftp(s)://user:pass@ URL in a line
+redact() {
+  printf '%s\n' "$1" | sed -E 's#(ftps?://[^/:@[:space:]]*):[^@[:space:]]*@#\1:***@#g'
+}
+
 # --- Build ------------------------------------------------------------------
 status "Building site..."
 if ! npm run build >"$BUILD_LOG" 2>&1; then
@@ -107,6 +128,14 @@ echo "Build OK (branch: $BRANCH)"
 
 [ -f dist/index.html ] || { echo "dist/index.html missing, aborting" >&2; exit 1; }
 
+# Give unchanged files back the mtime they had at the last deploy, so
+# --only-newer uploads only what actually changed.
+if [ "$FULL" -eq 1 ]; then
+  echo "--full: treating every file as changed."
+else
+  node scripts/deploy-ftp-state.mjs restore dist "$STATE_FILE"
+fi
+
 # --- Password: env (captured above) -> Keychain -> hidden prompt -------------
 if [ -z "$PASS" ] && command -v security >/dev/null; then
   PASS="$(security find-generic-password -a "$USER_NAME" -s jcc-ftp -w 2>/dev/null || true)"
@@ -116,32 +145,13 @@ if [ -z "$PASS" ]; then
   echo
 fi
 
-OPTS="--reverse --only-newer --parallel=2 --verbose"
-[ "$DELETE" -eq 1 ] && OPTS="$OPTS --delete"
-if [ "$APPLY" -eq 0 ]; then
-  OPTS="$OPTS --dry-run"
-  echo "DRY RUN (use --apply to upload)"
-fi
+# --- lftp environment -------------------------------------------------------
+# The output parser below matches lftp's English messages, so force English
+# messages without changing the character set used for file names.
+LFTP_CTYPE="${LC_ALL:-${LC_CTYPE:-${LANG:-}}}"
 
-# redact: strip credentials from any ftp(s)://user:pass@ URL in a line
-redact() {
-  printf '%s\n' "$1" | sed -E 's#(ftps?://[^/:@[:space:]]*):[^@[:space:]]*@#\1:***@#g'
-}
-
-# --- Run lftp, parse its output into live status + action list --------------
-# The password is handed over in LFTP_PASSWORD (read by open --env-password);
-# it is never part of argv, the lftp script text, or the session URL.
-# `cd` before mirror forces login + TLS + path check up front, so a bad
-# password or missing dir fails loudly instead of printing an empty plan.
-# lftp verbose lines parsed:
-#   Transferring file `X'      -> upload X
-#   Removing old file `X'      -> remove X (before overwrite, or --delete)
-#   Making directory `X'       -> mkdir X
-#   Removing old directory `X' -> rmdir X
-status "Connecting to $HOST..."
-set +e
-LFTP_PASSWORD="$PASS" lftp <<EOF 2>&1 | while IFS= read -r line; do
-set cmd:fail-exit yes
+# Settings shared by both lftp sessions. No secrets in here.
+LFTP_SETTINGS="set cmd:fail-exit yes
 set ftp:ssl-allow yes
 set ftp:ssl-force yes
 set ftp:ssl-auth TLS
@@ -151,7 +161,62 @@ set ssl:verify-certificate yes
 set ssl:check-hostname yes
 set ftp:sync-mode yes
 set net:max-retries 2
-set net:timeout 20
+set net:timeout 20"
+
+# --- Preflight: login over TLS, check PROT P was accepted, check the dir -----
+# lftp sends PROT P during login (protect-data and protect-list are both on),
+# so this session never opens a data connection. The debug log masks the
+# password ("PASS XXXX"); it is a private temp file removed on exit.
+status "Checking TLS on $HOST..."
+set +e
+LC_ALL= LANGUAGE= LC_MESSAGES=C LC_CTYPE="$LFTP_CTYPE" LFTP_PASSWORD="$PASS" \
+  lftp >"$PRE_OUT" 2>&1 <<EOF
+$LFTP_SETTINGS
+debug -o "$PRE_DEBUG" 9
+open --env-password -u "$USER_NAME" ftp://$HOST
+cd "$REMOTE_DIR"
+bye
+EOF
+PRE_RC=$?
+set -e
+endstatus
+if [ "$PRE_RC" -ne 0 ]; then
+  while IFS= read -r line; do redact "$line" >&2; done <"$PRE_OUT"
+  echo "Could not log in over TLS or open $REMOTE_DIR (lftp exit $PRE_RC). Nothing was uploaded." >&2
+  exit 1
+fi
+# Every PROT P must be answered with 2xx, and there must be at least one.
+if ! awk '
+  /---> PROT P/ { want = 1; seen = 1; next }
+  want && /<--- / { if ($0 !~ /<--- 2[0-9][0-9]/) bad = 1; want = 0 }
+  END { exit (seen && !bad) ? 0 : 1 }
+' "$PRE_DEBUG"; then
+  echo "The server did not accept PROT P, so data connections would not be encrypted." >&2
+  echo "Refusing to list or upload anything. Nothing was uploaded." >&2
+  exit 1
+fi
+echo "TLS OK: login and data connections encrypted, $REMOTE_DIR exists."
+
+OPTS="--reverse --only-newer --parallel=2 --verbose"
+[ "$DELETE" -eq 1 ] && OPTS="$OPTS --delete"
+if [ "$APPLY" -eq 0 ]; then
+  OPTS="$OPTS --dry-run"
+  echo "DRY RUN (use --apply to upload)"
+fi
+
+# --- Run lftp, parse its output into live status + action list --------------
+# The password is handed over in LFTP_PASSWORD (read by open --env-password);
+# it is never part of argv, the lftp script text, or the session URL.
+# lftp verbose lines parsed (printed in both dry-run and apply mode):
+#   Transferring file `X'      -> upload X
+#   Removing old file `X'      -> remove X (before an overwrite, or --delete)
+#   Making directory `X'       -> mkdir X
+#   Removing old directory `X' -> rmdir X
+status "Comparing with $HOST..."
+set +e
+LC_ALL= LANGUAGE= LC_MESSAGES=C LC_CTYPE="$LFTP_CTYPE" LFTP_PASSWORD="$PASS" \
+  lftp <<EOF 2>&1 | while IFS= read -r line; do
+$LFTP_SETTINGS
 open --env-password -u "$USER_NAME" ftp://$HOST
 cd "$REMOTE_DIR"
 mirror $OPTS --exclude-glob .DS_Store dist/ .
@@ -174,7 +239,7 @@ EOF
       f="${line#*\`}"; f="${f%\'}"
       printf 'X\t%s\n' "$f" >>"$ACTIONS"
       status "Removing dir: $f" ;;
-    # dry-run echoes the underlying commands; ignore that noise
+    # dry-run also echoes the underlying commands; the lines above cover them
     "get "*|"put "*|"rm "*|"rmdir "*|"mkdir "*|"chmod "*|"") ;;
     *)
       endstatus
@@ -189,6 +254,11 @@ if [ "$RC" -ne 0 ]; then
   echo "lftp failed (exit $RC). Check output above." >&2
   exit "$RC"
 fi
+
+# Remember what is now on the server, so the next deploy skips unchanged files.
+# Only after a fully successful upload: a failed or partial run keeps the
+# previous record, so its files are compared again next time.
+[ "$APPLY" -eq 1 ] && node scripts/deploy-ftp-state.mjs save dist "$STATE_FILE"
 
 # --- Summary ----------------------------------------------------------------
 # A file with both R and T = overwritten; T only = new; R only = deleted.

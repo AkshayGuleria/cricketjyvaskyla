@@ -73,7 +73,7 @@ If using traditional hosting (FTP/cPanel):
 
 ### Secured upload script (FTPS)
 
-`scripts/deploy-ftp.sh` builds the site and mirrors `dist/` over FTP with mandatory TLS (explicit FTPS, via lftp). It never sends the password unless TLS is negotiated and the server certificate and hostname verify.
+`scripts/deploy-ftp.sh` builds the site and mirrors `dist/` over FTP with mandatory TLS (explicit FTPS, via lftp). It never sends the password unless TLS is negotiated and the server certificate and hostname verify. Before listing or uploading anything, it also checks that the server accepted `PROT P`. Without that, lftp would silently send the files over unencrypted data connections.
 
 One-time setup (macOS):
 
@@ -93,12 +93,17 @@ export FTP_REMOTE_DIR=/<web-root>      # folder that holds the live site
 scripts/deploy-ftp.sh                  # dry run: summary of files that would change
 scripts/deploy-ftp.sh --apply          # upload
 scripts/deploy-ftp.sh --apply --delete # also delete remote files not in dist/
+scripts/deploy-ftp.sh --full --apply   # re-upload everything
 ```
 
+- Only files whose content changed since the last successful `--apply` are uploaded. Every build gives every file a new mtime, so the script keeps a record of the last deploy (content hashes and mtimes, in `node_modules/.cache/deploy-ftp/`) and puts back the old mtime on unchanged files. Use `--full` if the server was changed by other means, such as FileZilla.
 - Host defaults to `ftps4.us.freehostia.com` (override with `FTP_HOST`).
 - Asks for confirmation when not run from `master`.
 - Run it in your own terminal, not through an AI agent's shell, so the session transcript never contains deploy output.
-- `scripts/test-deploy-ftp.sh` is an offline regression test against a fake FTP server: it checks the password is never sent when the server refuses TLS or presents an untrusted certificate. Run it after changing the deploy script.
+- `scripts/test-deploy-ftp.sh` is an offline end-to-end test. It runs the real script against a local fake FTPS server (`scripts/fake_ftps_server.py`) that uses a throwaway test CA, and needs python3, lftp, openssl and node.
+  - Refusal cases: the server refuses TLS, presents an untrusted certificate, rejects `PROT P`, or the password is wrong. The test checks that nothing is uploaded and the password is never sent or printed.
+  - Success cases: it checks the summary and the server contents for a dry run, `--delete`, `--apply`, a rebuild with no changes, a single changed file, a German locale and `--full`.
+  - Run it after changing the deploy script. `KEEP_WORK=1` keeps its temp files for debugging.
 - FileZilla: use host `ftps4.us.freehostia.com` with "Require explicit FTP over TLS". Plain FTP sends the password unencrypted.
 
 ## Environment Variables

@@ -1,129 +1,231 @@
 #!/usr/bin/env bash
-# Offline regression test for scripts/deploy-ftp.sh security guarantees.
-# Runs the real deploy script against a local fake FTP server (no network,
-# no real credentials) and asserts that the password is never sent or printed:
+# Offline end-to-end test for scripts/deploy-ftp.sh.
 #
-#   1. Server without TLS          -> script aborts, server never sees USER/PASS
-#   2. Server with untrusted cert  -> script aborts, server never sees PASS
-#      (lftp checks the cert right after the handshake, so USER may already
-#      have gone out inside TLS; the username is not secret, the password is)
+# Runs a copy of the real deploy script (in a throwaway fake repo with a small
+# synthetic dist/) against scripts/fake_ftps_server.py: a local FTPS server
+# with TLS on control and data channels, signed by a throwaway test CA. No
+# network, no real credentials, the real dist/ is never touched.
 #
-# Usage: scripts/test-deploy-ftp.sh      (needs python3, lftp, openssl, dist/)
+# Refusal cases (nothing may be uploaded, the password must not be sent):
+#   - server refuses TLS
+#   - server certificate not trusted
+#   - server rejects PROT P (data connections would be cleartext)
+#   - wrong password
+# Success cases (summary and server state must match):
+#   - dry run, dry run --delete, apply, no-op re-run after a rebuild,
+#     single changed file, German locale, --full
+#
+# Usage: scripts/test-deploy-ftp.sh      (needs python3, lftp, openssl, node)
 set -uo pipefail
 
-cd "$(dirname "$0")/.."
-
-[ -f dist/index.html ] || { echo "Run 'npm run build' once first (dist/ missing)." >&2; exit 2; }
-for bin in python3 lftp openssl; do
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+for bin in python3 lftp openssl node; do
   command -v "$bin" >/dev/null || { echo "Missing: $bin" >&2; exit 2; }
 done
 
 WORK="$(mktemp -d)"
 SRV_PID=""
-cleanup() { [ -n "$SRV_PID" ] && kill "$SRV_PID" 2>/dev/null; rm -rf "$WORK"; }
+stop_server() {
+  if [ -n "$SRV_PID" ]; then kill "$SRV_PID" 2>/dev/null; wait "$SRV_PID" 2>/dev/null; fi
+  SRV_PID=""
+}
+cleanup() {
+  stop_server
+  if [ -n "${KEEP_WORK:-}" ]; then echo "Test files kept in $WORK"; return; fi
+  [ -n "${WORK:-}" ] && [ -d "$WORK" ] && rm -rf -- "$WORK"
+}
 trap cleanup EXIT
 
-FAKE_PW="TestOnly-Pw-9z7Q"   # fake value; must never show up anywhere
+FAKE_PW="TestOnly-Pw-9z7Q"   # fake value; must never show up in any output
 
-# Stub npm so the test does not rebuild the site.
-mkdir -p "$WORK/bin"
+# --- Test CA + server certificate for "localhost" ---------------------------
+mkdir -p "$WORK/certs"
+(
+  cd "$WORK/certs" || exit 1
+  openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=deploy-ftp test CA" \
+    -addext basicConstraints=critical,CA:TRUE -addext keyUsage=critical,keyCertSign,cRLSign \
+    -keyout ca.key -out ca.pem
+  openssl req -newkey rsa:2048 -nodes -subj "/CN=localhost" -keyout key.pem -out srv.csr
+  printf 'subjectAltName=DNS:localhost\nbasicConstraints=CA:FALSE\nextendedKeyUsage=serverAuth\n' >ext.cnf
+  openssl x509 -req -in srv.csr -CA ca.pem -CAkey ca.key -CAcreateserial -days 1 -extfile ext.cnf -out cert.pem
+) >/dev/null 2>&1 || { echo "Could not create test certificates" >&2; exit 2; }
+
+# lftp reads $LFTP_HOME/rc. One home trusts the test CA, one does not.
+mkdir -p "$WORK/home-trust" "$WORK/home-notrust"
+printf 'set ssl:ca-file "%s"\nset dns:order inet\n' "$WORK/certs/ca.pem" >"$WORK/home-trust/rc"
+printf 'set dns:order inet\n' >"$WORK/home-notrust/rc"
+
+# --- Fake repo: copy of the deploy script + synthetic dist/ -----------------
+FAKE="$WORK/repo"
+mkdir -p "$FAKE/scripts" "$FAKE/dist/css" "$FAKE/dist/images" "$FAKE/dist/pdfs" "$WORK/bin"
+cp "$REPO/scripts/deploy-ftp.sh" "$REPO/scripts/deploy-ftp-state.mjs" "$FAKE/scripts/"
+printf '<h1>JCC</h1>\n' >"$FAKE/dist/index.html"
+printf 'body { color: navy; }\n' >"$FAKE/dist/css/site.css"
+head -c 4096 /dev/urandom >"$FAKE/dist/images/logo.png"
+head -c 8192 /dev/urandom >"$FAKE/dist/pdfs/agm.pdf"
+printf 'Jyväskylä\n' >"$FAKE/dist/jyväskylä.txt"
+find "$FAKE/dist" -type f -exec touch -t 202001010000 {} +
+rebuild() { find "$FAKE/dist" -type f -exec touch {} +; }   # Astro rewrites every file
+
+# Stub npm so "npm run build" is a no-op.
 printf '#!/bin/sh\nexit 0\n' >"$WORK/bin/npm"
 chmod +x "$WORK/bin/npm"
 
-# Self-signed cert for test 2 (not trusted by the system CA store).
-openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=127.0.0.1" \
-  -keyout "$WORK/key.pem" -out "$WORK/cert.pem" >/dev/null 2>&1
+# --- Helpers ----------------------------------------------------------------
+STATE=""; PORT=""; OUT=""; RC=0; RUN=0
+FAILS=0; CASE_FAILS=0
 
-cat >"$WORK/fakeftp.py" <<'PY'
-import socket, ssl, sys
-mode, portfile, logfile, certdir = sys.argv[1:5]
-log = open(logfile, "a", buffering=1)
-srv = socket.socket()
-srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-srv.bind(("127.0.0.1", 0))
-srv.listen(4)
-srv.settimeout(20)
-open(portfile, "w").write(str(srv.getsockname()[1]))
-ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-ctx.load_cert_chain(certdir + "/cert.pem", certdir + "/key.pem")
-while True:
-    try:
-        conn, _ = srv.accept()
-    except socket.timeout:
-        break
-    conn.settimeout(10)
-    f = conn.makefile("rwb", buffering=0)
-    send = lambda s: f.write((s + "\r\n").encode())
-    send("220 fake")
-    try:
-        while True:
-            line = f.readline()
-            if not line:
-                break
-            cmd = line.decode(errors="replace").strip()
-            log.write("C: " + cmd + "\n")
-            verb = cmd.split(" ")[0].upper()
-            if verb == "FEAT":
-                f.write(b"211-Features:\r\n AUTH TLS\r\n PBSZ\r\n PROT\r\n211 End\r\n")
-            elif verb == "AUTH" and mode == "notls":
-                send("534 TLS refused")
-            elif verb == "AUTH" and mode == "selfsigned":
-                send("234 go ahead")
-                try:
-                    conn = ctx.wrap_socket(conn, server_side=True)
-                    f = conn.makefile("rwb", buffering=0)
-                    send = lambda s: f.write((s + "\r\n").encode())
-                    log.write("TLS handshake completed\n")
-                except Exception as e:
-                    log.write("TLS handshake rejected by client: %s\n" % e)
-                    break
-            elif verb == "USER":
-                send("331 need password")
-            elif verb == "PASS":
-                send("530 login incorrect")
-            elif verb == "QUIT":
-                send("221 bye")
-                break
-            else:
-                send("502 not implemented")
-    except Exception:
-        pass
-    conn.close()
-PY
-
-FAILS=0
-check() { # check "description" condition-exit-code
-  if [ "$2" -eq 0 ]; then echo "  PASS  $1"; else echo "  FAIL  $1"; FAILS=$((FAILS + 1)); fi
+start_server() { # start_server MODE [seed-json]
+  STATE="$(mktemp -d "$WORK/state.XXXX")"
+  [ -n "${2:-}" ] && printf '%s' "$2" >"$STATE/seed.json"
+  python3 -I "$REPO/scripts/fake_ftps_server.py" "$1" "$WORK/certs" "$STATE" "$FAKE_PW" \
+    2>>"$STATE/stderr" &
+  SRV_PID=$!
+  for _ in $(seq 100); do [ -s "$STATE/port" ] && break; sleep 0.05; done
+  PORT="$(cat "$STATE/port")"
 }
 
-run_case() { # run_case mode title forbidden-commands-regex
-  local mode="$1" title="$2" forbidden="$3"
-  local portfile="$WORK/port.$mode" srvlog="$WORK/srv.$mode.log" out="$WORK/out.$mode.log"
-  : >"$srvlog"
-  python3 -I "$WORK/fakeftp.py" "$mode" "$portfile" "$srvlog" "$WORK" &
-  SRV_PID=$!
-  for _ in $(seq 50); do [ -s "$portfile" ] && break; sleep 0.1; done
-  local port; port="$(cat "$portfile")"
+# deploy LFTP_HOME [deploy-ftp.sh args...]; sets OUT (output file) and RC.
+# T_PASS / T_LC_ALL / T_LANG override the password and locale for one run.
+deploy() {
+  local home="$1"; shift
+  RUN=$((RUN + 1)); OUT="$WORK/out.$RUN"
+  # "y" answers the branch guard (the fake repo is not a git checkout).
+  echo y | PATH="$WORK/bin:$PATH" LFTP_HOME="$home" FTP_HOST="localhost:$PORT" FTP_USER=tester \
+    FTP_PASS="${T_PASS:-$FAKE_PW}" FTP_REMOTE_DIR=/www LC_ALL="${T_LC_ALL:-}" LANG="${T_LANG:-${LANG:-}}" \
+    "$FAKE/scripts/deploy-ftp.sh" "$@" >"$OUT" 2>&1
+  RC=$?
+}
 
-  echo "== $title"
-  # "y" answers the branch guard if not on master/main.
-  echo y | PATH="$WORK/bin:$PATH" FTP_HOST="127.0.0.1:$port" FTP_USER=testuser \
-    FTP_PASS="$FAKE_PW" FTP_REMOTE_DIR=/www scripts/deploy-ftp.sh >"$out" 2>&1
-  local rc=$?
-  kill "$SRV_PID" 2>/dev/null; wait "$SRV_PID" 2>/dev/null; SRV_PID=""
-
-  [ "$rc" -ne 0 ];                                  check "deploy script exits non-zero (rc=$rc)" $?
-  grep -q '^C: AUTH TLS' "$srvlog";                 check "client asked for TLS (AUTH TLS)" $?
-  ! grep -qE "^C: ($forbidden)" "$srvlog";          check "server never received ${forbidden//|//}" $?
-  ! grep -qF "$FAKE_PW" "$srvlog" "$out";           check "password not in server log or script output" $?
-  if [ "$FAILS" -gt 0 ]; then
-    echo "  --- server log:";  sed 's/^/    /' "$srvlog"
-    echo "  --- script output:"; sed 's/^/    /' "$out"
+begin() { echo "== $1"; CASE_FAILS=0; }
+check() { # check "description" command...
+  local desc="$1"; shift
+  if "$@"; then echo "  PASS  $desc"; else echo "  FAIL  $desc"; FAILS=$((FAILS + 1)); CASE_FAILS=$((CASE_FAILS + 1)); fi
+}
+end() {
+  if [ "$CASE_FAILS" -gt 0 ]; then
+    echo "  --- server log (last 40 lines):"; tail -n 40 "$STATE/log" | sed "s/^/    /"
+    echo "  --- script output:"; sed 's/^/    /' "$OUT"
   fi
 }
 
-run_case notls      "Server refuses TLS"                       'USER|PASS'
-run_case selfsigned "Server presents an untrusted certificate" 'PASS'
+failed()       { [ "$RC" -ne 0 ]; }
+succeeded()    { [ "$RC" -eq 0 ]; }
+out_has()      { grep -qF -- "$1" "$OUT"; }
+log_has()      { grep -qE -- "$1" "$STATE/log"; }
+log_lacks()    { ! grep -qE -- "$1" "$STATE/log"; }
+pw_hidden()    { ! grep -qF -- "$FAKE_PW" "$OUT" "$STATE/log"; }
+stor_count()   { grep -c '^C: STOR ' "$STATE/log"; }
+# Only FEAT and AUTH TLS may happen before TLS; every data connection is TLS.
+all_encrypted() {
+  ! grep -E '^C: ' "$STATE/log" | grep ' tls=0$' | grep -qvE '^C: (FEAT|AUTH TLS) ' &&
+    ! grep -qE '^DATA .* tls=0$' "$STATE/log"
+}
+remote_has() { python3 -I -c 'import json,sys; fs=json.load(open(sys.argv[1])); sys.exit(0 if sys.argv[2] in fs else 1)' "$STATE/fs.json" "$1"; }
 
+# --- Refusal cases ----------------------------------------------------------
+begin "Server refuses TLS"
+start_server notls; deploy "$WORK/home-trust"; stop_server
+check "deploy fails (rc=$RC)"                   failed
+check "client asked for TLS"                    log_has '^C: AUTH TLS'
+check "server never received USER or PASS"      log_lacks '^C: (USER|PASS) '
+check "nothing uploaded"                        log_lacks '^C: STOR '
+check "password not in any output"              pw_hidden
+end
+
+begin "Server certificate not trusted"
+start_server ok; deploy "$WORK/home-notrust"; stop_server
+check "deploy fails (rc=$RC)"                   failed
+check "lftp rejected the certificate"           out_has 'Certificate verification'
+check "server never received PASS"              log_lacks '^C: PASS '
+check "nothing uploaded"                        log_lacks '^C: STOR '
+check "password not in any output"              pw_hidden
+end
+
+begin "Server rejects PROT P (cleartext data)"
+start_server noprot; deploy "$WORK/home-trust" --apply; stop_server
+check "deploy fails (rc=$RC)"                   failed
+check "script explains the PROT P refusal"      out_has 'did not accept PROT P'
+check "no data connection was opened"           log_lacks '^DATA '
+check "nothing uploaded"                        log_lacks '^C: STOR '
+check "password not in any output"              pw_hidden
+end
+
+begin "Wrong password"
+start_server ok; T_PASS="wrong-password" deploy "$WORK/home-trust" --apply; stop_server
+check "deploy fails (rc=$RC)"                   failed
+check "script reports the login failure"        out_has 'Could not log in'
+check "nothing uploaded"                        log_lacks '^C: STOR '
+end
+
+# --- Success cases (one server, state carries over) -------------------------
+start_server ok '{"/www/stale.html": "left over from an old upload"}'
+
+begin "Dry run on a fresh remote"
+deploy "$WORK/home-trust"
+check "deploy succeeds (rc=$RC)"                succeeded
+check "TLS preflight passed"                    out_has 'TLS OK'
+check "summary: 5 new, 3 dirs"                  out_has 'Would change: 0 updated, 5 new, 0 deleted, 3 dirs created'
+check "summary lists the UTF-8 file name"       out_has '+ jyväskylä.txt'
+check "nothing uploaded"                        log_lacks '^C: STOR '
+check "everything after AUTH was encrypted"     all_encrypted
+check "password not in any output"              pw_hidden
+end
+
+begin "Dry run --delete"
+deploy "$WORK/home-trust" --delete
+check "deploy succeeds (rc=$RC)"                succeeded
+check "summary: 1 deleted"                      out_has 'Would change: 0 updated, 5 new, 1 deleted'
+check "summary lists stale.html"                out_has '- stale.html'
+check "stale.html still on the server"          remote_has /www/stale.html
+end
+
+begin "Apply"
+deploy "$WORK/home-trust" --apply
+check "deploy succeeds (rc=$RC)"                succeeded
+check "summary: 5 new"                          out_has 'Changed: 0 updated, 5 new, 0 deleted, 3 dirs created'
+check "index.html on the server"                remote_has /www/index.html
+check "nested file on the server"               remote_has /www/pdfs/agm.pdf
+check "UTF-8 file name on the server"           remote_has '/www/jyväskylä.txt'
+check "stale.html kept (no --delete)"           remote_has /www/stale.html
+check "every login and transfer encrypted"      all_encrypted
+check "password not in any output"              pw_hidden
+end
+
+begin "Rebuild with no content change"
+rebuild; before="$(stor_count)"
+deploy "$WORK/home-trust" --apply
+check "deploy succeeds (rc=$RC)"                succeeded
+check "summary: nothing to do"                  out_has 'Nothing to do'
+check "no file re-uploaded"                     [ "$(stor_count)" -eq "$before" ]
+end
+
+begin "One file changed"
+rebuild; printf '<h1>JCC</h1><p>New season</p>\n' >"$FAKE/dist/index.html"
+deploy "$WORK/home-trust"
+check "deploy succeeds (rc=$RC)"                succeeded
+check "summary: 1 updated, 0 new"               out_has 'Would change: 1 updated, 0 new, 0 deleted'
+check "summary lists index.html as updated"     out_has '~ index.html'
+end
+
+DE_LOCALE="$(locale -a 2>/dev/null | grep -iE '^de_DE\.utf-?8$' | head -n 1)"
+if [ -n "$DE_LOCALE" ]; then
+  begin "German locale ($DE_LOCALE)"
+  T_LC_ALL="$DE_LOCALE" T_LANG="$DE_LOCALE" deploy "$WORK/home-trust"
+  check "deploy succeeds (rc=$RC)"              succeeded
+  check "summary still parsed: 1 updated"       out_has 'Would change: 1 updated, 0 new, 0 deleted'
+  end
+else
+  echo "== German locale: SKIPPED (de_DE.UTF-8 not installed)"
+fi
+
+begin "--full treats every file as changed"
+rebuild
+deploy "$WORK/home-trust" --full
+check "deploy succeeds (rc=$RC)"                succeeded
+check "summary: 5 updated"                      out_has 'Would change: 5 updated, 0 new, 0 deleted'
+end
+
+stop_server
 echo
 if [ "$FAILS" -eq 0 ]; then echo "All checks passed."; else echo "$FAILS check(s) FAILED."; exit 1; fi
