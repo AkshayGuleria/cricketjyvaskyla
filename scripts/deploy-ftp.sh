@@ -37,10 +37,11 @@
 #   - Data connections must be encrypted too. lftp silently falls back to
 #     cleartext data if the server rejects PROT P, so a preflight session
 #     (login only, no data connection) checks that PROT P was accepted before
-#     anything is listed or uploaded, and the mirror session's own debug log
-#     is checked the same way afterwards. That second check can only detect
-#     a refusal after the fact: the run then fails and the record of the
-#     deploy is not saved.
+#     anything is listed or uploaded. With --delete, a listing session runs
+#     next and is checked before the mirror starts. The mirror session's own
+#     debug log is checked the same way afterwards; that check can only
+#     detect a refusal after the fact: the run then fails and the record of
+#     the deploy is not saved.
 #   - Password reaches lftp only via LFTP_PASSWORD (open --env-password), so it
 #     is not in argv, not in the lftp command text, and not in lftp's URLs.
 #   - FTP_PASS is removed from the environment before `npm run build`.
