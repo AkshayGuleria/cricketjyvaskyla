@@ -71,6 +71,45 @@ If using traditional hosting (FTP/cPanel):
    - Ensure PDF files in `dist/pdfs/` are uploaded
    - Check that `robots.txt` and `sitemap.xml` are in root
 
+### Secured upload script (FTPS)
+
+`scripts/deploy-ftp.sh` builds the site and mirrors `dist/` over FTP with mandatory TLS (explicit FTPS, via lftp). It never sends the password unless TLS is negotiated and the server certificate and hostname verify. It runs lftp with `--norc`, so settings in your own lftp config files cannot weaken those checks. Before listing or uploading anything, it also checks that the server accepted `PROT P`. Without that, lftp would silently send the files over unencrypted data connections. The upload session is checked the same way afterwards (lftp cannot be told to stop on a refusal): if any connection was refused `PROT P`, the run fails with a warning and the deploy record is not saved.
+
+One-time setup (macOS):
+
+```bash
+brew install lftp
+export FTP_USER=<your-ftp-login>
+# Store the password in the Keychain. -T "" makes every read ask for approval
+# (choose "Allow", never "Always Allow").
+security add-generic-password -a "$FTP_USER" -s jcc-ftp -T "" -w
+```
+
+Usage:
+
+```bash
+export FTP_USER=<your-ftp-login>
+export FTP_REMOTE_DIR=/<web-root>      # folder that holds the live site
+scripts/deploy-ftp.sh                  # dry run: summary of files that would change
+scripts/deploy-ftp.sh --apply          # upload
+scripts/deploy-ftp.sh --apply --delete # also delete remote files not in dist/
+scripts/deploy-ftp.sh --full --apply   # re-upload everything
+```
+
+- Only files whose content changed since the last successful `--apply` from this computer are uploaded. Every build gives every file a new mtime, so the script keeps a record of the last deploy (content hashes and mtimes, in `node_modules/.cache/deploy-ftp/`) and puts back the old mtime on unchanged files. A changed file is uploaded over the old copy instead of being deleted first, so an upload the server refuses leaves the previous version on the site.
+- If a run fails or is interrupted (Ctrl-C), the site may be part old, part new, and the file being uploaded at that moment may be incomplete. A failed run lists what it attempted. Re-run the same command first.
+- Use `--full` when the record may not match the server: after deploying from another computer, after changing files on the server by other means (FileZilla, the host's file manager), when a failed run is not fixed by re-running it, or when a file you changed was not uploaded (lftp compares timestamps, so a server clock running ahead can hide a change made just after an upload). `--full --apply` deletes the record before it starts, so if it fails or is interrupted, the next run uploads every file again.
+- `--delete` refuses to run when `FTP_REMOTE_DIR` is, or resolves to, the FTP root (`/`, `/www/..`) or the login directory (`.`, `www/..`). It never deletes `.htaccess`, `.ftpquota`, `.well-known/` or `cgi-bin/`, which the host may manage. A folder that is no longer in the site but holds one of these is kept whole, and the script names it. The same names in `public/` are never uploaded.
+- Host defaults to `ftps4.us.freehostia.com` (override with `FTP_HOST`).
+- Asks for confirmation when not run from `master`.
+- Run it in your own terminal, not through an AI agent's shell, so the session transcript never contains deploy output.
+- `scripts/test-deploy-ftp.sh` is an offline end-to-end test. It runs the real script against a local fake FTPS server (`scripts/fake_ftps_server.py`) that uses a throwaway test CA, and needs python3, lftp, openssl and node.
+  - Refusal cases: the server refuses TLS, presents an untrusted certificate, rejects `PROT P`, or the password is wrong. The test checks that nothing is uploaded and the password is never sent or printed. A server that accepts `PROT P` at login but refuses it on the upload connection must make the run fail without saving the deploy record.
+  - Success cases: it checks the summary and the server contents for a dry run, `--delete`, `--apply`, a rebuild with no changes, a single changed file, a German locale and `--full`.
+  - Failure cases: an upload the server refuses keeps the old file, and a rollback afterwards is correct; a server that refuses `SITE CHMOD` or ignores `SITE UTIME` still deploys correctly.
+  - Run it after changing the deploy script. `KEEP_WORK=1` keeps its temp files for debugging.
+- FileZilla: use host `ftps4.us.freehostia.com` with "Require explicit FTP over TLS". Plain FTP sends the password unencrypted.
+
 ## Environment Variables
 
 No environment variables needed for basic deployment. All configuration is in `astro.config.mjs`.
